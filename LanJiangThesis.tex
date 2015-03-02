@@ -1,0 +1,197 @@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% IIT Sample THESIS File,   Version 3, Updated by Babak Hamidian on 11/18/2003
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% File: sample3.tex                                   %
+% IIT Sample LaTeX File                               %
+% by Ozlem Kalinli on 05/30/2003                      %
+% Revised by Babak Hamidian on 11/18/2003             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                     %
+% This is a sample thesis document created using      %
+% iitthesis.cls style file. The PDF output is also    %
+% available for your reference. In this file, it has  %
+% been illustrated how to make table of contents,     %
+% list of tables, list of figures, list of symbols,   %
+% bibliography, equations, enumerations, etc.         %
+% You can find detailed instructions                  %
+% for using the style file in Help.doc,               %
+% TableHelp.doc, FigureHelp.doc, and                  %
+% Bibliography.doc files.                             %
+%                                                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Note: The texts that are used in this sample3.tex   %
+% file are irrelevant. They are just used to show     %
+% you the style created by iitthesis style file.      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{iitthesis}
+
+
+% Document Options:
+%
+% Note if you want to save paper when printing drafts,
+% replace the above line by
+%
+%   \documentclass[draft]{iitthesis}
+%
+% See Help file for more about options.
+
+\usepackage[dvips]{graphicx}    % This package is used for Figures
+\usepackage{rotating}           % This package is used for landscape mode.
+\usepackage{epsfig}
+\usepackage{subfigure}          % These two packages, epsfig and subfigure, are used for creating subplots.
+% Packages are explained in the Help document.
+\usepackage{mathrsfs}
+\usepackage{mathptmx}       % selects Times Roman as basic font
+\usepackage{helvet}         % selects Helvetica as sans-serif font
+\usepackage{courier}        % selects Courier as typewriter font
+%\usepackage{type1cm}        % activate if the above 3 fonts are
+                            % not available on your system
+\usepackage{commath}
+\usepackage{makeidx}         % allows index generation
+\usepackage{graphicx}        % standard LaTeX graphics tool
+                             % when including figure files
+\usepackage{multicol}        % used for the two-column index
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{color}     % Do not use: colors will appear in gray scale!
+\usepackage{url}
+\usepackage{verbatim}
+
+
+\newcommand{\bbz}{{\bf z}}
+\newcommand{\bbx}{{\bf x}}
+\newcommand{\bby}{{\bf y}}
+\newcommand{\bbX}{{\bf X}}
+\newcommand{\bbY}{{\bf Y}}
+\newcommand{\bbH}{{\bf H}}
+\newcommand{\bbB}{{\bf B}}
+\newcommand{\bbA}{{\bf A}}
+\newcommand{\bbalpha}{\boldsymbol\alpha}
+\newcommand{\bbbeta}{\boldsymbol\beta}
+\newcommand{\bbc}{{\bf c}}
+\newcommand{\bba}{{\bf a}}
+\newcommand{\bbb}{{\bf b}}
+\newcommand{\bbh}{{\bf h}}
+\newcommand{\bbn}{{\bf n}}
+\newcommand{\bbd}{{\bf d}}
+\newcommand{\vgamma}{\boldsymbol\gamma}
+\newcommand{\veczero}{\mathbf{0}}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\DD}{\mathcal {D}}
+\newcommand{\RR}{\mathcal {R}}
+\newcommand{\PP}{\mathcal {P}}
+\newcommand{\HH}{\mathcal {H}}
+\newcommand{\FF}{\mathcal {F}}
+\newcommand{\XX}{\mathcal {X}}
+\newcommand{\QQ}{\mathbb {Q}}
+\newcommand{\FFF}{\mathbb {F}}
+\newcommand{\UU}{\mathbb{U}}
+\newcommand{\Order}{\mathcal O}
+\newcommand{\wup}{{\mathcal U}}
+\newcommand{\ccup}{{\mathcal C}}
+\newcommand{\reals}{\mathbb{R}}
+
+\def\abs#1{\ensuremath{\left \lvert #1 \right \rvert}}
+\newcommand{\ip}[3][{}]{\ensuremath{\left \langle #2, #3 \right \rangle_{#1}}}
+\newcommand{\ch}{\mathcal{H}}
+\newcommand{\fix}{\mathrm{fix}}
+\newcommand{\var}{\mathrm{var}}
+\newcommand{\spann}{\operatorname{span}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\bx}{{\mathbf x}}
+\newcommand{\by}{{\mathbf y}}
+\newcommand{\bz}{{\mathbf z}}
+\newcommand{\bc}{{\mathbf c}}
+\newcommand{\bv}{{\mathbf v}}
+\newcommand{\ba}{{\mathbf a}}
+\newcommand{\rad}{r^*}
+\newcommand{\XXX}{{\mathfrak X}}
+\newcommand{\rt}{k}
+\newcommand{\E}    {\operatorname{E}}
+\newcommand{\V}    {\operatorname{Var}}
+\newcommand{\err}  {\operatorname{error}}
+\newcommand{\cost} {\operatorname{cost}}
+\newcommand{\id}   {\operatorname{id}}
+\newcommand{\scp}[2]{\langle #1, #2 \rangle}
+
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Trace}{Trace}
+\newtheorem{assump}{Assumption}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{example}{Example}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{remark}{Remark}[chapter]
+\newtheorem{proof}{Proof}[chapter]
+\renewcommand{\theenumi}{A\arabic{enumi}}
+
+\begin{document}
+% Define all the symbols used.
+
+%%% Declarations for Title Page %%%
+\title{Guaranteed Monte Carlo methods}
+\author{Lan Jiang}
+\degree{Doctor of Philosophy} \dept{Applied Mathematics}
+\date{May 2015}
+%\copyrightnoticetrue      % crate copyright page or not
+%\coadvisortrue           % add co-advisor. activate it by removing % symbol to add co-advisor
+\maketitle                % create title and copyright pages
+
+
+\prelimpages         % Settings of preliminary pages are done with \prelimpages command
+
+
+%%%  Acknowledgement %%%
+\begin{acknowledgement}     % acknowledgement environment, this is optional
+\par  This dissertation could not have been written without Dr. Fred
+J. Hickernell who not only served as my supervisor but also
+encouraged and challenged me throughout my academic program. He and
+the other faculty members, Dr. Greg Fasshauer,
+Dr. Lulu Kang, guided me through the dissertation process,
+never accepting less than my best efforts. I appreciate the joint
+work with Dr. Art Owen. I would
+also like to thank my husband Xuan Zhou, for his support. I thank them all.
+
+\end{acknowledgement}
+
+
+% Table of Contents
+\tableofcontents
+ \clearpage
+
+% List of Tables
+\listoftables
+
+\clearpage
+
+%List of Figures
+\listoffigures
+
+\clearpage
+
+
+
+%%% Abstract %%%
+\begin{abstract}           % abstract environment, this is optional
+
+% or \input{abstract.tex}  %you need a separate abstract.tex file to include it.
+\end{abstract}
+
+\textpages     % Settings of text-pages are done with \textpages command
+
+% Chapters are created with \Chapter{title} command
+\Chapter{INTRODUCTION}\label{introduction}
+
+\bibliographystyle{alpha}
+\bibliography{mybib}
+
+\end{document}  % end of document
