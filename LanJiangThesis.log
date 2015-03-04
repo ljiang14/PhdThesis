@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  1 MAR 2015 21:47
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  3 MAR 2015 09:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -19,7 +19,8 @@ ass
 \c@figure=\count84
 \c@table=\count85
 \captionindent=\skip41
-)
+) (/usr/local/texlive/2014/texmf-dist/tex/latex/tools/.tex
+File ignored)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2014/04/25 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
 
@@ -299,16 +300,9 @@ Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
 \verbatim@line=\toks22
 \verbatim@in@stream=\read1
 )
-\c@assump=\count113
-\c@lemma=\count114
-\c@example=\count115
-\c@theorem=\count116
-\c@corollary=\count117
-\c@definition=\count118
-\c@remark=\count119
-\c@proof=\count120
-
-(./LanJiangThesis.aux)
+(./Ljiangdef.tex
+\overwdth=\skip55
+) (./LanJiangThesis.aux)
 \openout1 = `LanJiangThesis.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 137.
@@ -381,16 +375,16 @@ e
 ))
 (/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count121
+\scratchcounter=\count113
 \scratchdimen=\dimen126
 \scratchbox=\box55
-\nofMPsegments=\count122
-\nofMParguments=\count123
+\nofMPsegments=\count114
+\nofMParguments=\count115
 \everyMPshowfont=\toks23
-\MPscratchCnt=\count124
+\MPscratchCnt=\count116
 \MPscratchDim=\dimen127
-\MPnumerator=\count125
-\makeMPintoPDFobject=\count126
+\MPnumerator=\count117
+\makeMPintoPDFobject=\count118
 \everyMPtoPDFconversion=\toks24
 ) [1
 
@@ -455,26 +449,65 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
 ] [7
 
 ]
-No file LanJiangThesis.bbl.
-[1
+LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <17.28> not available
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 196.
+ [1
 
+
+]
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 201.
+
+
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ot1pcr.fd
+File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
+) [2] [3]
+Package epstopdf Info: Source file: <plotHoeffCLTr.eps>
+(epstopdf)                    date: 2014-10-19 00:02:20
+(epstopdf)                    size: 184109 bytes
+(epstopdf)             Output file: <plotHoeffCLTr-eps-converted-to.pdf>
+(epstopdf)                    date: 2015-03-03 09:56:49
+(epstopdf)                    size: 25355 bytes
+(epstopdf)             Command: <repstopdf --outfile=plotHoeffCLTr-eps-converte
+d-to.pdf plotHoeffCLTr.eps>
+(epstopdf)             \includegraphics on input line 227.
+Package epstopdf Info: Output file is already uptodate.
+
+<plotHoeffCLTr-eps-converted-to.pdf, id=45, 505.89pt x 419.5675pt>
+File: plotHoeffCLTr-eps-converted-to.pdf Graphic file (type pdf)
+
+<use plotHoeffCLTr-eps-converted-to.pdf>
+Package pdftex.def Info: plotHoeffCLTr-eps-converted-to.pdf used on input line 
+227.
+(pdftex.def)             Requested size: 227.62204pt x 188.78441pt.
+ (./LanJiangThesis.bbl [4
+
+ <./plotHoeffCLTr-eps-converted-to.pdf>]) [5
 
 ] (./LanJiangThesis.aux) ) 
 Here is how much of TeX's memory you used:
- 3255 strings out of 493117
- 43518 string characters out of 6135433
- 105535 words of memory out of 5000000
- 6620 multiletter control sequences out of 15000+600000
- 16409 words of font info for 46 fonts, out of 8000000 for 9000
+ 3521 strings out of 493117
+ 45186 string characters out of 6135433
+ 110626 words of memory out of 5000000
+ 6851 multiletter control sequences out of 15000+600000
+ 30832 words of font info for 75 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,6n,24p,367b,165s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,6n,24p,1126b,260s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/b
-ase/8r.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pfb
->
-Output written on LanJiangThesis.pdf (8 pages, 20068 bytes).
+ase/8r.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mex10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+mi10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
+0.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/symbols/m
+sbm10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/courier/ucrr8a.pf
+b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/loc
+al/texlive/2014/texmf-dist/fonts/type1/urw/symbol/usyr.pfb></usr/local/texlive/
+2014/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf
+-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/font
+s/type1/urw/times/utmri8a.pfb>
+Output written on LanJiangThesis.pdf (12 pages, 123914 bytes).
 PDF statistics:
- 36 PDF objects out of 1000 (max. 8388607)
- 24 compressed objects within 1 object stream
+ 110 PDF objects out of 1000 (max. 8388607)
+ 78 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
