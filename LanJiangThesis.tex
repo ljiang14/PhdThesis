@@ -56,13 +56,15 @@
 \usepackage{graphicx}        % standard LaTeX graphics tool
                              % when including figure files
 \usepackage{multicol}        % used for the two-column index
-
+\usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{color}     % Do not use: colors will appear in gray scale!
 \usepackage{url}
 \usepackage{verbatim}
+\usepackage{cite}
+\usepackage{chemarrow}
 \input Ljiangdef.tex
 %
 %\newcommand{\bbz}{{\bf z}}
@@ -127,7 +129,11 @@
 %\newtheorem{assump}{Assumption}[chapter]
 %\newtheorem{lemma}{Lemma}[chapter]
 %\newtheorem{example}{Example}[chapter]
-%\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{algorithm}[theorem]{Algorithm}
 %\newtheorem{corollary}{Corollary}[chapter]
 %\newtheorem{definition}{Definition}[chapter]
 %\newtheorem{remark}{Remark}[chapter]
@@ -138,7 +144,7 @@
 % Define all the symbols used.
 
 %%% Declarations for Title Page %%%
-\title{Guaranteed Monte Carlo methods}
+\title{Guaranteed Adaptive Monte Carlo Methods for Estimating Means of Random Variables}
 \author{Lan Jiang}
 \degree{Doctor of Philosophy} \dept{Applied Mathematics}
 \date{May 2015}
@@ -160,7 +166,9 @@ Dr. Lulu Kang, guided me through the dissertation process,
 never accepting less than my best efforts. I appreciate the joint
 work with Dr. Art Owen. I would
 also like to thank my husband Xuan Zhou, for his support. I thank them all.
-
+\begin{proof}
+1=1
+\end{proof}
 \end{acknowledgement}
 
 
@@ -182,53 +190,693 @@ also like to thank my husband Xuan Zhou, for his support. I thank them all.
 
 %%% Abstract %%%
 \begin{abstract}           % abstract environment, this is optional
-
+this is abstract
 % or \input{abstract.tex}  %you need a separate abstract.tex file to include it.
 \end{abstract}
-
 \textpages     % Settings of text-pages are done with \textpages command
-
 % Chapters are created with \Chapter{title} command
 \Chapter{INTRODUCTION}\label{introduction}
-Monte Carlo methods are used to approximate the means, $\mu$, of random variables $Y$, whose distributions are not known explicitly.  The key idea is that the average of a random sample, $Y_1, \ldots, Y_n$, tends to $\mu$ as $n$ tends to infinity. This article explores how one can reliably construct a confidence interval for $\mu$ with a prescribed half-width (or error tolerance) $\varepsilon$.  Our proposed two-stage algorithm assumes that the \emph{kurtosis} of $Y$ does not exceed some user-specified bound. An initial independent and identically distributed (IID) sample is used to confidently estimate the variance of $Y$.  A Berry-Esseen inequality then makes it possible to determine the size of the IID sample required to construct the desired confidence interval for $\mu$.  We discuss the important case where $Y=f(\vX)$ and $\vX$ is a random $d$-vector with probability density function $\rho$.  In this case $\mu$ can be interpreted as the integral $\int_{\reals^d} f(\vx) \rho(\vx) \, \dif \vx$, and the Monte Carlo method becomes a method for multidimensional cubature. 
+Monte Carlo methods are used to approximate the means, $\mu$, of random variables $Y$, whose distributions are not known explicitly.  The key idea is that the average of a random sample, $Y_1, \ldots, Y_n$, tends to $\mu$ as $n$ tends to infinity. This article explores how one can reliably construct a confidence interval for $\mu$ with a prescribed half-width (or error tolerance) $\varepsilon$.  
+\Chapter{BACKGROUND}
 
-\Section{Bernoulli }
-\section{Introduction}\label{section1}
-Monte Carlo is a widely simulation method for approximating means of random variables, quantiles, integrals, and optima. In the case of estimating the mean of a random variable $Y$, the Strong Law of Large Numbers ensures that the sample mean converges to the true solution almost surely, i.e.: $\lim_{n \to \infty} \hmu_n =\mu \text{ a.s.}$ \cite[Theorem 20.1]{JP04}.  The Central Limit Theorem (CLT) provides a way to construct an approximate confidence interval for the $\mu$ in terms of the sample mean assuming a known variance of $Y$, however, this is not a finite sample result.  A conservative fixed-width confidence interval under the assumption of a known bound on the kurtosis is provided by \cite{HJLO12}.
-
-Here we construct a conservative fixed-width confidence interval for Bernoulli random variables, $Y$. Here the mean is the probability of success, i.e,  $p:= \e(Y)=\Pr(Y=1)$.  This distribution is denoted by $\Ber(p)$.  Possible applications include the probability of bankruptcy or a power failure, where the process governing $Y$ may have a complex form.  This means that we may be able to to generate independent and identically distributed (IID) $Y_i$, but not have a simple formula for computing $p$ analytically. 
-
-This paper presents an automatic simple Monte Carlo method for constructing a fixed-width (specified error tolerance) confidence interval for $p$ with a \textit{guaranteed} confidence level.  That is, given a tolerance, $\varepsilon$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, to compute a sample mean, $\hp_n$, that satisfies the condition $\Pr(\abs{p-\hp_n}\leq \varepsilon) \geq 1-\alpha$.  Moreover, there is an explicit formula for the computational cost of the algorithm in terms of $\alpha$ and $\varepsilon$. A publicly available implementation of our algorithm, called \meanMCB, is part of the next release of the Guaranteed Automatic Integration Library \cite{GAIL_1_3}.
-
-Before presenting our new ideas, we review some of the existing literature.  While the CLT is often used for constructing confidence intervals, it relies on unjustified approximations.  We would like to have confidence intervals backed by theorems.
-
-As mentioned above, \cite{HJLO12} presents a  reliable fixed-width confidence interval for evaluating the mean of an arbitrary random variable via Monte Carlo sampling based on the assumption that the kurtosis has a known upper bound. This algorithm uses the Cantelli's inequality to get a reliable upper bound on the variance and applies the Berry-Esseen inequality to determine the sample size needed to achieve desired confidence interval width and confidence level. For the algorithm in \cite{HJLO12} the distribution of the random variable is arbitrary. 
-
-Wald confidence interval \cite[Section 1.3.3]{Agresti02} is a commonly used one based on maximum likelihood estimate, unfortunately, it performs poorly when the sample size $n$ is small or the true $p$ is close to 0 or 1. Agresti \cite[Section 1.4.2]{Agresti02} suggested constructing confidence intervals for binomial proportion by adding a pseudo-count of $z_{\alpha/2}/2$ successes and failures.  Thus, the estimated mean would be $\tilde{p}_n =(n\hp_n+z_{\alpha/2}/2) / (n+z_{\alpha/2})$. This method is also called adjusted Wald interval or Wilson score interval, since it was first discussed by E. B. Wilson \cite{wilson27}. This method performs better than the Wald interval.  However, it is an approximate result and carries no guarantee.
-
-Clopper and Pearson \cite{CP34} suggested a tail method to calculate the exact confidence interval for a given sample size $n$ and uncertainty level $\alpha$. Sterne \cite{sterne54}, Crow \cite{crow56}, Blyth and Still \cite{BS83} and Blaker \cite{Blaker00} proposed different ways to improve the exact confidence interval, however, all of them were only tested on small sample sizes, $n$.  Moreover, these authors did not suggest how to determine $n$ that gives a confidence interval with fixed half-width $\varepsilon$. 
-
-An outline of this paper follows. Section 2 provides the key theorems and inequalities needed. Section 3 describes an algorithm, \meanMCB, that estimates the mean of Bernoulli random variables to a prescribed absolute error tolerance with guaranteed confidence level and the proof of its success. The computational cost of the algorithm is also derived. Section 4provides a numerical example of \meanMCB and compares the computational cost to confidence intervals based on the Central Limit Theorem. The paper ends with the discussion of future work.
 \Chapter{BASIC INEQUALITIES}\label{basicInequalities}
-%\Section{Chebyshev's Inequality}
-%1=1
-%\Section{Berry Esseen Inequality}
-%1=1
-%\bibliographystyle{spmpsci}
-\Section{CLT \& Hoeffding's Inequality Confidence Interval Cost Comparison}
-By using Hoeffding's inequality to construct guaranteed fixed-width confidence interval, we definitely incur additional cost compared to an approximate CLT confidence interval.  The ratio of this cost is 
-\begin{equation}
-\frac{n_{\Hoeff}}{n_{\CLT}} = \frac{\left \lceil \log(2/\alpha)/{2\varepsilon^2} \right \rceil}{\left \lceil{ \Phi^{-1}(1-\alpha/2)}/{4 \varepsilon^2}\right\rceil} \approx  \frac{2\log(2/\alpha)}{\Phi^{-1}(1-\alpha/2)}.
-\end{equation}
-This ratio essentially depends on the uncertainty level $\alpha$ and is plotted in Figure \ref{fig:ratiovsalpha}. For $\alpha$ between $0.01\%$ to $10\%$ this ratio is between 3.64 to 5.09, which we believe is a reasonable price to pay for the added certainty of $\meanMCB$.
 
-  \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=8cm]{plotHoeffCLTr.eps} % requires the graphicx package
-    \caption{The computational cost ratio of using Hoeffding's inequality and the CLT to construct a fixed-width confidence interval.}
-    \label{fig:ratiovsalpha}
- \end{figure}
+\Section{Basic Theorem and inequalities}
+In Monte Carlo simulation, one want to estimate the mean of a real valued random variable $Y$, usually, it could be written as the expectation form i.e. $\mu:=\e(Y)$. Usually, the random variable $Y$ depends on the some underlying random vector $\vX \in \reals^d$ with probability density function $\rho$, where $Y = f(\vX)$, in other situations, the random vector $\vX$ may have the discrete distribution or may have infinite dimension. Sometimes, the process governing
+$Y$ may have a complex form,  i.e. the probability of a bankruptcy, in this case, we may be able to generate the IID sample of $Y$, but may not have a simple formula for computing $\rho$ analytically. 
+
+\Subsection{Moments}
+let $Y$ be a random variable, given the sample size $n$, one generate $Y_1, Y_2, \cdots, Y_n$ samples and calculate the sample mean 
+\begin{align}\label{samplemean}
+\hmu_n = \sum_{i=1}^n Y_i
+\end{align}
+and the sample variance
+\begin{align}\label{samplevar}
+s^2_n = \frac{1}{n-1}\sum_{i=1}^n (Y_i-\hmu_n)^2
+\end{align}
+as the true mean of $Y$ could be written as the expectation form
+\begin{align}\label{truemean}
+\mu = \e(Y)
+\end{align}
+and the true variance is
+\begin{align}\label{truevar}
+\sigma^2 = \e(Y-\mu)^2
+\end{align}
+The skewness of $Y$ is defined as 
+\begin{align}\label{screwness}
+\gamma = \e(Y-\mu)^3/\sigma^3
+\end{align}
+the modified kurtosis is defined as
+\begin{align}\label{kurtosis}
+\kappa = \e(Y-\mu)^4/\sigma^4
+\end{align}
+our main results of this paper relies on the upper bound on the modified kurtosis, which also implies that the variance and skewness are both finite.
+
+\Subsection{Central Limit Theorem}
+The CLT describes how the distribution of $\hmu_n$ approaches a Gaussian distribution as $n \to \infty$.
+\begin{theorem}[Central Limit Theorem {\cite[Theorem 21.1]{JP04}}] \label{clt} 
+If $Y_1, \ldots, Y_n$ are IID with $\e(Y_i)=\mu$ and $\var(Y_i) = \sigma^2$, then
+$$
+\frac{\hmu_n-\mu}{\sigma/\sqrt{n}} \to \dnorm(0,1) \quad \text{in distribution, as} \ \ n\to\infty.
+$$
+\end{theorem}
+This theorem implies an approximate confidence interval, called a CLT confidence interval, of the form
+\[
+\Pr(\abs{\hmu_{n_{\CLT}}-\mu} \le \varepsilon) \approx 1- \alpha \qquad \text{for } n_{\CLT} := \left \lceil \frac{z_{\alpha/2}\sigma^2}{\alpha \varepsilon^2} \right \rceil,
+\]
+where $z_{\alpha/2}$ is the $1-\alpha/2$ quantile of the standard Gaussian distribution.  When $\sigma^2$ is unknown, it may be replaced by the sample variance $s_n^2$.
+
+\Subsection{Chebyshev's inequality}
+Chebyshev's inequality may be used to construct a fixed-width confidence interval for $\mu$.  It makes relatively mild assumptions on the distribution of the random variable.
+
+\begin{theorem}[Chebyshev's Inequality {\cite[6.1.c]{LB10}}] \label{ChebyThm}If $X$ is a random variable, for any $\varepsilon>0$, $\Pr(\abs{X-E(X)} \ge \varepsilon) \le  \var(X)/\varepsilon^2$.
+\end{theorem}
+Choosing $X=\sum_{i=1}^n Y_i/n = \mu_n $, noting that $\e(X) = \e(Y) = \mu$, $\var(X) = \var(Y)/n = \sigma^2/n$, and setting $\var(X)/\varepsilon^2=\sigma^2/(n\varepsilon^2) = \alpha$ leads to the fixed-width confidence interval 
+\[
+\Pr(\abs{\hmu_{n}-\mu} \le \varepsilon) \ge 1- \alpha 
+\]
+ for 
+ \begin{align}
+n=N_{\Cheb}(\varepsilon/\sigma,\alpha):= \left \lceil \frac{1}{\alpha (\varepsilon/\sigma)^2} \right \rceil.
+ \end{align}
+\Subsection{Cantelli's Inequality}
+\begin{theorem}[Cantelli's Inequality {\cite[6.1.e]{LB10}}]\label{CanThm} If $X$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for any $a \geq 0$, it follows that: 
+\begin{align}
+\Pr(X-\mu \ge a) \le  \frac{\sigma^2}{a^2+\sigma^2}.
+\end{align}
+\end{theorem}
+\Subsection{Jensen's Inequality}
+\begin{theorem}[Jensen's Inequality{\cite[8.4a]{LB10}}]\label{Jensen}
+Let$g$ be a convex function on $\reals$. Suppose that the expectations of $X$ and $g(X)$ exist, then
+$$g(\e X) \leq \e(g(X)).$$
+Equality holds for strictly convex $g$ if and only if $X=EX$ a.s.
+
+\end{theorem}
+\Subsection{Berry-Esseen Inequality}
+\begin{theorem}[Berry Esseen Inequality (cite)] \label{BEThm}
+Let $Y_1,\cdots,Y_n$ be IID random variables with mean $\mu$, variance $\sigma^2 >0$, and thrid centered moment $M_3 = \e\abs{Y_i-\mu}^3/\sigma^3 < \infty$. Let $\hmu_n = (Y_1+\cdots+Y_n)/n$ denote the sample mean, Then
+\[
+\abs{\Pr\left(\frac{\hmu-\mu}{\sigma/\sqrt{n}}<x\right)-\Phi(x)} \leq \delta_n(x,M_3):=\frac{1}{n}\min\left( A_1(M_3+A_2), \frac{A_3M_3}{1+\abs{x}^3}\right)
+\]
+where $A_1 = 0.3328$, and $A_2 = 0.429$, and $A_3=18.1139$ (will confirm the constant with Russian mathematician )
+\end{theorem}
+By applying theorem \ref{BEThm} with given $M_3$, let $\hmu_n$ donates a sample mean of $n$ IID random instances of $Y$, then the non-uniform Berry-Esseen inequality implies that
+\begin{align} 
+&\Prob\left[\abs{\mu-\hmu_n}  \le \varepsilon \right]\nonumber\\
+&=\Prob\left[\frac{\hmu_n - \mu}{\sigma/\sqrt{n}} \le \frac{\sqrt{n}\varepsilon}{\sigma} \right]-\Prob\left[\frac{\hmu_n - \mu}{\sigma/\sqrt{n}} < -\frac{\sqrt{n}\varepsilon}{\sigma}\right] \nonumber \\ 
+&\ge \left[\Phi(\sqrt{n}\varepsilon/\sigma)-\delta_n(\sqrt{n}\varepsilon/\sigma,M_3)\right] -\left[\Phi(-\sqrt{n}\varepsilon/\sigma) + \delta_n(-\sqrt{n}\varepsilon/\sigma,M_3)\right] \nonumber \\
+&=1-2[\Phi(-\sqrt{n}\varepsilon/\sigma) + \delta_n(\sqrt{n}\varepsilon/\sigma,M_3)] =: g(n, \sigma, M_3, \varepsilon), \label{BEresult}
+\end{align}
+since $\delta_n(-x,M_3)=\delta_n(x,M_3)$.  The probability of
+making an error no greater than $\varepsilon$ is bounded below by $1-\alpha$, i.e., the fixed width confidence interval \eqref{absCI} holds with $\hmu=\hmu_n$, provided $n \ge N_{\text{BE}}(\varepsilon,\sigma,\alpha,M_3)$, where the Berry-Esseen sample size is
+\begin{equation}\label{BEn}
+N_{\text{BE}}(\varepsilon/\sigma,\alpha,M_3) := \min  \left \{ n \in \naturals : \Phi\left(-\sqrt{n}\varepsilon/\sigma  \right)+\Delta_n(\sqrt{n}\varepsilon/\sigma,M_3)
+\le \frac{\alpha}{2} \right \}.
+\end{equation}
+To compute $N_{\text{BE}}(\varepsilon/\sigma,\alpha,M_3)$, we need to know
+$M_3$. In practice, substituting an upper bound on $M_3$ yields an upper bound on the necessary sample size.
+By Jensen's Inequality in Theorem \ref{Jensen}, let the convex function $g(y) = y^{4/3}$ and the variable $X = \abs{Y_i-\mu}^3$, thus we have
+$$g(\e X) = \e(\abs{Y_i-\mu}^3)^{4/3} \leq \e((\abs{Y_i-\mu}^3)^{4/3}) = \e(g(X))$$
+which is equivalent to:
+$$\frac{\e(\abs{Y_i-\mu}^3)}{\sigma^3} \leq \left (\frac{\e(\abs{Y_i-\mu}^4)}{\sigma^4}\right)^{3/4} $$
+then we have:
+\begin{align}\label{M3kappa}
+M_3\leq \kappa^{3/4}.
+\end{align}
+
+%As the condition of the 
+%Define the sample sized calculated by Chebyshev's inequality and Berry-Esseen inequality as:
+%\begin{align*}
+%N_{CB} (\varepsilon_a/\hsigma,\alpha_{\mu}, \kmax^{3/4}) = \min \left\{N_{\BE}, N_{\Cheb}\right\}
+%\end{align*}
+\Subsection{Fr\'{e}chet formula}
+\begin{theorem}[Fr\'{e}chet Formula] \cite{FrechetIneq}
+Probability of a logical conjunction have the following inequality:
+\begin{align}
+\max(0, P(A_1) + P(A_2)+\cdots +P(A_n)-(n -1)) \leq P\left(\bigcap_{i=1}^n A_i\right)\leq \min(P(A_1), P(A_2), ..., P(A_n))
+\end{align}
+\end{theorem}
+
+
+\begin{lemma}\cite[Lemma 1]{HJLO12} \label{samplevarbound}
+Let $Y_1,\cdots,Y_n$ be IID random variables with variance $\sigma^2>0$ and modified kurtosis $\kappa$, Let $s_n^2$ be the sample variance defined at \eqref{samplevar}. Then
+\begin{subequations}
+\begin{gather}
+\Pr\left( s_n^2 < \sigma^2 \left (1+\sqrt{\left (\kappa-\frac{n-3}{n-1}\right)\left (\frac{1-\alpha}{\alpha n}\right )}\right)\right) \geq 1-\alpha,\label{boundsamplevar1}\\ 
+\Pr\left( s_n^2 >\sigma^2 \left (1-\sqrt{\left (\kappa-\frac{n-3}{n-1}\right)\left (\frac{1-\alpha}{\alpha n}\right )}\right)\right) \geq 1-\alpha.\label{boundsamplevar2}
+\end{gather}
+\end{subequations}
+
+\end{lemma}
+%this is the lemma to bound the \hsigma from above
+\begin{lemma}\label{lowerboundhsigma}
+By the same assumption in Lemma \ref{samplevarbound}. Define an upper bound on variance estimation as $\hsigma^2 = \fudge^2 s_{n_{\sigma}}^2$, where $\fudge^2$ is the variance inflation factor. If $\kappa \leq \kmax$, where $\kmax$ is defined in \eqref{kappamaxdef}, then $$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}$$
+\end{lemma}
+\begin{proof}
+Applying the inequality \eqref{boundsamplevar2} in Lemma \ref{samplevarbound}, since the assumption is $\kappa \leq \kmax$, then we have the following inequality: 
+\begin{align*}
+1-\alpha_{\sigma} &\geq \Pr\left( s_{n_{\sigma}}^2 > \sigma^2 \left (1-\sqrt{\left (\kappa-\frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\alpha_{\sigma}}{\alpha_{\sigma} n_{\sigma}}\right )}\right)\right)\\&
+ \geq  Pr\left( s_{n_{\sigma}}^2 > \sigma^2 \left (1-\sqrt{\left (\kmax -\frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\alpha_{\sigma}}{\alpha n_{\sigma}}\right )}\right)\right).
+ \intertext{Plugging in $\kmax$ defined in \eqref{kappamaxdef} would yield:}
+ 1-\alpha_{\sigma} 
+ &\geq \Pr\left( s_{n_{\sigma}}^2 > \sigma^2 \left (1-(1-1/\fudge^2)\right) \right)\\&
+ =\Pr(\fudge^2s_{n_{\sigma}}^2  > \sigma^2 )\\
+ & = \Pr(\hsigma^2  > \sigma^2 )
+\end{align*}
+This inequality explains that if the modified kurtosis $\kappa$ is bounded by $\kmax$, then the variance $\sigma^2$ would have a probabilistic upper bound $\hsigma^2$ with confidence level $1-\alpha_{\sigma}$.
+\end{proof}
+
+\begin{lemma}\label{upperboundhsigma}
+Apply the result in Lemma \ref{lowerboundhsigma} and define the upper bound on $\hsigma^2$ as:
+\begin{align}\label{sigup}
+\hsigma_{\up}^2 (\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma^2.
+\end{align}
+Then the following inequality would be true: $\Pr(\hsigma^2 <\hsigma_{\up}^2) \geq 1-\beta.$
+\end{lemma}
+\begin{proof}
+Apply the inequality \eqref{boundsamplevar1} in lemma \ref{samplevarbound}, multiply both side of the inequality by the fudge factor $\fudge$. As we assume $\kappa \leq \kmax$,  replacing the modified kurtosis $\kappa$ by $\kmax$ would yield:
+\begin{align*}
+1-\beta &\leq Pr\left( s_n^2 < \sigma^2 \left (1+\sqrt{\left (\kappa-\frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\beta}{\beta n_{\sigma}}\right )}\right)\right)\\&
+ = Pr\left( \fudge^2 s_n^2 < \fudge^2 \sigma^2 \left (1+\sqrt{\left (\kappa-\frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\beta}{\beta n_{\sigma}}\right )}\right)\right)\\&
+ \leq Pr\left( \hsigma^2 < \fudge^2 \sigma^2 \left (1+\sqrt{\left (\kmax-\frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\beta}{\beta n_{\sigma}}\right )}\right)\right).\\&
+\nonumber
+&  \intertext{Plugging in the $\kmax$ defined in \eqref{kappamaxdef}, and $\hsigma_{\up}$ defined in \eqref{sigup} would yield:}\\
+&1-\beta \\
+&\leq Pr\left( \hsigma^2 < \fudge^2 \sigma^2 \left (1+\sqrt{\left (\frac{n_{\sigma}-3}{n_{\sigma}-1} + \left(\frac{ \alpha n_{\sigma}}{1-\alpha}\right) \left(1 - \frac{1}{\fudge^2}\right)^2- \frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\beta}{\beta n_{\sigma}}\right )}\right)\right)\\
+& = Pr\left( \hsigma^2 < \sigma^2 \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha(1-\beta)}{(1-\alpha)\beta}}\right)\right)\\
+& =\Pr \left ( \hsigma^2< \hsigma_{\up}^2 \right)
+\end{align*}
+\end{proof}
+
+\Chapter{Guaranteed methods}
+\Section{Guaranteed Monte Carlo method with an absolute error tolerance}
+Here, we would illustrate our two-stage algorithm. In the first stage, we sample $n_\sigma$ IID samples from the distribution of $Y$, from this sample we compute the sample vairance, $s_{n_\sigma}^2$, according to \eqref{samplevar} and estimate the variance $Y_i$ by $\hsigma^2 = \fudge^2s_{n_{\sigma}}^2$, where $\fudge^2>1$ is a variance inflation factor. For the second stage, we treat $\hsigma^2$ as $\sigma^2$, then use Berry Esseen Theorem \ref{BEThm} to get the sample size needed to computing the sample mean $\hmu$, which would satisfied the fixed width confidence interval [cite here].
+
+\Subsection{the Algorithm :{\tt meanMCabs\_g}}
+Given the uncertainty $\alpha_{\sigma}$, the sample size $n_{\sigma}$ and the fudge factor, define
+\begin{equation}
+\label{kappamaxdef}
+\kappa_{\max} (\alpha_\sigma, n_{\sigma},\fudge):= \frac{n_{\sigma}-3}{n_{\sigma}-1} + \left(\frac{ \alpha_\sigma n_{\sigma}}{1-\alpha_\sigma}\right) \left(1 - \frac{1}{\fudge^2}\right)^2.
+\end{equation}
+Next, define the sample size calculated by CLT as:
+\begin{equation}\label{NCLT}
+N_{\mathrm{CLT}}(\varepsilon/\sigma,\alpha)
+= 
+\Bigl\lceil
+\Bigl(
+\frac{z_{\alpha/2}\sigma}{\varepsilon}
+\Bigr)^2
+\Bigr\rceil
+\end{equation}
+and the sample size calculated by Chebyshev's inequality as:
+\begin{equation}\label{NCheby}
+N_{\text{Cheb}}(\varepsilon/\sigma,\alpha)
+= 
+\Bigl\lceil\frac{\sigma^2}{\alpha\varepsilon^2}\Bigr\rceil
+\end{equation}
+By applying theorem \ref{BEThm}, we could get the sample size calculated by Berry Esseen inequality as:
+\begin{equation}\label{NBE}
+N_{\text{BE}}(\varepsilon/\sigma,\alpha,M_3) := \min \left \{ n \in \naturals : \Phi\left(-\sqrt{n}\varepsilon/\sigma  \right)+\delta_n(\sqrt{n}\varepsilon/\sigma,M_3)
+\le \frac{\alpha}{2} \right \}.
+\end{equation}
+As our assumption is $\kappa \leq \kmax$, applying \eqref{M3kappa} yields 
+\begin{align}\label{M3kmax}
+M_3 \leq \kmax^{3/4}.
+\end{align}
+Thus, we could define the sample size obtained by both Chebyshev and Berry Esseen inequality as:
+\begin{align}\label{NCB}
+N_{CB} (\varepsilon/\sigma,\alpha, \kmax^{3/4})  = \min \left \{ N_{\Cheb}\left(\varepsilon/\sigma,\alpha\right),N_{\BE}\left(\varepsilon/\sigma,\alpha, \kmax^{3/4}\right)\right \}.
+\end{align}
+In details, the two-stage algorithm works as described below:
+\begin{algorithm}[{\tt meanMCabs\_g}]\label{meanMCabsg}
+Specifying the following parameters that defining the algorithm
+\begin{itemize}
+\item the absolute error tolerance $\varepsilon_a >0$,
+\item the uncertainty level $\alpha \in (0,1)$
+\item the sample size used to estimate the variance, $n_{\sigma} \in \naturals$, $n_{\sigma} \geq 2$,
+\item the variance inflation factor $\fudge^2 >1$,
+\end{itemize}
+Let $\kmax=\kmax(n_\sigma,\alpha_\sigma,\fudge)$ be as defined in \eqref{kappamaxdef}, for any random variable $Y$ lying in the cone of functions with bounded kurtosis, $\cc_{\kappa_{\max}}$, do the following:
+\begin{enumerate}
+%\renewcommand{\labelenumi}{\alph{enumi})}
+\item Compute the sample variance, $s^2_{n_{\sigma}}$, using a simple random sample of size $n_\sigma$, use this to approximate the variance of $Y$ by $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. 
+
+\item Compute the uncertainty for the second stage $\alpha_\mu = 1-(1-\alpha)/(1-\alpha_{\sigma})$ and the sample size for the mean estimation,
+\begin{align}\label{NCBmeanMCabs}
+n_\mu = N_{CB} (\varepsilon_a/\hsigma,\alpha_\mu, \kmax^{3/4}).
+\end{align}
+Sample $n$ IID samples from the distribution of $Y$ that are interdependent of those used to estimate $\sigma^2$. Calculate the mean $\tmu$,
+\begin{align}\label{hmun}
+\tmu = \frac{1}{n_\mu}\sum_{i = n_\sigma+1}^{n_\sigma+n_\mu}Y_i
+\end{align}
+ terminate the algorithm. 
+\end{enumerate}
+The estimator $\tmu$ would satisfy the fixed confidence interval condition [ref here]
+\end{algorithm}
+The success of the Algorithm \ref{meanMCabsg} is proved in the following theorem.
+\begin{theorem}
+Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2 >0$, and modified kurtosis $\kappa \leq \kmax(\alpha_{\sigma},n_{\sigma},\fudge)$. It follows that Algorithm \ref{meanMCabsg} above yields an estimate $\tmu$ given by \eqref{hmun} that satisfies the fixed width confidence interval condition
+\begin{align}
+\Pr\left( \abs{\mu-\tmu} \leq \varepsilon_a \right) \geq 1-\alpha.
+\end{align}
+\end{theorem}
+\begin{proof}
+Let $\varepsilon_a$, $\alpha_\mu$, $\alpha_\sigma$, $\fudge$, $n_\sigma$ be deterministic, then $\kmax$ is deterministic. Let $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$, let $n$ be the sample used to estimate $\tmu$ in the second stage, which is a random variable depending on $\varepsilon_a$, $\alpha_{\mu}$, $\hsigma$ and $\kmax$ defined in \eqref{NCBmeanMCabs}, let $\tmu = \hmu_n$. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax$, then we could find a probabilistic upper bound of $\sigma^2$, which is:$$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
+Also, adding an extra condition of the variance in the probability yields:
+\begin{align*}
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+&= \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma \geq \sigma}) +  \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma  < \sigma}) 
+&\intertext{dropping the second term and summing up all the possible n's yields, }
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+&\geq  \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma \geq \sigma}) \\
+& = \sum_{m=1}^\infty \Pr({\abs{\mu-\mu_n} \leq \varepsilon}, {\hsigma \geq \sigma}, {n=m})\\
+\intertext{by using the definition of conditional probablity, we could write the probablity as}
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+& =\sum_{m=1}^\infty \Pr({\abs{\mu-\hmu_n}\leq \varepsilon}|\hsigma\geq \sigma,n=m)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})
+& \intertext{applying Berry Esseen Inequality and the definition of the function $g$ in \eqref{BEresult} for finding a confidence interval as in \eqref{absCI}, since $M_3 \leq \kmax^{3/4}$ in \eqref{M3kmax} and $\sigma \leq \hsigma$ is given in the conditional probablity, replacing $M_3$ and $\sigma$ with $\kmax^{3/4}$ and $\hsigma$ respectively yields:}
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+& \geq \sum_{m=1}^\infty g(m,\sigma,M_3, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})\\
+& \geq \sum_{m=1}^\infty g(m,\hsigma, \kmax^{3/4}, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})
+& \intertext{by the way we define the sample size $m$ in \eqref{BEn}, and summing up all the possibile $m$ values yields probablity 1 would yield:}
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+& \geq(1-\alpha_{\mu})\sum_{m=1}^\infty \Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma}) \\
+& = (1-\alpha_\mu)\times1\times(1-\alpha_{\sigma})=(1-\alpha)
+\end{align*}
+\end{proof}
+
+\Subsection{The cost upper bound of the Algorithm \ref{meanMCabsg}}
+The cost of the Algorithm \ref{meanMCabsg} is determined by two part: the sample size $n_{\sigma}$ used to estimate the variance $\sigma$ in stage one, and the sample size $n_\mu$ used to estimate the mean $\mu$ in stage two, thus, the cost is 
+$$n_{\rm tot} = n_\sigma+n_\mu.$$
+Although the $n_\sigma$ is deterministic, $n_\mu$ is a random variable, so the cost of Algorithm \ref{meanMCabsg} may be defined probabilistically. As the random part in $n_\mu$
+
+
+
+
+
+
+
+\Section{Guaranteed Monte Carlo method with a generalized error tolerance}
+Monte Carlo is a widely used simulation method to calculate the mean of a random variable, whose true mean is unknown, or hard to be calculated analytically. Suppose $Y$ is a random variable, we want to calculate its mean, i.e. $\e(Y) = \mu$, one way to do it is to sample $n$ values of $Y_i$, and let $\hmu_n = \sum_{i=1}^n Y_i$, when $n$ is large enough, $\hmu_n$ may be a good estimator of $\mu$. 
+How large should $n$ be one way to determine sample size $n$ is by Central Limit Theorem \ref{clt}. As CLT is an asymptotic results and is true only when $n \to \infty$, we need a probabilistic bound on error when $n$ is finite. In \cite{HJLO12}, we proposed a two stage algorithm used to estimate the mean of a random variable to a specified absolute error tolerance with a high confidence level, i.e., we want our estimator $\hmu_n$ satisfies this condition:
+\begin{align}\label{absCI}
+\Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha.
+\end{align} 
+the procedure is done by bound the variance in the first step by applying Cantalli's inequality and bound the error of mean estimation in the second step by applying the Berry-Esseen inequality, as long as the modified kurtosis $\kappa$ is less than $\kmax$.
+
+In some practical situations, one may seek to approximate the answer with a certain relative accuracy. e.g. correct to three significant digits. Let $\hmu_n$ is the estimator of the true mean $\mu$, $\varepsilon_r$ stands for the relative error tolerance and $\varepsilon_a$ stands for the absolute error tolerance. In this case, one may seek 
+$$\Pr(\abs{\mu-\hmu_n}\leq \varepsilon_r) \geq 1-\alpha$$
+This is a global relative error criterion, rather than a pointwise relative error criterion.
+One may generalize the pure absolute and pure relative error criteria as follows:
+\begin{align}\label{hybridCI}
+\Pr(\abs{\mu-\hmu_n}\leq \tol(\varepsilon_a, \varepsilon_r\abs{\mu})) \geq 1-\alpha
+\end{align}
+here $\tol: [0, \infty) \times [0, \infty) \to [0,\infty)$ is non-decreasing in each of its arguments and satisfies a Lipschitz condition in terms of its second argument.
+\begin{align}
+|\text{tol}(a,b)-\text{tol}(a,b')| \leq |b-b'| \quad \forall a,b,b' \geq 0.
+\end{align}
+Two examples that one may choose are
+\begin{align}
+\text{tol}(a,b) = \text{max} (a,b),
+\end{align}
+\begin{align}
+\text{tol}(a,b) = (1- \theta) a + \theta b, \quad 0 \leq \theta \leq 1
+\end{align}
+Both of these examples include absolute error and relative error as special cases.
+Using the $\hat{\varepsilon}_n$, the reliable upper bounds on $|\mu-\hat{\mu}_n|$, the aim is to take enough samples so that the generalized error criterion can be satisfied. but not too many.
+
+\Subsection{A General Point-wise Error Criterion}
+
+In many case it is possible to work with a point-wise generalized error criterion. 
+The point-wise generalized error criterion would take the form:
+\begin{align}|\mu -\tmu| \leq \text{tol} (\varepsilon_a,\varepsilon_r \abs{\mu}) \label{pointwisegeneralizederror} 
+\end{align}
+Here $\tmu$ may not be the same as $\hmu$, but as shall be seen below is defined in terms of $\hmu$. Suppose one has a reliable point-wise upper bound on the error of a non-adaptive Monte Carlo estimate, $\hmu$ which satisfies the following inequality:
+\begin{align}
+|\mu-\hmu| \leq \hat{\varepsilon}  \label{pointwiseerrorbound} 
+\end{align}
+\begin{proposition}Given absolute error tolerance, $\varepsilon_a\geq 0$, relative error tolerance, $0 \leq \varepsilon_r\le 1$, and some $\hmu$ and $\heps\geq 0$, define
+\begin{align}\Delta_{\pm}(\hmu,\heps) = \frac{1}{2} [\text{tol}(\varepsilon_a, \varepsilon_r |\hmu-\heps|) \pm \text{tol}(\varepsilon_a, \varepsilon_r |\hmu+\heps|)] \label{deltadef}
+\end{align}
+and the approximation
+\begin{align}
+\tmu = \hmu + \Delta_{-} \label{appxsol}
+\end{align}
+If point-wise error bound  \eqref{pointwiseerrorbound}  holds, where $\heps$ satisfies the following condition,
+\begin{align}\Delta_{+} \geq \heps\label{deltacondition}
+\end{align}
+ then the point-wise generalized error criterion for $\tmu$, \eqref{pointwisegeneralizederror}, is satisfied. 
+ \end{proposition}
+ \begin{proof}
+ This proof follows by applying the condition \eqref{pointwiseerrorbound}  that bounds the absolute error in terms of $\heps$, upper bound condition \eqref{deltacondition} on $\heps$, the definition of the approximate solution \eqref{appxsol}, and definition \eqref{deltadef}:
+\begin{align*}
+&|\tmu -\hmu - \Delta_{-}| = 0 \leq \Delta_{+}- \hat{\varepsilon}  \text{ by } \eqref{appxsol} \text{ and } \eqref{deltacondition} \\ 
+\Leftrightarrow 
+&\hmu+\Delta_- - \Delta_{+} + \hat{\varepsilon} \leq \tilde{\mu}  \leq \hat{\mu} +\Delta_{-}+\Delta_{+}-\hat{\varepsilon} \\ \Leftrightarrow 
+&\hat{\mu} -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon}|)+ \hat{\varepsilon} \leq \tilde{\mu}  \leq \hat{\mu}  +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |)-\hat{\varepsilon}  \text{ by } \eqref{deltadef}\\
+\Leftrightarrow 
+&\hat{\mu} + \hat{\varepsilon}  -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon} |) \leq \tilde{\mu}  \leq \hat{\mu} -\hat{\varepsilon} +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |) \\
+\Rightarrow &
+\mu -\text{tol} (\varepsilon_a, \varepsilon_r |\mu|) \leq\hat{\mu} + \hat{\varepsilon}  -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon} |) \leq \tilde{\mu}  \leq \\
+& \hat{\mu} -\hat{\varepsilon} +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |)  \leq \mu+\text{tol} (\varepsilon_a, \varepsilon_r |\mu|) \\
+& \text{since } b \to b \pm \text{tol} (\varepsilon_a,\varepsilon_r |b|) \text{ is nondecreasing}\\ 
+\Leftrightarrow &
+\abs{\mu-\tmu} \leq \text{tol} (\varepsilon_a, \varepsilon_r \abs{\mu}) 
+\end{align*}
+\end{proof}
+
+
+\Subsection{New Algorithm for {\tt meanMC\_g}}
+In this section, we introduce an algorithm that estimate the mean of a random variable to a specified hybrid error tolerance $\tol(\varepsilon_a, \varepsilon_r)$. Before presenting our algorithm, we would introduce some notations. In \cite{HJLO12}, we developed an algorithm that estimate $\hmu$ to some given absolute error tolerance, $\varepsilon_a$, when the modified kurtosis $\kappa$ is less than $\kmax$, and $\kmax$ is a function in terms of the sample sized used to estimate variance $n_\sigma$, the uncertainty for the variance estimation $\alpha_\sigma$, and variance inflation factor $\fudge$,
+\begin{equation}
+\label{kappamaxdef}
+\kappa_{\max} (\alpha_\sigma, n_{\sigma},\fudge):= \frac{n_{\sigma}-3}{n_{\sigma}-1} + \left(\frac{ \alpha_\sigma n_{\sigma}}{1-\alpha_\sigma}\right) \left(1 - \frac{1}{\fudge^2}\right)^2.
+\end{equation}
+Next, define the sample size calculated by CLT as:
+\begin{equation}\label{NCLT}
+N_{\mathrm{CLT}}(\varepsilon/\sigma,\alpha)
+= 
+\Bigl\lceil
+\Bigl(
+\frac{z_{\alpha/2}\sigma}{\varepsilon}
+\Bigr)^2
+\Bigr\rceil
+\end{equation}
+and the sample size calculated by Chebyshev's inequality as:
+\begin{equation}\label{NCheby}
+N_{\text{Cheb}}(\varepsilon/\sigma,\alpha)
+= 
+\Bigl\lceil\frac{\sigma^2}{\alpha\varepsilon^2}\Bigr\rceil
+\end{equation}
+By applying theorem \ref{BEThm}, we could get the sample size as:
+\begin{equation}\label{NBE}
+N_{\text{BE}}(\varepsilon/\sigma,\alpha,M_3) := \min \left \{ n \in \naturals : \Phi\left(-\sqrt{n}\varepsilon/\sigma  \right)+\delta_n(\sqrt{n}\varepsilon/\sigma,M_3)
+\le \frac{\alpha}{2} \right \}.
+\end{equation}
+For any fixed $\alpha \in (0,1)$, and $M>0$, define the inverse of the functions $N_C(\cdot,\alpha)$, $N_B(\cdot,\alpha,M)$, and $N_{CB}(\cdot,\alpha,M)$,
+%\begin{subequations} \label{probadapterrcritBE}
+\begin{gather*}\label{NCinv}
+N_C^{-1}(n,\alpha) := \frac{1}{\sqrt{n \alpha}}, \\
+\label{NBinv*}
+N_B^{-1}(n,\alpha,M) := \min \left \{ b>0 : \Phi\left(-b \sqrt{n}  \right)+\delta_n(b\sqrt{n},M)
+\le \frac{\alpha}{2} \right \}, \\
+\label{NCBinv*}
+N_{CB}^{-1}(n,\alpha,M) := \min(N_C^{-1}(n,\alpha),N_B^{-1}(n,\alpha,M)).
+\end{gather*}
+
+It then follows by Chebyshev's inequality and the Berry-Esseen Inequality  that 
+\begin{equation*}
+\Prob[\abs{\hmu_n -\mu}<\hvareps] \geq 1-\alpha, \quad \text{provided } \ f \in \cc_{\kappa_{\max}}, \text{ where }\hvareps=\sigma(Y) N_{CB}^{-1}(n,\alpha,\kappa_{\max}^{3/4}), 
+\end{equation*} 
+and $\sigma(Y)=\sqrt{\var(Y)}$ is the standard deviation of the random variable $Y$.  
+
+To prepare the algorithm, given the uncertainty $\alpha \in (0,1)$, let $\alpha_{\sigma}, \alpha_1,  \alpha_2, \ldots$ be an infinite sequence of positive numbers all less than one, such that 
+\begin{equation} \label{alphaseq}
+(1-\alpha_{\sigma})((1-(\alpha_1+\alpha_2+\cdots)) = 1-\alpha.
+\end{equation}
+For example, one might choose $\alpha_{\sigma}$ and 
+\begin{equation} \label{alphaseqex}
+\alpha_{i} = \frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-i}, \ i\in \naturals, \quad \text{where} \  a \in (1,\infty).
+\end{equation}
+\begin{algorithm}\label{meanMCg} 
+Specify the following parameters defining the algorithm:
+\begin{itemize}
+\item initial sample size for variance estimation, $n_{\sigma} \in \naturals$,
+\item initial sample size for mean estimation, $n_1 \in \naturals$,
+\item variance inflation factor, $\fudge \in (1,\infty)$, 
+\item uncertainty level, $\alpha\in (0,1)$, and a sequence of uncertainty $ \alpha_\sigma, \alpha_1,  \alpha_2, \ldots$ satisfying the condition \eqref{alphaseq}, 
+\item the absolute error tolerance $\varepsilon_a \geq 0$, and the relative error tolerance $0 \leq \varepsilon_r <1$, that satisfying the condition $\varepsilon_a+\varepsilon_r >0$,
+\item the hybrid error tolerance function $\tol(\varepsilon_a,\varepsilon_r)$.
+\end{itemize} 
+Let $\kmax=\kappa_{\max}(n_\sigma,\alpha_\sigma,\fudge)$ be as defined in \eqref{kappamaxdef}, for any random variable $Y$ lying in the cone of functions with bounded kurtosis, $\cc_{\kappa_{\max}}$, do the following:
+\begin{enumerate}
+%\renewcommand{\labelenumi}{\alph{enumi})}
+\item Compute the sample variance, $s^2_{n_{\sigma}}$, using a simple random sample of size $n_\sigma$, use this to approximate the variance of $Y$ by $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. 
+\item If the relative error tolerance $\varepsilon_r=0$, then the algorithm becomes a two stage one instead of multiple stage one, then calculate the uncertainty level for the second stage estimation, $\alpha_1 = 1-(1-\alpha)/(1-\alpha_\sigma)$, and the sample size for mean estimation,
+$$n = N_{CB}(\varepsilon_a/\hsigma,\alpha_1,\kappa_{\max}^{3/4}).$$ Then, compute $\tmu$ using $n$ samples, terminate the algorithm.
+\item Else, calculate the width of the initial confidence interval for the mean estimation,
+\begin{align}\label{eps1def}
+\heps_1=\hsigma N_{CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4}).
+\end{align}
+For $i = 1,2,\cdots$, do the following:
+\begin{enumerate}
+\item  \label{deltamu}Compute $\hmu_i$ and $\Delta_{+,i}=\Delta_{+}(\hmu_i,\heps_i)$ using sample size $n_i$ and tolerance $\heps_i$, where $\Delta_{+}$ is defined in \eqref{deltadef}.
+\item If $\Delta_{+,i} \geq  \heps_i$, then $\Delta_{+,i}$ is large enough, set stopping time $\tau = i$ and Let $\tmu = \hmu_{\tau}+\Delta_{-, \tau}$, terminate the algorithm.
+\item Else, define the next tolerance, $$\heps_{i+1} = \min(\heps_i/2, \max(\varepsilon_a,0.95\varepsilon_r\abs{\hmu_i}))$$ and the next sample size, $$n_{i+1} = N_{CB}(\hvareps_{i+1}/\hsigma,\alpha_{i+1},\kappa_{\max}^{3/4}).$$ Increase $i$ by one and go back to step \ref{deltamu}. 
+\end{enumerate}
+\end{enumerate}
+If this algorithm terminates, then the general error criterion, \eqref{hybridCI}, is satisfied.
+\end{algorithm}
+
+\begin{theorem}\label{hybriderrthm}
+Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that Algorithm \ref{meanMCg} terminated in a finite time step almost surely, the cost of this algorithm has an probabilistic upper bound $N_{max}$. If the algorithm terminates, then the general error criterion, \eqref{hybridCI}, is satisfied.
+\end{theorem}
+In order to prove this theorem, we need the following Lemmas.
+% this is the lemma to bound the sample variance
+
+\begin{lemma}\label{cost1}
+If the function $\tol: [0, \infty) \times [0, \infty) \to [0,\infty)$ is non-decreasing in each of its arguments and satisfies a Lipschitz condition in terms of its second argument, i.e.:
+\begin{align}
+|\tol (a,b)-\tol (a,b')| \leq |b-b'| \quad \forall a,b,b' \geq 0.
+\end{align}
+then the following inequality must be true:
+$$\tol (\varepsilon_a, \varepsilon_r \abs{\hmu \pm\heps }) \geq \tol(\varepsilon_a,\varepsilon_r \abs{\mu})-\varepsilon_r \abs{-\mu+\hmu \pm\heps}$$
+\end{lemma}
+\begin{proof}
+As $\tol(a,b) -\tol(a,b') \leq \abs{\tol(a,b) -\tol(a,b')} \leq \abs{b-b'}$, 
+which is equivalent to :
+\begin{align}\label{tolineq}
+\tol(a,b') \geq \tol(a,b)-\abs{b-b'}
+\end{align}
+then choose $a = \varepsilon_a$, $b =\varepsilon_r\abs{\mu}$ and $b'=\varepsilon_r\abs{\heps \pm \hmu}$, by applying inequality \eqref{tolineq} and the triangle inequality, the following inequality must be true:
+\begin{align}
+\tol (\varepsilon_a, \varepsilon_r \abs{\hmu \pm\heps}) &
+ \geq \tol(\varepsilon_a,\varepsilon_r \abs{\mu})-\varepsilon_r \abs{\abs{\mu}-\abs{\hmu  \pm \heps}} \\&\geq \tol(\varepsilon_a,\varepsilon_r \abs{\mu})-\varepsilon_r \abs{-\mu+\hmu \pm \heps} \\&
+ \geq \tol(\varepsilon_a,\varepsilon_r \abs{\mu})-\varepsilon_r (\abs{\mu-\hmu} + \heps)
+  \label{lipstol}
+\end{align}
+\end{proof}
+
+\begin{lemma}\label{cost2}
+If $\heps$ satisfies this condition: $$\frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r} \geq \heps, $$
+then the inequality, $$\Delta_{+}(\hmu,\heps)\geq \heps, $$ must be satisfied.
+\end{lemma}
+\begin{proof}
+Given a reliable point-wise upper bound on the error of a non-adaptive Monte Carlo estimate, which satisfies the inequality: $$\abs{\mu -\hmu}\leq \heps,$$by applying the triangle inequality:
+$$\heps \geq \abs{\mu -\hmu}\geq \abs{\mu}-\abs{\hmu},$$ 
+we have the inequality below: $$\abs{\hmu}+\heps \geq \abs{\mu}.$$
+As the function $\tol$ is defined as a non-decreasing one in its second argument, Thus, the following inequality would be true:
+\begin{align}\label{tolineq1}
+\tol(\varepsilon_a, \varepsilon_r (\abs{\hmu_i}+\heps_i))  \geq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})
+\end{align}
+In addition, applying \eqref{lipstol} and triangle inequality will yield:
+\begin{align}
+\tol(\varepsilon_a, \varepsilon_r \abs{\abs{\hmu}\pm \heps})  &= \tol(\varepsilon_a, \varepsilon_r \abs{\hmu \pm\heps}) \\& 
+ \geq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) - \varepsilon_r(\abs{\mu-\hmu}+\heps) \\&
+ \geq  \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) - 2\varepsilon_r\heps \label{tolineq2}
+\end{align}
+By the definition of $\Delta_{+}$ in \eqref{deltadef} and the inequality \eqref{tolineq1} and \eqref{tolineq2},
+ \begin{align}
+\Delta_{+}(\hmu, \heps) &= \frac{1}{2} \left ( \tol(\varepsilon_a, \varepsilon_r (\abs{\hmu}+\heps)) +\tol(\varepsilon_a, \varepsilon_r \abs{\abs{\hmu}-\heps}) \right) \\&
+\geq \frac{1}{2} \left( \tol(\varepsilon_a,\varepsilon_r \abs{\mu}) + \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) - 2\varepsilon_r\heps \right)\\& =  \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) - \varepsilon_r\heps
+\end{align}
+Thus $$\Delta_{+} -\heps \geq \tol(\varepsilon_a,\varepsilon_r \abs{\mu})-(1+\varepsilon_r)\heps.$$
+By assumption, if $$\frac{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}{1+\varepsilon_r} \geq \heps,$$ then
+$$\tol(\varepsilon_a,\varepsilon_r \abs{\mu})-(1+\varepsilon_r)\heps \geq 0, $$ 
+which yields
+$$\Delta_{+} \geq \heps.$$
+\end{proof}
+
+% this is the lemma to bound the stopping time
+\begin{lemma}\label{tauprobbound}
+Define the upper bound on tolerance $\heps_1$ as:
+\begin{align}\label{eps1updef}
+\hvareps_{1\up}(\beta):=\hsigma_{\up}(\beta) N_{CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4}),
+\end{align}
+where $\hsigma_{\up}(\beta)$ is defined in \eqref{sigup}, the stopping time $\tau$ for Algorithm \ref{meanMCg}, has a probabilistic upper bound $\bar{\tau}(\beta)$ with confidence level $1-\beta$, i.e.:
+\begin{align}
+\Pr(\tau <\bar{\tau}(\beta)) \geq 1-\beta.
+\end{align}
+\end{lemma}
+\begin{proof}
+The stopping time $\tau$ is defined as:
+ \begin{align}\label{st}
+\tau = \min \{ i: \Delta_{+,i} \geq \heps_i \}
+\end{align}
+ and the tolerance in each step of iteration is defined as:
+ $$\heps_{i+1} = \min(\heps_i/2, \max(\varepsilon_a,0.95\varepsilon_r\abs{\hmu_i})).$$ 
+ It is obvious that the tolerance decreased at least a half of the previous tolerance, i.e.
+$\heps_{i+1} \leq\heps_i/2$, which would yields: 
+\begin{align}\label{eps1niRelation}
+\heps_i \le\heps_1/2^{i-1}.
+\end{align} 
+By Lemma \ref{cost2}, if the tolerance $\varepsilon_i$ satisfies the upper bound condition, 
+let $$i = 1+\left \lceil \log_{2} \left(\frac{\heps_{1}(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil, $$
+then we have the relationship below:
+\begin{align}
+& i \geq 1+\log_{2} \left(\frac{\heps_{1}(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right)\\&
+\Leftrightarrow  \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r} \ge \heps_1/2^{i-1}\\
+& \Rightarrow \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r} \ge \heps_i  \text{ \quad (by inequality \eqref{eps1niRelation}})\\&
+\Rightarrow \Delta_{+, i} \ge \heps_{i} \text{\quad(by Lemma \ref{cost2})}.
+\end{align}
+Thus, we know
+\begin{align}\label{taurel}
+\tau \le  1+\left \lceil \log_{2} \left(\frac{\heps_{1}(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil.
+\end{align}
+Next, define the upper bound on the stopping time as: 
+\begin{align}\label{taubarrel}
+\bar{\tau}(\beta):= \left \lceil 1+\log_2 \left(\frac{\heps_{1\up}(\beta)(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil.
+\end{align}
+Then by \eqref{taurel} and \eqref{taubar}, we have the relationship below:
+\begin{align} \label{epstau}
+ \heps_1 <\heps_{1\up}(\beta) \Rightarrow \tau <\bar{\tau}(\beta)
+\end{align}
+Also, by the definition of $\heps_1$ in \eqref{eps1def} and $\heps_{1\up}$ in \eqref{eps1updef},
+\begin{align}\label{sigmaeps}
+ \hsigma_1 < \hsigma_{\up} \Rightarrow \heps_1 < \heps_{1\up}(\beta).
+\end{align}
+Combining \eqref{epstau} and \eqref{sigmaeps} and apply  Lemma \ref{upperboundhsigma}, 
+\begin{align}
+\Pr(\tau < \bar{\tau}(\beta)) \geq  \Pr(\hsigma < \hsigma_{\up}(\beta)) \geq 1-\beta.
+\end{align}
+\end{proof}
+
+\begin{lemma}\label{taufinite}
+The stopping time $\tau$ is finite almost surely, i.e.:
+$$\Pr(\tau < \infty) = 1$$
+\end{lemma}
+\begin{proof}
+By lemma \ref{tauprobbound}, the stopping time $\tau$ has a probabilistic upper bound $\bar{\tau}$,  i.e.:
+$$\Pr(\tau < \bar{\tau}(\beta)) \geq 1-\beta$$
+As $\bar{\tau}$ is a function in terms of $\beta$,i.e.:
+$$\bar{\tau}(\beta):= \left \lceil 1+\log_2 \left(\frac{\left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right) N_{CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4})(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil$$
+take the limit that $\beta \to \infty$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, by the continuity of probability and preservation of inequality,  we have
+\begin{align}
+\lim_{\beta \to \infty} \Pr(\tau  <\bar{\tau}(\beta)) = \Pr(\tau  <\lim_{\beta \to \infty}\bar{\tau}(\beta)) 
+= \Pr(\tau < \infty)  \geq 1.
+\end{align}
+As the probably should always be less or equal to 1, then we have
+$$\Pr(\tau < \infty)  = 1$$
+\end{proof}
+
+%\begin{lemma}\label{step1}
+%In Algorithm \ref{meanMCg}, suppose $\hmu_n$, $\hsigma$ and $n$ are random, all other parameters are given as a constant in the algorithm \ref{meanMCg}, then the generalized error criterion \eqref{hybridCI} would be satisfied.
+%\end{lemma}
+%\begin{proof}
+%The probability could be written in an equivalent form in terms of the expectation of indicator function, and could be separated into two parts by adding additional constraints,
+%\begin{align*}
+%&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+%&= \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma \geq \sigma}) +  \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma  < \sigma}) 
+%&\intertext{dropping the second term and summing up all the possible n's yields, }\\
+%&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+%&\geq  \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma \geq \sigma}) \\
+%& = \sum_{m=1}^\infty \Pr({\abs{\mu-\mu_n} \leq \varepsilon}, {\hsigma \geq \sigma}, {n=m})\\
+%\intertext{by applying the conditional expection condition, we could write the expectation as}\\
+%&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+%& =\sum_{m=1}^\infty \Pr({\abs{\mu-\hmu_n}\leq \varepsilon}|\hsigma\geq \sigma,n=m)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})\\
+%& \intertext{by applying Berry Esseen Inequality \eqref{BEresult} for finding a confidence interval as in \eqref{absCI}, since $M_3 \leq \kmax^{3/4}$ and $\sigma \leq \hsigma$, replacing $M_3$ and $\sigma$ with $\kmax^{3/4}$ and $\hsigma$ respectively yields:}
+%&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+%& \geq \sum_{m=1}^\infty \e(g(n,\sigma,M_3, \varepsilon)|\hsigma\geq \sigma,n=m)\e(1_{n=m}|\hsigma \geq \sigma) \e(1_{\hsigma \geq \sigma})\\
+%& \geq \sum_{m=1}^\infty \e(g(n,\hsigma, \kmax^{3/4}, \varepsilon)|\hsigma\geq \sigma,n=m)\e(1_{n=m}|\hsigma \geq \sigma) \e(1_{\hsigma \geq \sigma})\\
+%& \intertext{by the way we define the sample size $n$ in \eqref{BEn}, and summing up all the possibile n values yields probablity 1, which is:}\\
+%&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+%& \geq(1-\talpha)\sum_{m=1}^\infty \e(1_{n=m}|\hsigma \geq \sigma) \e(1_{\hsigma \geq \sigma}) \\
+%& = (1-\talpha)\times1\times(1-\talpha)=(1-\alpha)
+%\end{align*}
+%\end{proof}
+%%
+\begin{lemma}\label{step2}
+In Algorithm \ref{meanMCabsg}, suppose $\varepsilon_a$, $\hsigma$, $\tmu$, and $n$ are random, all other parameters are given as a constant, then the generalized error criterion \eqref{hybridCI} would be satisfied.
+\end{lemma}
+\begin{proof}
+This result could be derived from the proof of the Theorem \ref{meanMCabsg}, by applying the conditional expectation on $\varepsilon_a$. Let $\alpha_\mu$, $\alpha_\sigma$, $\fudge$, $n_\sigma$ be deterministic, then $\kmax$ is deterministic. Let $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$, let $n$ be the sample used to estimate $\tmu$ in the second stage, and $n$ is a random variable depending on $\varepsilon_a$, $\hsigma$, $\alpha_{\mu}$, and $\kmax$ defined in \eqref{NCBmeanMCabs},  let $\tmu = \hmu_n$, then $\hmu_n$ is a random variable depending on the sample size $n$ and random samples $Y_i$, $i = 1,2,\cdots,n$. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax$, then we could find a probabilistic upper bound of $\sigma^2$, which is:$$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
+Also, adding an extra condition of the variance in the probability yields:
+\begin{align}
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+& \geq \sum_{m=1}^\infty \Pr{\abs{\mu-\mu_n} \leq \varepsilon}, {\hsigma \geq \sigma}, {n=m})\\
+& = \sum_{m=1}^\infty \Pr({\abs{\mu-\mu_n} \leq \varepsilon},  {\hsigma \geq \sigma},  {n=m}|\varepsilon)
+\intertext{similarly, by applying Berry Esseen Inequality \eqref{BEresult} for finding a confidence interval as in \eqref{absCI},  }
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+& =\sum_{m=1}^\infty \Pr({\abs{\mu-\hmu_n}\leq \varepsilon}|\hsigma\geq \sigma,n=m, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma, \varepsilon) \Pr({\hsigma \geq \sigma}|\varepsilon)\\
+& \geq \sum_{m=1}^\infty g(m,\sigma,M_3, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma,\varepsilon) (1-\alpha_{\sigma})
+\intertext{by replacing $M_3$ and $\sigma$ with $\kmax^{3/4}$ and $\hsigma$ respectively, we have}
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+& \geq \sum_{m=1}^\infty g(m,\hsigma,\kmax^{3/4}, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma,\varepsilon) (1-\alpha_\sigma)
+&\intertext{By the way we define sample size $m$ in in terms of $\varepsilon$, $\kmax$, $\alpha_\mu$, we have the inequality below, summing up all the possible values of n yields probablity 1 }
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+&\geq(1-\alpha_{\mu}) \sum_{m=1}^\infty \Pr({n=m}|\hsigma \geq \sigma,\varepsilon)(1-\alpha_\sigma) \\
+& = (1-\alpha_{\mu})\times1\times(1-\alpha_\sigma) = (1-\alpha)
+\end{align}
+\end{proof}
+\begin{lemma}\label{step3} 
+In algorithm \ref{meanMCg}, suppose$\tau$, $\varepsilon$, $\hsigma$, $\hmu_n$, and $n$ are random, all other parameters are given as a constant in the algorithm \ref{meanMCg}, then the generalized error criterion \eqref{hybridCI} would be satisfied.
+\end{lemma}
+\begin{proof}
+As the probability could be written as the expectation of indicator function, adding more conditions yield an inequality as below
+\begin{align}
+&\Pr(\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})) \\
+& = \e(\Pr{\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})})\\
+& \geq\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma})\\
+&\intertext{as the stopping time $\tau$ is finite almost surely, we could add another constraint as below}\\
+&\Pr(\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})) \\
+& \geq\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma})\\
+& = \e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\tau < \infty }1_{\hsigma \geq \sigma})+\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\tau = \infty }1_{\hsigma \geq \sigma})\\
+& =\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}1_{\tau < \infty })\\
+&\intertext{as the stopping time $\tau$ is a random variable that takes value in $\naturals$, then the expection could be written as the sum of all possible values }\\
+& \e\left(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}\right)\\
+&= \lim_{n \to \infty}\sum_{i=1}^{n} \e\left(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}|\tau = i\right) \e(1_{\tau=i})\\
+& = \lim_{n \to \infty}\sum_{i=1}^n\left(1-\sum_{j=1}^i\alpha_j\right)(1-\alpha_{\sigma})\e(1_{\tau=i})\\
+& \geq \lim_{n \to \infty} \sum_{i=1}^n\left(1-\sum_{j=1}^n\alpha_j\right)(1-\alpha_{\sigma})\e\left(1_{\tau=i}\right) \\
+& = \lim_{n \to \infty} \left(1-\sum_{j=1}^n\alpha_j\right)(1-\alpha_{\sigma})\sum_{i=1}^n \e\left(1_{\tau=i}\right) \\
+&=\left(1-\sum_{j=1}^\infty \alpha_j\right)(1-\alpha_{\sigma})=(1-\alpha) \\
+\end{align}
+\end{proof}
+Here, we are going to proof the theorem \ref{hybriderrthm}.
+\begin{proof}
+The number of function values required by the algorithm \ref{meanMCg} is $n_{\sigma}+N_\mu$, where $N_\mu=n_1+\sum_{i=2}^\tau n_i$, the sum of the initial sample size used to estimate the variance of $Y$ and the sample size used to estimate the mean of $Y$.  Although $n_{\sigma}$ and $n_1$ are deterministic, $\sum_{i=2}^\tau n_i$ is a random variable, and so the cost of this algorithm might be best defined probabilistically.  Moreover, the random quantities are the stopping time, $\tau$, and the upper bound on variance, $\hsigma^2$, the tolerance $\varepsilon_i$ in each time step, 
+The cost of this particular Monte Carlo algorithm defined in Algorithm \ref{meanMCg}is
+\begin{equation*}
+N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Prob(n_{\sigma} + n_1+\sum_{i=2}^\tau n_i) \le N) \ge 1-\beta  \right \}.
+\end{equation*}
+since $n_\sigma$ and $n_1$ are fixed and $n_i =  N_{\text{CB}}(\hvareps_{i}/\hsigma,\alpha_{i},\kappa_{\max}^{3/4})$, $ $ the inequality is equivalent to 
+\begin{equation*}
+N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Prob\left(\sum_{i=2}^\tau N_{\text{CB}}(\heps_i/\hsigma,\alpha_i,\tilde\kappa_{\max}^{3/4}) \le N\right) \ge 1-\beta  \right \}+n_{\sigma} + n_1.
+\end{equation*}
+define 
+\begin{align}\label{sigmax}
+\hsigma_{\max}^2 (\fudge, \alpha_{\sigma},\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma_{\max}^2
+\end{align}
+and
+\begin{align}
+  \underline{\varepsilon_i} = \min \left \{ \heps_12^{1-i},\varepsilon_a, 0.95\varepsilon_r\abs{\mu} \right \}
+\end{align}
+by the way we define $\heps_i$, we have the inequality : $\underline{\varepsilon_i}\leq \heps_i$.
+Also, define the upper bound on the cost as:
+$$N_{\up} = \sum_{i=2}^{\bar{\tau}} N_{\text{CB}}(\underline{\varepsilon_i} /\hsigma_{\max},\alpha_i,\tilde\kappa_{\max}^{3/4})$$
+This, algorithm \ref{meanMCg} has a probablistic upper bounded by
+\begin{align}
+N_{\text{tot}} < N_{\up}+n_\sigma+n_1
+\end{align}
+\end{proof}
+
+\Section{{\tt meanMCabs\_g}}
+This is meanMC with absolute error
+
+\Section{{\tt meanMC\_g}}
+This is meanMC with relative error
+
+\Section{{\tt cubMC\_g }}
+This is meanMC used to calculate multidimensional cubiture.
+
+\Section{{\tt meanMCBer\_g}}
+This is meanMC used to calculate the mean of Bernoulli Random variable.
+
+
+\Chapter{Cost of the algorithm}
+\Chapter{Numerical Experiments}
+\Chapter{Conclusion}
+\Chapter{Future work}
+
 \bibliographystyle{alpha}
-\bibliography{LJiang}
+\bibliography{Ljiang}
 
 \end{document}  % end of document
