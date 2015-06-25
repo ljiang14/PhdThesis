@@ -409,54 +409,51 @@ N_{CB} (\varepsilon/\sigma,\alpha, \kmax^{3/4})  = \min \left \{ N_{\Cheb}\left(
 \end{align}
 In details, the two-stage algorithm works as described below:
 \begin{algorithm}[{\tt meanMCabs\_g}]\label{meanMCabsg}
-Specifying the following parameters that defining the algorithm
+Given a random number generator $Y$ and the absolute error tolerance $\varepsilon_a$, we specifies the following parameters:
 \begin{itemize}
 \item the absolute error tolerance $\varepsilon_a >0$,
 \item the uncertainty level $\alpha \in (0,1)$
+\item the uncertainty level for variance estimation $\alpha_\sigma \in (0,\alpha)$
 \item the sample size used to estimate the variance, $n_{\sigma} \in \naturals$, $n_{\sigma} \geq 2$,
-\item the variance inflation factor $\fudge^2 >1$,
+\item the variance inflation factor $\fudge^2 >1$.
+%\item the kurtosis max $\kmax(n_\sigma,\alpha_\sigma,\fudge)$ as defined in xxxxx.
 \end{itemize}
-Let $\kmax=\kmax(n_\sigma,\alpha_\sigma,\fudge)$ be as defined in \eqref{kappamaxdef}, for any random variable $Y$ lying in the cone of functions with bounded kurtosis, $\cc_{\kappa_{\max}}$, do the following:
+We do the following:
 \begin{enumerate}
 %\renewcommand{\labelenumi}{\alph{enumi})}
-\item Compute the sample variance, $s^2_{n_{\sigma}}$, using a simple random sample of size $n_\sigma$, use this to approximate the variance of $Y$ by $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. 
-
+\item Compute the sample variance, $s^2_{n_{\sigma}}$, using a simple random sample of size $n_\sigma$. Let $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$ be the upper bound on variance.
 \item Compute the uncertainty for the second stage $\alpha_\mu = 1-(1-\alpha)/(1-\alpha_{\sigma})$ and the sample size for the mean estimation,
 \begin{align}\label{NCBmeanMCabs}
 n_\mu = N_{CB} (\varepsilon_a/\hsigma,\alpha_\mu, \kmax^{3/4}).
 \end{align}
-Sample $n$ IID samples from the distribution of $Y$ that are interdependent of those used to estimate $\sigma^2$. Calculate the mean $\tmu$,
+Sample $n_\mu$ IID samples from the distribution of $Y$ that are interdependent of those used to estimate $\sigma^2$. Calculate the mean $\tmu$,
 \begin{align}\label{hmun}
-\tmu = \frac{1}{n_\mu}\sum_{i = n_\sigma+1}^{n_\sigma+n_\mu}Y_i
+\tmu = \frac{1}{n_\mu}\sum_{i = n_\sigma+1}^{n_\sigma+n_\mu}Y_i.
 \end{align}
- terminate the algorithm. 
 \end{enumerate}
-The estimator $\tmu$ would satisfy the fixed confidence interval condition [ref here]
 \end{algorithm}
 The success of the Algorithm \ref{meanMCabsg} is proved in the following theorem.
 \begin{theorem}
-Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2 >0$, and modified kurtosis $\kappa \leq \kmax(\alpha_{\sigma},n_{\sigma},\fudge)$. It follows that Algorithm \ref{meanMCabsg} above yields an estimate $\tmu$ given by \eqref{hmun} that satisfies the fixed width confidence interval condition
+Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2 >0$, and modified kurtosis $\kappa$. Let $\kmax=\kmax(n_\sigma,\alpha_\sigma,\fudge)$ be as defined in \eqref{kappamaxdef}. For any random variable $Y$ lying in the cone of functions with bounded kurtosis, $\cc_{\kappa_{\max}}$, i.e.
+$\kappa\leq\kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, Algorithm \ref{meanMCabsg} above yields an estimate $\tmu$ given by \eqref{hmun} that satisfies the fixed width confidence interval condition
 \begin{align}
 \Pr\left( \abs{\mu-\tmu} \leq \varepsilon_a \right) \geq 1-\alpha.
 \end{align}
 \end{theorem}
 \begin{proof}
-Let $\varepsilon_a$, $\alpha_\mu$, $\alpha_\sigma$, $\fudge$, $n_\sigma$ be deterministic, then $\kmax$ is deterministic. Let $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$, let $n$ be the sample used to estimate $\tmu$ in the second stage, which is a random variable depending on $\varepsilon_a$, $\alpha_{\mu}$, $\hsigma$ and $\kmax$ defined in \eqref{NCBmeanMCabs}, let $\tmu = \hmu_n$. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax$, then we could find a probabilistic upper bound of $\sigma^2$, which is:$$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
-Also, adding an extra condition of the variance in the probability yields:
+Let $\varepsilon_a$, $\alpha_\sigma$, $n_\sigma$, $\fudge$ be the parameters and $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$ as given in Algorithm \ref{meanMCabsg}. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, then we could find a probabilistic upper bound on $\sigma^2$, which is:
+$$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
+Since $\hsigma$ is random, $n_\mu$ as defined in \eqref{NCBmeanMCabs} is also random. Thus, the randomness of $\tmu$ comes both from the sample size $n_\mu$ and the random number generator $Y$. By adding the extra condition inside the probability, we have the inequality below:
 \begin{align*}
-&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
-&= \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma \geq \sigma}) +  \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma  < \sigma}) 
-&\intertext{dropping the second term and summing up all the possible n's yields, }
-&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
-&\geq  \Pr({\abs{\mu-\hmu_n} \leq \varepsilon}, {\hsigma \geq \sigma}) \\
-& = \sum_{m=1}^\infty \Pr({\abs{\mu-\mu_n} \leq \varepsilon}, {\hsigma \geq \sigma}, {n=m})\\
-\intertext{by using the definition of conditional probablity, we could write the probablity as}
-&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
-& =\sum_{m=1}^\infty \Pr({\abs{\mu-\hmu_n}\leq \varepsilon}|\hsigma\geq \sigma,n=m)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})
-& \intertext{applying Berry Esseen Inequality and the definition of the function $g$ in \eqref{BEresult} for finding a confidence interval as in \eqref{absCI}, since $M_3 \leq \kmax^{3/4}$ in \eqref{M3kmax} and $\sigma \leq \hsigma$ is given in the conditional probablity, replacing $M_3$ and $\sigma$ with $\kmax^{3/4}$ and $\hsigma$ respectively yields:}
-&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
-& \geq \sum_{m=1}^\infty g(m,\sigma,M_3, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})\\
-& \geq \sum_{m=1}^\infty g(m,\hsigma, \kmax^{3/4}, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})
+&\Pr(\abs{\mu-\tmu} \leq \varepsilon) \geq  \Pr({\abs{\mu-\tmu} \leq \varepsilon}, {\hsigma \geq \sigma}).
+\intertext{The probablity could be written as the sum of the probablity of disjoint events. Since the sample $n_\mu$ used to calculate $\tmu$ could be any positive integer, we have:}
+&\Pr(\abs{\mu-\tmu} \leq \varepsilon)  = \sum_{m=1}^\infty \Pr({\abs{\mu-\tmu} \leq \varepsilon}, {\hsigma \geq \sigma}, {n_\mu=m}).
+\intertext{Using the definition of conditional probablity, we could write the probablity as:}
+&\Pr(\abs{\mu-\tmu} \leq \varepsilon) =\sum_{m=1}^\infty \Pr({\abs{\mu-\hmu_n}\leq \varepsilon}|\hsigma\geq \sigma,n=m)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma}).
+ \intertext{applying Berry Esseen Inequality and the definition of the function $g$ in \eqref{BEresult} for finding a confidence interval as in \eqref{absCI}, since $M_3 \leq \kmax^{3/4}$ in \eqref{M3kmax} and $\sigma \leq \hsigma$ is given in the conditional probablity, replacing $M_3$ and $\sigma$ with $\kmax^{3/4}$ and $\hsigma$ respectively yields:}
+&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) 
+\geq \sum_{m=1}^\infty g(m,\sigma,M_3, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})\\
+&\geq \sum_{m=1}^\infty g(m,\hsigma, \kmax^{3/4}, \varepsilon)\Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma})
 & \intertext{by the way we define the sample size $m$ in \eqref{BEn}, and summing up all the possibile $m$ values yields probablity 1 would yield:}
 &\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
 & \geq(1-\alpha_{\mu})\sum_{m=1}^\infty \Pr({n=m}|\hsigma \geq \sigma) \Pr({\hsigma \geq \sigma}) \\
@@ -465,7 +462,7 @@ Also, adding an extra condition of the variance in the probability yields:
 \end{proof}
 
 \Subsection{The cost upper bound of the Algorithm \ref{meanMCabsg}}
-The cost of the Algorithm \ref{meanMCabsg} is determined by two part: the sample size $n_{\sigma}$ used to estimate the variance $\sigma$ in stage one, and the sample size $n_\mu$ used to estimate the mean $\mu$ in stage two, thus, the cost is 
+The cost of the Algorithm \ref{meanMCabsg} is determined by two part: the sample size $n_{\sigma}$ used to estimate the variance $\sigma$ in stage one, and the sample size $n_\mu$ used to estimate the mean $\mu$ in stage two, thus, the total cost is 
 $$n_{\rm tot} = n_\sigma+n_\mu.$$
 Although the $n_\sigma$ is deterministic, $n_\mu$ is a random variable, so the cost of Algorithm \ref{meanMCabsg} may be defined probabilistically. As the random part in $n_\mu$
 
@@ -749,9 +746,9 @@ By lemma \ref{tauprobbound}, the stopping time $\tau$ has a probabilistic upper 
 $$\Pr(\tau < \bar{\tau}(\beta)) \geq 1-\beta$$
 As $\bar{\tau}$ is a function in terms of $\beta$,i.e.:
 $$\bar{\tau}(\beta):= \left \lceil 1+\log_2 \left(\frac{\left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right) N_{CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4})(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil$$
-take the limit that $\beta \to \infty$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, by the continuity of probability and preservation of inequality,  we have
+take the limit that $\beta \to 0$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, by the continuity of probability and preservation of inequality,  we have
 \begin{align}
-\lim_{\beta \to \infty} \Pr(\tau  <\bar{\tau}(\beta)) = \Pr(\tau  <\lim_{\beta \to \infty}\bar{\tau}(\beta)) 
+\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)) = \Pr(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)) 
 = \Pr(\tau < \infty)  \geq 1.
 \end{align}
 As the probably should always be less or equal to 1, then we have
@@ -785,13 +782,18 @@ $$\Pr(\tau < \infty)  = 1$$
 %\end{proof}
 %%
 \begin{lemma}\label{step2}
-In Algorithm \ref{meanMCabsg}, suppose $\varepsilon_a$, $\hsigma$, $\tmu$, and $n$ are random, all other parameters are given as a constant, then the generalized error criterion \eqref{hybridCI} would be satisfied.
+suppose $\varepsilon_a$ is random in Algorithm \ref{meanMCabsg}, For any random variable $Y$ lying in the cone of functions with bounded kurtosis, $\cc_{\kappa_{\max}}$, i.e.
+$\kappa\leq\kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, Algorithm \ref{meanMCabsg} above yields an estimate $\tmu$ given by \eqref{hmun} that satisfies the fixed width confidence interval condition
+\begin{align}
+\Pr\left( \abs{\mu-\tmu} \leq \varepsilon_a \right) \geq 1-\alpha.
+\end{align}
 \end{lemma}
 \begin{proof}
-This result could be derived from the proof of the Theorem \ref{meanMCabsg}, by applying the conditional expectation on $\varepsilon_a$. Let $\alpha_\mu$, $\alpha_\sigma$, $\fudge$, $n_\sigma$ be deterministic, then $\kmax$ is deterministic. Let $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$, let $n$ be the sample used to estimate $\tmu$ in the second stage, and $n$ is a random variable depending on $\varepsilon_a$, $\hsigma$, $\alpha_{\mu}$, and $\kmax$ defined in \eqref{NCBmeanMCabs},  let $\tmu = \hmu_n$, then $\hmu_n$ is a random variable depending on the sample size $n$ and random samples $Y_i$, $i = 1,2,\cdots,n$. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax$, then we could find a probabilistic upper bound of $\sigma^2$, which is:$$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
-Also, adding an extra condition of the variance in the probability yields:
+This result could be derived from the proof of the Theorem \ref{meanMCabsg}, by applying the conditional expectation on $\varepsilon_a$.
+Let $\alpha_\sigma$, $n_\sigma$, $\fudge$ be the parameters and $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$ as given in Algorithm \ref{meanMCg}. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, then we could find a probabilistic upper bound on $\sigma^2$, which is:
+$$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
 \begin{align}
-&\Pr(\abs{\mu-\hmu_n} \leq \varepsilon) \\
+&\Pr(\abs{\mu-\tmu} \leq \varepsilon_a) \\
 & \geq \sum_{m=1}^\infty \Pr{\abs{\mu-\mu_n} \leq \varepsilon}, {\hsigma \geq \sigma}, {n=m})\\
 & = \sum_{m=1}^\infty \Pr({\abs{\mu-\mu_n} \leq \varepsilon},  {\hsigma \geq \sigma},  {n=m}|\varepsilon)
 \intertext{similarly, by applying Berry Esseen Inequality \eqref{BEresult} for finding a confidence interval as in \eqref{absCI},  }
