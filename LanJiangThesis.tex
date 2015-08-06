@@ -209,39 +209,43 @@ The basic problem is to calculate the $\mu$ to a certain accuracy, i.e.:
 where $f(x)$ is the integrad. $x_i$ are the integration points and $A_i$ are the coefficients. The integration points and weights depend on the specific method used and the accuracy required from the approximation.
 This problem is often called quadrature. For one dimensional integral, the quadrature method such as trapezoidal rule and Simpson’s rule are known to be efficient if the integrand is smooth. To compute multidimentional integrals, one approach is to phrase the multiple integral as repeated one-dimensional integrals by appealing to Fubini's theorem[cite here]. Cubature[cite here] is one of the well known packages using quadrature methods that work great for low-dimensional integration. However, this approach requires the function evaluations to grow exponentially as the number of dimensions, $d$, increases. This is so called curse of dimensionality[cite here]. One way to overcome this is by Monte Carlo.
 
-\Section{Monte Carlo Simulation} Monte Carlo method is a a scientific computing technique that replies on repeated resampling and statistical analysis to obtain the desired result, it uses some random numbers as a tool to calculate something that is not random. For example, we want to calculate the mean of a random variable $X$, i.e. $\e(X) = \mu$ where $\mu$ is a deterministic number.  One way to do it is sampling $n$ independent and identically distributed $X_i$ from the distribution of $X$ and take the average,
-$$\mu \approx \hmu_n := \sum_{i=1}^nX_i.$$
-The strong law of large numbers states that the sample mean converge to the true mean almost surely, i.e.: $\hmu_n \to \mu$ as $n \to \infty$. Simple Monte Carlo has an error roughly proportional to $1/\sqrt{n}$ for large $n$. The convergence is low comparing to other numerical methods. One way to overcome this is by applying quasi-Monte Carlo techniques such as using Sobol' or Lattice points[cite here]. They are basically generating low discrepancy sequences in order to get a faster convergence rate. Quasi-Monte Carlo has a rate of convergence close to $O(N^{-1})$, whereas the rate for the Monte Carlo method is $O(N^{1/2})$.
+\Section{Monte Carlo Simulation} Monte Carlo method is a a scientific computing technique that replies on repeated resampling and statistical analysis to obtain the desired result, it uses some random numbers as a tool to calculate something that is not random. For example, we want to calculate the mean of a random variable $Y$, i.e. $\e(Y) = \mu$ where $\mu$ is a deterministic number.  One way to do it is sampling $n$ independent and identically distributed $X_i$ from the distribution of $X$ and take the average,
+$$\mu \approx \hmu_n := \sum_{i=1}^nY_i.$$
+The strong law of large numbers states that the sample mean converge to the true mean almost surely, i.e.: $\hmu_n \to \mu$ as $n \to \infty$. Simple Monte Carlo has an error roughly proportional to $1/\sqrt{n}$ for large $n$. The convergence is low comparing to other numerical methods. One way to overcome this is by applying quasi-Monte Carlo techniques, such as using Sobol' or Lattice points[cite here]. They are basically generating low discrepancy sequences in order to get a faster convergence rate. Quasi-Monte Carlo has a rate of convergence close to $O(N^{-1})$, whereas the rate for the Monte Carlo method is $O(N^{-1/2})$.
 
-\Section{Guaranteed Methods}
-Monte Carlo gives a flexible way to approximate the mean of a random variable, $\mu=\e(Y)$. One can generate samples $Y_i$ from the distribution of $Y$ and take the sample average. Some possible real world problems would be:
+\Section{Monte Carlo Applications}
+Monte Carlo gives a flexible way to approximate the mean $\mu$ of a random variable $Y$, where $\mu=\e(Y)$. One can generate a number of samples $Y_i$ from the distribution of $Y$ and take the sample average as $\hmu_n$, which may be a good estimator of the true mean $\mu$. Some possible real world problems are listed below. 
 
 \Subsection{Option Pricing}
-Let $Y$ could be the discount payoff of financial derivatives, which depends on the future value of the underlying assets that are driven by some stochastic process like Brownian Motion, this is so called option pricing problems. The option price is given by $\e[exp(−rT)g(S(\cdot))]$, where $g(\cdot)$ represents the payoff function and $S(\cdot)$ is the stock price dynamic.  One simple example is to price the European call option. Let $Y = e^{-rT}(S(T)-K)^+ $, in this way, the fair option price is given by:
+Let $Y$ could be the discount payoff of financial derivatives like options, which depends on the future value of the underlying assets that are driven by some stochastic process like Brownian Motion. one may be interested in the fair price of this option at certain time $t$, this is so called option pricing problem. 
+
+Let $r$ be the interest rate, $T$ be the maturity time, $g(S(t))$ represent the payoff function and $S(t)$  be the stock price dynamic. Then the option price at time 0 is given by $$c=\e[e^{-rT}g(S(T))].$$One simple example is to price the European call option. Let $Y = e^{-rT}(S(T)-K)^+ $, in this way, the fair option price is given by:
 $$\mu = \e\left(e^{-rT}(S(T)-K)^+\right)$$
 One way to estimate $\mu$ is by sampling a number of $S_i(T)$ and let $Y_i = e^{-rT}(S_i(T)-K)^+$. Then we could estimate $\mu$ by its sample average
 $$\hmu_n = \sum_{i=1}^n Y_i = \sum_{i=1}^n( e^{-rT}(S_i(T)-K)^+)$$
+The other possible application of Monte Carlo would be the numerical integration via Monte Carlo sampling.
 
 \Subsection{Numerical Integration via Monte Carlo}
-Another possible application could be numerical integration via Monte Carlo sampling. Suppose we want to evaluate the multidimensional integral with integrand $f:\reals^d \to \reals$ with respect to some probability density function  $\rho: \reals^d \to [0,\infty)$.
+Suppose we want to evaluate the multidimensional integral with integrand $f:\reals^d \to \reals$ with respect to some probability density function  $\rho: \reals^d \to [0,\infty)$.
 %and some random vector with probability density function $\rho: \reals^d \to [0,\infty)$.
 The analytical solution may be written as:
-$$\mu = \int_{\reals^d}f(\vx)\rho(\vx)d\vx \text{ where } \vx \in \reals^d \text{ and } \vx \sim \rho(\vx)$$
+$$\mu = \int_{\reals^d}f(\vx)\rho(\vx)d\vx \quad \text{   where } \vx \in \reals^d \text{ and } \vx \sim \rho(\vx).$$
 By appealing Monte Carlo technique, one need to generate a bunch of function values $Y_i$ from the distribution of $\vX$ where $Y_i = f(\vX_i)$, $\vX_i \in \reals^d$. Thus, the true solution could be approximated as
 $$\hmu_n = \sum_{i=1}^n f(\vX_i).$$
 When $n$ is large enough, $\hmu_n$ may be a good estimator of $\mu$.
 %%Suppose we want to calculate the mean of a random variable, whose true mean is unknown, or hard to be calculated analytically. Suppose $Y$ is a random variable, we want to calculate its mean, i.e. $\e(Y) = \mu$, one way to do it is to sample $n$ values of $Y_i$, and let $\hmu_n = \sum_{i=1}^n Y_i$, when $n$ is large enough, $\hmu_n$ may be a good estimator of $\mu$. 
 
 \Subsection{Sample size determination}
-How large should $n$ be? One way to determine the sample size $n$ is by Central Limit Theorem(CLT) which would be explained in section \ref{clt}. As CLT is an asymptotic results and is true only when $n \to \infty$. We tend to find a finite $n$ in order to make our estimator $\hmu_n$ satisfy the fixed width confidence interval condition \eqref{absCI}. Furthermore, in Chapter \ref{chapter:meanMCabsg}, we proposed a two stage algorithm used to estimate the mean of a random variable to a specified absolute error tolerance with a high confidence level, i.e., we want our estimator $\hmu_n$ satisfies this fixed width confidence interval condition:
+How large should $n$ be? One way to determine the sample size $n$ is by Central Limit Theorem(CLT),  which would be explained in Section \ref{clt}. As CLT is an asymptotic results and is true only when $n \to \infty$. We tend to find a finite $n$ in order to make our estimator $\hmu_n$ satisfy the fixed width confidence interval condition 
 \begin{align}\label{absCI}
-\Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha.
-\end{align} 
-Under the assumption the the upper bound on the modified kurtosis $\kappa$ is bounded, i.e.
+\Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha,
+\end{align}
+where $\varepsilon_a$ is the absolute error tolerance and $\alpha$ is the uncertainty level. 
+In Chapter \ref{chapter:meanMCabsg}, under the assumption that the upper bound on the modified kurtosis $\kappa$ is bounded [cite here], i.e.
 \begin{align}
 \kappa = \frac{\e(Y-\mu)^4}{\sigma^4} \leq \kmax,
 \end{align}
-we present a two stage algorithm: the first stage generates a conservative upper bound on the variance, and the second stage uses this variance bound and a Berry-Esseen Theorem[cite here], which could be thought as a non-asymptotic CLT, to determine how large $n$ must be for the sample mean to satisfiy the fixed width confidence interval condition \eqref{absCI}.
+we present a two stage algorithm ({\tt meanMCabs\_g}): the first stage generates a conservative upper bound on the variance, and the second stage uses this variance bound and a Berry-Esseen Theorem[cite here], which could be thought as a non-asymptotic CLT, to determine how large $n$ must be for the sample mean to satisfy the fixed width confidence interval condition \eqref{absCI}.
 
 In some practical situations, one may seek to approximate the answer with a certain relative accuracy. e.g. correct to three significant digits. Let $\varepsilon_r$ stands for the relative error tolerance and $\varepsilon_a$ stands for the absolute error tolerance. In this case, one may seek the answer $\hmu_n$ satisfies the following condition:
 \begin{align}\label{relCI}
@@ -260,13 +264,28 @@ Two examples that one may choose are
 \begin{align}
 \text{tol}(a,b) = (1- \theta) a + \theta b, \quad 0 \leq \theta \leq 1
 \end{align}
-\end{defn}
-By using the hybrid error tolerance function, one may generalize the pure absolute and pure relative error criterion as follows:
+\end{defn}By using the hybrid error tolerance function, one may generalize the pure absolute and pure relative error criterion as follows:
 \begin{align}\label{hybridCI}
 \Pr(\abs{\mu-\hmu_n}\leq \tol(\varepsilon_a, \varepsilon_r\abs{\mu})) \geq 1-\alpha.
 \end{align}
-In chapter \ref{chapter:meanMCg}, we proposed an algorithm to estimate $hmu_n$ in order to satisfy the hybrid error condition \eqref{hybridCI}. The procedure is done by bounded the variance from above in the first stage, and loop in the second stage until the stop criteria satisfied.
+In Chapter \ref{chapter:meanMCg}, we proposed an algorithm ({\tt meanMC\_g}) to estimate $\hmu_n$ in order to satisfy the hybrid error condition \eqref{hybridCI}. The procedure is done by bounded the variance from above in the first stage, and loop in the second stage to find the sample size needed in order to reach the stop criteria.
 
+\Section{Fooling functions}
+Automatic algorithms commonly determines the computational cost required to approximate the solutions that differ from the true solutions by no more than a given error tolerance, $\varepsilon$. In this way, one require a user specified error tolerance $\varepsilon$ and a black box that generate the function values. Several commonly used software packages have adaptive, automatic algorithms for integrating functions of a single variable, unfortunately, they do not provide any guarantees. On the other hand, most existing guaranteed automatic algorithms are not adaptive, they do not determine the computational cost needed based on the function value sampled. Some examples are
+\begin{itemize}
+\item {\tt integral} in MATLAB
+\item {\tt chebfun} toolbox [cite here] for MATLAB, which approximates integrals by integrating interrogatory Chebyshev polynomial approximations to the integrads.
+\end{itemize}
+For these two automatic algorithms, one can easily probe where they sample the integrand, feed the algorithms with zero values and then construct fooling functions for which the automatic algorithms will return zero values for the integral. Figure  [cite] displays these fooling functions for problem $\int_0^1f(x)dx$ for these two algorithms. Each of of these algorithms 
+is given the error tolerance $10^{-14}$, unfortunately, the true absolute error is 1. Our critisim is not these algorithms are easily been fooled, instead, our concern is there is no available theory to tell us what is wrong with the integrand when the algorithms are fooled. In this thesis, we plan to address several algorithms that are guaranteed and adaptive for solving Monte Carlo problems.
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=8cm]{chebintbw-2015-08-04-15-30-28.eps} % requires the graphicx package
+\includegraphics[width=8cm]{integralbw-2015-08-04-15-34-10.eps} 
+    \caption{Plots of the fooling functions,$f$, with $\mu = \int_0^1f(x)dx=1$,bur for which the corresponding algorithms return values of $\hmu=0$}
+    \label{fig:ratiovsalpha}
+ \end{figure}
+ 
 \Section{Outline of the thesis}
 The outline of this thesis is as follows:  Chapter \ref{basicInequalities} provides some basic inequalities and theorems that is related to the algorithms. Chapter \ref{chapter:meanMCabsg} describes an algorithm that is used estimate the mean of a random variable to some absolute error tolerance. A similar but more general algorithm that used to estimate the mean of a random variable to some hybrid error tolerance \ref{def:tolfun} with a high confidence level is described in Chapter \ref{chapter:meanMCg}. Chapter \ref{chapter:cubMCg} focus on numerical integration via Monte Carlo sampling and 
 Chapter \ref{chapter:meanMCberg} explains the way to estimate the mean of a Bernoulli random variable to some absolute and relative tolerance with a high confidence level. This thesis ends with a conclusion and some future work.
@@ -459,10 +478,10 @@ Apply the inequality \eqref{boundsamplevar1} in lemma \ref{samplevarbound}, mult
 \end{proof}
 
 \Chapter{Guaranteed Monte Carlo method with an absolute error tolerance}\label{chapter:meanMCabsg}
-Here, we would illustrate our two-stage algorithm. In the first stage, we sample $n_\sigma$ IID samples from the distribution of $Y$, from this sample we compute the sample vairance, $s_{n_\sigma}^2$, according to \eqref{samplevar} and estimate the variance $Y_i$ by $\hsigma^2 = \fudge^2s_{n_{\sigma}}^2$, where $\fudge^2>1$ is a variance inflation factor. For the second stage, we treat $\hsigma^2$ as $\sigma^2$, then use Berry Esseen Theorem \ref{BEThm} to get the sample size needed to computing the sample mean $\hmu$, which would satisfied the fixed width confidence interval [cite here].
+Here, we would illustrate our two-stage algorithm. In the first stage, we sample $n_\sigma$ IID samples from the distribution of $Y$, from this sample we compute the sample variance, $s_{n_\sigma}^2$, according to \eqref{samplevar} and estimate the upper bound on variance $Y_i$ by $\hsigma^2 = \fudge^2s_{n_{\sigma}}^2$, where $\fudge^2>1$ is a variance inflation factor. For the second stage, we replace the true variance $\sigma^2$ by its upper bound $\hsigma^2$, then use the Berry-Esseen Theorem \ref{BEThm} to get the sample size needed for computing the sample mean $\hmu$, if the modified kurtosis $\kappa$ is less than $\kmax$, then we would have guarantee that the fixed width confidence interval condition \eqref{absCI} would be satisfied.
 
-\Section{the Algorithm :{\tt meanMCabs\_g}}
-Given the uncertainty $\alpha_{\sigma}$, the sample size $n_{\sigma}$ and the fudge factor, define
+\Section{the Algorithm :{\tt meanMCabs\_g}} 
+Before illustrating the algorithm, we define some parameters. Given the uncertainty $\alpha_{\sigma}$, the sample size $n_{\sigma}$ and the fudge factor, define
 \begin{equation}
 \label{kappamaxdef}
 \kappa_{\max} (\alpha_\sigma, n_{\sigma},\fudge):= \frac{n_{\sigma}-3}{n_{\sigma}-1} + \left(\frac{ \alpha_\sigma n_{\sigma}}{1-\alpha_\sigma}\right) \left(1 - \frac{1}{\fudge^2}\right)^2.
@@ -498,11 +517,11 @@ N_{CB} (\varepsilon/\sigma,\alpha, \kmax^{3/4})  = \min \left \{ N_{\Cheb}\left(
 \end{align}
 In details, the two-stage algorithm works as described below:
 \begin{algorithm}[{\tt meanMCabs\_g}]\label{meanMCabsg}
-Given a random number generator $Y$ and the absolute error tolerance $\varepsilon_a$, we specifies the following parameters:
+Given a random number generator $Y$ and the absolute error tolerance $\varepsilon_a$, one specifies the following parameters:
 \begin{itemize}
 \item the absolute error tolerance $\varepsilon_a >0$,
-\item the uncertainty level $\alpha \in (0,1)$
-\item the uncertainty level for variance estimation $\alpha_\sigma \in (0,\alpha)$
+\item the uncertainty level $\alpha \in (0,1)$,
+\item the uncertainty level for variance estimation $\alpha_\sigma \in (0,\alpha)$,
 \item the sample size used to estimate the variance, $n_{\sigma} \in \naturals$, $n_{\sigma} \geq 2$,
 \item the variance inflation factor $\fudge^2 >1$.
 %\item the kurtosis max $\kmax(n_\sigma,\alpha_\sigma,\fudge)$ as defined in xxxxx.
@@ -522,7 +541,7 @@ Sample $n_\mu$ IID samples from the distribution of $Y$ that are interdependent 
 \end{enumerate}
 \end{algorithm}
 The success of the Algorithm \ref{meanMCabsg} is proved in the following theorem.
-\begin{theorem}
+\begin{theorem}\label{thm:meanMCabsg}
 Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2 >0$, and modified kurtosis $\kappa$. Let $\kmax=\kmax(n_\sigma,\alpha_\sigma,\fudge)$ be as defined in \eqref{kappamaxdef}. For any random variable $Y$ lying in the cone of functions with bounded kurtosis, $\cc_{\kappa_{\max}}$, i.e.
 $\kappa\leq\kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, Algorithm \ref{meanMCabsg} above yields an estimate $\tmu$ given by \eqref{hmun} that satisfies the fixed width confidence interval condition
 \begin{align}
@@ -569,8 +588,94 @@ which means:
 \end{align}
 \end{proof}
 \Section{Numerical example of {\tt meanMCabs\_g}}
-put the mcqmc2012 examples?
+\Subsection{Integrating a single hump}
+Accuracy and timing results have been recorded for the integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
+\begin{equation} \label{GaussianTestFun}
+f(\vx)=a_0 + b_0\prod_{j=1}^d\left[ 1 +b_j \exp \left(-\frac{(x_j-h_j)^2}{c_j^2}\right) \right].
+\end{equation}
+Here $\vx$ is a $d$ dimensional vector, and $a_0, b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ are parameters. Figure \ref{GaussianTestFunFig} shows the results of different algorithms being used to integrate $500$ different instances of $f$.  For each instance of $f$, the parameters are chosen as follows:
+\begin{itemize} 
+\item $b_1, \ldots, b_d \in [0.1,10]$ with $\log(b_j)$ being i.i.d.\ uniform,
+\item $c_1, \ldots, c_d \in [10^{-6},1]$ with $\log(c_j)$ being i.i.d.\ uniform,
+\item $h_1, \ldots, h_d \in [0,1]$ with $h_j$ being i.i.d.\ uniform,
+\item $b_0$ chosen in terms of the $b_1, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\sigma^2 =\norm[2]{f-\mu}^2 \in [10^{-2}, 10^2]$, with $\log(\sigma)$ being i.i.d.\ uniform for each instance, and
+\item $a_0$ chosen in terms of the $b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\mu=1$.
+\end{itemize}
+These ranges of parameters are chosen so that the algorithms being tested fail to meet the error tolerance a significant number of times.
+\begin{figure}
+\centering
+\begin{minipage}{6.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=1chebfunErrTime-2015-08-06-13-06-03.eps} \\ {\tt chebfun} \end{minipage}
+\begin{minipage}{6.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=1iidErrTime-2015-08-06-13-06-01.eps} \\ Algorithm \ref{meanMCabsg}  \end{minipage}
+\begin{minipage}{6.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=1iidheavyErrTime-2015-08-06-13-06-02.eps} \\ Algorithm \ref{meanMCabsg} (heavy duty)\end{minipage}
+\begin{minipage}{6.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=1SobolErrTime-2015-08-06-13-06-02.eps} \\  cubSobol'\end{minipage}
+\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=1cubLatticeErrTime-2015-08-06-13-06-03.eps} \\ cubLattice \end{minipage}
+\caption{Execution times and errors for test function \eqref{GaussianTestFun} for $d=1$ and error tolerance $\varepsilon=10^{-3}$, and a variety of parameters giving a range of $\sigma$ and $\kappa$. Those points to the left/right of the dashed 
+vertical line 
+represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the Algorithm \ref{meanMCabsg} the points labeled * are those for which the Corollary \ref{thm:meanMCabsg} guarantees the error tolerance.\label{GaussianTestFunFig} }
+\end{figure}
 
+%These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt quad},  {\tt quadgk}, {\tt chebfun}, Algorithm \ref{twostagealgo}, and an automatic quasi-Monte Carlo algorithm that uses scrambled Sobol' sampling \citep{Owe95,Owe96,Owe97,Mat98,HonHic00a,DicPil10a}.  For the Sobol' sampling algorithm the error is estimated by an inflation factor of $1.1$ times the sample standard deviation of $8$ internal replicates of one scrambled Sobol' sequence \citep{Owe06a}.  The sample size is increased until this error estimate decreases to no more than the tolerance.  We 
+%have not yet found simple conditions on integrands for which this procedure is guaranteed to produce an estimate satisfying the error tolerance, 
+%and so we do not discuss it in detail.  We are however, intrigued by the fact that it does seem to perform rather well in practice.
+%
+%For all but {\tt chebfun}, the specified absolute error tolerance is $\epsilon=0.001$.  The algorithm {\tt chebfun} attempts to do all calculations to near machine precision.  The observed error and execution times are plotted in Figure \ref{GaussianTestFunFig}.  Whereas {\tt chebfun} uses a minimum of $2^3+1=9$ function values, the figure labeled ``{\tt chebfun} (heavy duty)'' displays the results of requiring {\tt chebfun} to use at least $2^{8}+1=257$ function values.  Algorithm \ref{twostagealgo} takes $\alpha=0.01$, and $\fudge=1.1$.  For the plot on the left, $n_\sigma=2^{13}=8192$, which corresponds to  $\tkappa_{\max}=2.24$.  For the heavy duty plot on the right, $n_\sigma=2^{18}=262144$, which corresponds to  $\tkappa_{\max}=40.1$.  The same initial sample sizes are used for the Sobol' sampling algorithm.
+%
+%Figure \ref{GaussianTestFunFig} shows that {\tt quad} and {\tt quadgk} are quite fast, nearly always providing an answer in less than $0.01$ seconds.  Unfortunately, they 
+%successfully meet the error tolerance only about $30\%$ of the time for {\tt quad} and $50$--$60\%$ of the time for {\tt quadgk}.  The difficult cases are those where $c_1$ is quite small, and these algorithms miss the sharp peak.  The performance of {\tt chebfun} is similar to that of {\tt quad} and {\tt quadgk}.  The heavy duty version of  {\tt chebfun} fares somewhat better.  For both of the {\tt chebfun} plots there are a significant proportion of the data that do not appear because their 
+%errors are smaller than $10^{-5}$.
+%
+%In the plots for Algorithm \ref{twostagealgo} the alternative and somewhat costlier formula for $N_{\mu}$ in \eqref{NCBpracticaldef} is employed. An asterisk is used to label those points satisfying $\tkappa \le \tkappa_{\max}$, where $\tkappa$ is defined in \eqref{Lpnormdef}. All such points fall within the prescribed error tolerance,
+%which is even better than the guaranteed confidence of $99\%$.  
+%For Algorithm \ref{twostagealgo} (heavy duty) $\tkappa_{\max}$ is larger, so there are more points for which the guarantee holds.  Those points labeled with a dot, are those for which $\tkappa > \tkappa_{\max}$, and so no guarantee holds. The points labeled with a diamond are those for which Algorithm \ref{twostagealgo} attempts to exceed the cost budget that we set, i.e., it wants to choose $n_\mu$ such that $n_{\sigma}+n_\mu > N_{\max}:=10^9$. In these cases $n_\mu$ is chosen as $\lfloor 10^9 - n_\sigma \rfloor$, which often is still large enough to get an answer that satisfies the error tolerance. 
+%Algorithm \ref{twostagealgo} performs somewhat more robustly than {\tt quad}, {\tt quadgk}, and {\tt chebfun}, because it requires only a low degree of smoothness and takes a fairly large minimum sample. Algorithm \ref{twostagealgo} is generally much slower than the other algorithms because it does not assume any smoothness of the integrand. The more important point is that Algorithm \ref{twostagealgo} has a guarantee, whereas to our knowledge, the other routines do not.
+%
+%From Figure \ref{GaussianTestFunFig}, the Sobol' sampling algorithm is more reliable and takes less time than Algorithm \ref{twostagealgo}.  This is due primarily to the fact that in dimension one, Sobol' sampling is equivalent to stratified sampling, where the points are more evenly spread than IID sampling.
+%
+%Figure \ref{GaussianTestFunHDFig} repeats the simulation shown in Figure \ref{GaussianTestFunFig} for the same test function \eqref{GaussianTestFun}, but now with $d=2, \ldots, 8$ chosen randomly and uniformly.  For this case the univariate integration algorithms are inapplicable, but the multidimensional routines can be used.  There are more cases where the Algorithm \ref{twostagealgo} tries to exceed the maximum sample size allowed, i.e., $(n_{\sigma}+n_\mu)d > N_{\max}:=10^9$, but the behavior seen for $d=1$ still generally applies.  
+%
+%\begin{figure}
+%\centering
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=6iidErrTime.eps} \\ Algorithm \ref{twostagealgo} \end{minipage}
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=6iidheavyErrTime.eps} \\ Algorithm \ref{twostagealgo} (heavy duty) \end{minipage}
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=6SobolErrTime.eps} \\ Sobol' \end{minipage}
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{gaussiand=6SobolheavyErrTime.eps} \\ Sobol' (heavy duty) \end{minipage}
+%\caption{Execution times and errors for test function \eqref{GaussianTestFun} for $d=2, \ldots, 8$ and $\varepsilon=10^{-3}$, with the rest of the parameters as in Figure \ref{GaussianTestFunFig}.\label{GaussianTestFunHDFig}}
+%\end{figure}
+
+%\Subsection{Asian geometric mean call option pricing}
+%The next example involves pricing an Asian geometric mean call option.  Suppose that the price of a stock $S$ at time $t$ follows a geometric Brownian motion with constant interest rate, $r$, and constant volatility, $v$.  
+%One may express the stock price in terms of the initial condition, $S(0)$, as 
+%\[
+%S(t)=S(0) \exp[(r-v^2/2)t + v B(t)], \qquad t \ge 0,
+%\]
+%where $B$ is a standard Brownian motion.  
+%The discounted payoff of the Asian geometric mean call option with an expiry of $T$ years, a strike price of $K$, and assuming a discretization at $d$ times is 
+%\begin{equation} \label{payoff}
+%Y=\max\biggl([\sqrt{S(0)}S(T/d) S(2T/d)\cdots S(T(d-1)/d) \sqrt{S(T)}]^{1/d} - K,0 \biggr)\me^{-rT}.
+%\end{equation}
+%The fair price of this option is $\mu=\e(Y)$. One of our chief reasons for choosing this option for numerical experiments is that its price can be computed analytically, while the numerical computation is non-trivial.
+%
+%In our numerical experiments, the values of the Brownian motion at different times required for evaluating the stock price, $B(T/d), B(2T/d), \ldots,  B(T)$, are computed via a  Brownian bridge construction.  This means that for one instance of the Brownian motion we first compute $B(T)$, then $B(T/2)$, etc., using independent Gaussian random variables $X_1, \ldots, X_d$, suitably scaled. The Brownian bridge accounts for more of the low frequency motion of the stock price by the $X_j$ with smaller $j$, which allows the Sobol' sampling algorithm to do a better job.  
+%
+%The option price, $\mu=\e(Y)$, is approximated by Algorithm \ref{twostagealgo} and the Sobol' sampling algorithm using an error tolerance of $\varepsilon=0.05$, and compared to the analytic value of $\mu$.  The result of $500$ replications is given in Figure \ref{AsianGeoMeanCallFig}.  Some of the parameters are set to be fixed values, namely,
+%\[
+%S(0)=K=100, \qquad T=1, \qquad r=0.03.
+%\]
+%The volatility, $v$, is drawn uniformly between $0.1$ and $0.7$.  The number of time steps, $d$, is chosen to be uniform over $\{1, 2, 4, 8, 16, 32\}$.  The true value of $\mu$ for these parameters is between about $2.8$ and $14$.
+%
+%\begin{figure}
+%\centering
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{geomeaniidErrTime.eps} \\ Algorithm \ref{twostagealgo} \end{minipage}
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{geomeaniidheavyErrTime.eps} \\ Algorithm \ref{twostagealgo} (heavy duty)\end{minipage}
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{geomeanSobolErrTime.eps} \\ Sobol' \end{minipage}
+%\begin{minipage}{5.7cm} \centering \includegraphics[width=5.7cm]{geomeanSobolheavyErrTime.eps} \\ Sobol' (heavy duty) \end{minipage}
+%\caption{Execution times and errors for the Asian geometric mean call option for $d=1, 2, 4, 8, 16, 32$ and $\varepsilon=0.05$.\label{AsianGeoMeanCallFig}}
+%\end{figure}
+%
+%For this example the true kurtosis of $Y$ is unknown.  
+%Both  Algorithm \ref{twostagealgo} and the  Sobol' sampling algorithm compute the option price to the desired error tolerance with high reliability.  For the IID sampling Algorithm \ref{twostagealgo} and the ordinary Sobol' sampling algorithm it can be seen that some of the errors are barely under the error tolerance, meaning that the sample size is not 
+%chosen too conservatively.  For the heavy duty Sobol' algorithm, the high initial sample size seems to lead to smaller than expected errors and larger than necessary 
+%computation times.
 \Chapter{Guaranteed Monte Carlo method with a generalized error tolerance}\label{chapter:meanMCg}
 
 \Section{A General Point-wise Error Criterion}
