@@ -102,7 +102,6 @@
 %\newcommand{\wup}{{\mathcal U}}
 %\newcommand{\ccup}{{\mathcal C}}
 %\newcommand{\reals}{\mathbb{R}}
-%
 %\def\abs#1{\ensuremath{\left \lvert #1 \right \rvert}}
 %\newcommand{\ip}[3][{}]{\ensuremath{\left \langle #2, #3 \right \rangle_{#1}}}
 %\newcommand{\ch}{\mathcal{H}}
@@ -126,6 +125,8 @@
 %\newcommand{\id}   {\operatorname{id}}
 %\newcommand{\scp}[2]{\langle #1, #2 \rangle}
 %
+
+\DeclareMathOperator{\Yrand}{Yrand}
 %\DeclareMathOperator{\diag}{diag}
 %\DeclareMathOperator{\Trace}{Trace}
 %\newtheorem{assump}{Assumption}[chapter]
@@ -199,55 +200,52 @@ this is abstract
 \Chapter{INTRODUCTION}\label{introduction}
 %Monte Carlo are used to approximate the means, $\mu$, of random variables $Y$, whose distributions are not known explicitly.  The key idea is that the average of a random sample, $Y_1, \ldots, Y_n$, tends to $\mu$ as $n$ tends to infinity. This article explores how one can reliably construct a confidence interval for $\mu$ with a prescribed half-width (or error tolerance) $\varepsilon$.  
 %\Chapter{BACKGROUND}
-
-Monte Carlo is a widely used simulation method that can be used to understand and control complex stochastic systems, pricing the financial derivatives, estimating the default probability, evaluating the mean of random variables, perform the numerical integration and solve other real world problems. It is not like the analytical methods, which is limited to simple models whose solution could be solved analytically, nor the numerical methods, which is still limited to certain simple models, Monte Carlo simulation could handle very complex and realistic systems, but we need to do a certain number of replications in order to achieve the desired accuracy.
+Monte Carlo is a widely used simulation method that can be applied to understand and control complex stochastic systems, pricing financial derivatives, estimating default probabilities, evaluating means of random variables, performing numerical integration and solving other real world problems. It is not like the analytical methods, which are limited to simple models whose solutions could be solved analytically, nor the numerical methods, which are still limited to certain simple models. Monte Carlo simulation could handle very complex and realistic systems, whereas we need to do a certain number of replications in order to achieve the desired accuracy.
 
 \Section{Numerical Integration}
-Numerical integration covers a board range of algorithms that are used to calculate the numerical value of a definite integral, or estimate the numerical solution of the differential equations.
-The basic problem is to calculate the $\mu$ to a certain accuracy, i.e.:
+Numerical integration covers a board range of algorithms that are used to calculate the numerical value of a definite integral, or to estimate the numerical solution of a differential equation.
+The basic problem is to calculate the $I$ to a certain accuracy, i.e.:
 \begin{align}
-\mu = \int_a^b f(x)dx \approx \sum_{i=1}^nA_i f(x_i)
+I = \int_a^b f(x)dx \approx \sum_{i=1}^nA_i f(x_i)
 \end{align}
-where $f(x)$ is the integrad. $x_i$ are the integration points and $A_i$ are the coefficients. The integration points and weights depend on the specific method used and the accuracy required from the approximation.
-This problem is often called quadrature. For one dimensional integral, the quadrature method such as trapezoidal rule and Simpson’s rule are known to be efficient if the integrand is smooth. To compute multidimentional integrals, one approach is to phrase the multiple integral as repeated one-dimensional integrals by appealing to Fubini's theorem[cite here]. Cubature[cite here] is one of the well known packages using quadrature methods that work great for low-dimensional integration. However, this approach requires the function evaluations to grow exponentially as the number of dimensions, $d$, increases. This is so called curse of dimensionality[cite here]. One way to overcome this is by Monte Carlo.
+where $f(x)$ is the integrad, $x_i$ are the integration points and $A_i$ are the coefficients. The integration points and weights depend on the specific method used and the accuracy required from the approximation. This problem is often called quadrature. For one dimensional integrals, the quadrature method such as Tr apezoidal rule and Simpson's rule are known to be efficient if the integrand is smooth. To compute multidimensional integrals, one approach is to phrase the multiple integral as repeated one-dimensional integrals by appealing to Fubini's theorem \cite{Fubini1907}. Cubature \cite{cubature} is one of the well known packages using quadrature methods that work great for low-dimensional integration. However, this approach requires the function evaluations to grow exponentially as the number of dimensions, $d$, increases. Richard E. Bellman give this problem a name: curse of dimensionality. One way to overcome this is by Monte Carlo Method.
 
-\Section{Monte Carlo Simulation} Monte Carlo method is a a scientific computing technique that replies on repeated resampling and statistical analysis to obtain the desired result, it uses some random numbers as a tool to calculate something that is not random. For example, we want to calculate the mean of a random variable $Y$, i.e. $\e(Y) = \mu$ where $\mu$ is a deterministic number.  One way to do it is sampling $n$ independent and identically distributed $X_i$ from the distribution of $X$ and take the average,
+\Section{Monte Carlo Simulation} Monte Carlo method is a a scientific computing technique that relies on repeated re-sampling and statistical analysis to obtain the desired result, it uses some random numbers as a tool to calculate something that is not random. For example, we want to calculate the mean of a random variable $Y$, i.e. $\e(Y) = \mu$ where $\mu$ is a deterministic number.  One way to do it is sampling $n$ independent and identically distributed $X_i$ from the distribution of $X$ and take the sample average, 
 $$\mu \approx \hmu_n := \sum_{i=1}^nY_i.$$
-The strong law of large numbers states that the sample mean converge to the true mean almost surely, i.e.: $\hmu_n \to \mu$ as $n \to \infty$. Simple Monte Carlo has an error roughly proportional to $1/\sqrt{n}$ for large $n$. The convergence is low comparing to other numerical methods. One way to overcome this is by applying quasi-Monte Carlo techniques, such as using Sobol' or Lattice points[cite here]. They are basically generating low discrepancy sequences in order to get a faster convergence rate. Quasi-Monte Carlo has a rate of convergence close to $O(N^{-1})$, whereas the rate for the Monte Carlo method is $O(N^{-1/2})$.
+The strong law of large numbers states that the sample mean converge to the true mean almost surely, i.e.: $\hmu_n \to \mu$ as $n \to \infty$. Simple Monte Carlo has an error roughly proportional to $1/\sqrt{n}$ for large $n$. The convergence is low comparing to other numerical methods. One way to overcome this is by applying quasi-Monte Carlo techniques, such as using Sobol' points \cite{Sobol67, Sobol76}or Lattice points \cite{Glasserman03}. They are basically generating low discrepancy sequences in order to get a faster convergence rate. Quasi-Monte Carlo has a rate of convergence close to $O(N^{-1})$ \cite{Glasserman03}, whereas the convergence rate for the Monte Carlo method is $O(N^{-1/2})$ \cite{Glasserman03}.
 
 \Section{Monte Carlo Applications}
 Monte Carlo gives a flexible way to approximate the mean $\mu$ of a random variable $Y$, where $\mu=\e(Y)$. One can generate a number of samples $Y_i$ from the distribution of $Y$ and take the sample average as $\hmu_n$, which may be a good estimator of the true mean $\mu$. Some possible real world problems are listed below. 
 
 \Subsection{Option Pricing}
-Let $Y$ could be the discount payoff of financial derivatives like options, which depends on the future value of the underlying assets that are driven by some stochastic process like Brownian Motion. one may be interested in the fair price of this option at certain time $t$, this is so called option pricing problem. 
+Let $Y$ be the discount payoff of some financial derivatives like options, which depends on the future value of the underlying assets that are driven by some stochastic processes. one may be interested in the fair price of this option at certain time $t$, this is so called the option pricing problem. 
 
-Let $r$ be the interest rate, $T$ be the maturity time, $g(S(t))$ represent the payoff function and $S(t)$  be the stock price dynamic. Then the option price at time 0 is given by $$c=\e[e^{-rT}g(S(T))].$$One simple example is to price the European call option. Let $Y = e^{-rT}(S(T)-K)^+ $, in this way, the fair option price is given by:
-$$\mu = \e\left(e^{-rT}(S(T)-K)^+\right)$$
+Let $r$ be the interest rate, $T$ be the maturity time, $g(S(t))$ represent the payoff function and $S(t)$ be the stock price dynamic. Then the option price at time $0$ is given by $$c=\e[e^{-rT}g(S(T))].$$ One simple example is to price the European call option. Let $Y = e^{-rT}(S(T)-K)^+ $, in this way, the fair option price is given by:
+$$\mu = \e\left(e^{-rT}(S(T)-K)^+\right).$$
 One way to estimate $\mu$ is by sampling a number of $S_i(T)$ and let $Y_i = e^{-rT}(S_i(T)-K)^+$. Then we could estimate $\mu$ by its sample average
-$$\hmu_n = \sum_{i=1}^n Y_i = \sum_{i=1}^n( e^{-rT}(S_i(T)-K)^+)$$
-The other possible application of Monte Carlo would be the numerical integration via Monte Carlo sampling.
+$$\hmu_n = \sum_{i=1}^n Y_i = \sum_{i=1}^n( e^{-rT}(S_i(T)-K)^+).$$
+The other possible application of Monte Carlo could be the numerical integration via Monte Carlo sampling.
 
 \Subsection{Numerical Integration via Monte Carlo}
-Suppose we want to evaluate the multidimensional integral with integrand $f:\reals^d \to \reals$ with respect to some probability density function  $\rho: \reals^d \to [0,\infty)$.
+Suppose we want to evaluate the multidimensional integral with integrand $f:\reals^d \to \reals$ with respect to some probability density function $\rho: \reals^d \to [0,\infty)$.
 %and some random vector with probability density function $\rho: \reals^d \to [0,\infty)$.
 The analytical solution may be written as:
 $$\mu = \int_{\reals^d}f(\vx)\rho(\vx)d\vx \quad \text{   where } \vx \in \reals^d \text{ and } \vx \sim \rho(\vx).$$
-By appealing Monte Carlo technique, one need to generate a bunch of function values $Y_i$ from the distribution of $\vX$ where $Y_i = f(\vX_i)$, $\vX_i \in \reals^d$. Thus, the true solution could be approximated as
-$$\hmu_n = \sum_{i=1}^n f(\vX_i).$$
+By appealing Monte Carlo technique, one need to generate a bunch of random variable $\vX_i \in \reals^d$ from the distribution of $\vX$ and calculate the function values by $Y_i = f(\vX_i)$. Thus, the true solution could be approximated as $$\hmu_n = \sum_{i=1}^n f(\vX_i).$$
 When $n$ is large enough, $\hmu_n$ may be a good estimator of $\mu$.
 %%Suppose we want to calculate the mean of a random variable, whose true mean is unknown, or hard to be calculated analytically. Suppose $Y$ is a random variable, we want to calculate its mean, i.e. $\e(Y) = \mu$, one way to do it is to sample $n$ values of $Y_i$, and let $\hmu_n = \sum_{i=1}^n Y_i$, when $n$ is large enough, $\hmu_n$ may be a good estimator of $\mu$. 
 
 \Subsection{Sample size determination}
-How large should $n$ be? One way to determine the sample size $n$ is by Central Limit Theorem(CLT),  which would be explained in Section \ref{clt}. As CLT is an asymptotic results and is true only when $n \to \infty$. We tend to find a finite $n$ in order to make our estimator $\hmu_n$ satisfy the fixed width confidence interval condition 
+How large should $n$ be? One way to determine the sample size $n$ is by Central Limit Theorem(CLT) \cite{LB10},  which would be explained in Section \ref{clt}. As CLT is an asymptotic results and is true only when $n \to \infty$. We tend to find a finite $n$ in order to make our estimator $\hmu_n$ satisfy the fixed width confidence interval condition 
 \begin{align}\label{absCI}
 \Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha,
 \end{align}
 where $\varepsilon_a$ is the absolute error tolerance and $\alpha$ is the uncertainty level. 
-In Chapter \ref{chapter:meanMCabsg}, under the assumption that the upper bound on the modified kurtosis $\kappa$ is bounded [cite here], i.e.
+In Chapter \ref{chapter:meanMCabsg}, under the assumption that the upper bound on the modified kurtosis $\kappa$ is bounded \cite{HJLO12}, i.e.
 \begin{align}
 \kappa = \frac{\e(Y-\mu)^4}{\sigma^4} \leq \kmax,
 \end{align}
-we present a two stage algorithm ({\tt meanMCabs\_g}): the first stage generates a conservative upper bound on the variance, and the second stage uses this variance bound and a Berry-Esseen Theorem[cite here], which could be thought as a non-asymptotic CLT, to determine how large $n$ must be for the sample mean to satisfy the fixed width confidence interval condition \eqref{absCI}.
+we present a two stage algorithm {\tt meanMCabs\_g}: in the first stage, we calculated a conservative upper bound on variance, which would be used to determine the sample size needed in the next stage; In the second stage, we use that upper bound on variance and a Berry-Esseen Theorem \ref{BEThm}, which could be thought as a non-asymptotic CLT, to determine how large $n$ must be for the sample mean to satisfy the fixed width confidence interval condition \eqref{absCI}.
 
 In some practical situations, one may seek to approximate the answer with a certain relative accuracy. e.g. correct to three significant digits. Let $\varepsilon_r$ stands for the relative error tolerance and $\varepsilon_a$ stands for the absolute error tolerance. In this case, one may seek the answer $\hmu_n$ satisfies the following condition:
 \begin{align}\label{relCI}
@@ -268,63 +266,67 @@ Two examples that one may choose are
 \end{align}
 \end{defn}By using the hybrid error tolerance function, one may generalize the pure absolute and pure relative error criterion as follows:
 \begin{align}\label{hybridCI}
-\Pr(\abs{\mu-\hmu_n}\leq \tol(\varepsilon_a, \varepsilon_r\abs{\mu})) \geq 1-\alpha.
+\Pr\left(\abs{\mu-\hmu_n}\leq \tol\left(\varepsilon_a, \varepsilon_r\abs{\mu}\right)\right) \geq 1-\alpha.
 \end{align}
-In Chapter \ref{chapter:meanMCg}, we proposed an algorithm ({\tt meanMC\_g}) to estimate $\hmu_n$ in order to satisfy the hybrid error condition \eqref{hybridCI}. The procedure is done by bounded the variance from above in the first stage, and loop in the second stage to find the sample size needed in order to reach the stop criteria.
+In Chapter \ref{chapter:meanMCg}, we proposed an algorithm {\tt meanMC\_g} to estimate $\hmu_n$ in order to satisfy the hybrid error condition \eqref{hybridCI}. The procedure is done by bounded the variance from above in the first stage, and loop in the second stage to find the sample size needed in order to reach the stop criterion.
 
 \Section{Fooling functions}
-Automatic algorithms commonly determines the computational cost required to approximate the solutions that differ from the true solutions by no more than a given error tolerance, $\varepsilon$. In this way, one require a user specified error tolerance $\varepsilon$ and a black box that generate the function values. Several commonly used software packages have adaptive, automatic algorithms for integrating functions of a single variable, unfortunately, they do not provide any guarantees. On the other hand, most existing guaranteed automatic algorithms are not adaptive, they do not determine the computational cost needed based on the function value sampled. Some examples are
+Automatic algorithms commonly determines the computational cost required to approximate the solutions that differ from the true solutions by no more than a given error tolerance, $\varepsilon$. In this way, one require a user specified error tolerance $\varepsilon$ and a black box that generate the function values. Several commonly used software packages have adaptive, automatic algorithms for integrating functions of a single variable. Unfortunately, they do not provide any guarantees. On the other hand, most existing guaranteed automatic algorithms are not adaptive, they do not determine the computational cost needed based on the function value sampled. Some examples are
 \begin{itemize}
 \item {\tt integral} \cite{integralMatlab} in MATLAB, adaptive Gauss-Kronrod quadrature based on {\tt quadva};
-\item {\tt chebfun} toolbox [cite here] for MATLAB, which approximates integrals by integrating interrogatory Chebyshev polynomial approximations to the integrads.
+\item {\tt chebfun} toolbox \cite{Chebfun14} for MATLAB, which approximates integrals by integrating interrogatory Chebyshev polynomial approximations to the integrads.
 \end{itemize}
-For these two automatic algorithms, one can easily probe where they sample the integrand, feed the algorithms with zero values and then construct fooling functions for which the automatic algorithms will return zero values for the integral. Figure  [cite] displays these fooling functions for problem $\int_0^1f(x)dx$ for these two algorithms. Each of of these algorithms 
-is given the error tolerance $10^{-14}$, unfortunately, the true absolute error is 1. Our critisim is not these algorithms are easily been fooled, instead, our concern is there is no available theory to tell us what is wrong with the integrand when the algorithms are fooled. In this thesis, we plan to address several algorithms that are guaranteed and adaptive for solving Monte Carlo problems.
-  \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=8cm]{chebintbw-2015-08-04-15-30-28.eps} % requires the graphicx package
-\includegraphics[width=8cm]{integralbw-2015-08-12-16-01-57.eps} 
-    \caption{Plots of the fooling functions,$f$, with $\mu = \int_0^1f(x)dx=1$,bur for which the corresponding algorithms return values of $\hmu=0$}
-    \label{fig:ratiovsalpha}
+For these two automatic algorithms, one can easily probe where they sample the integrand, feed the algorithms with zero values and then construct fooling functions for which the automatic algorithms will return zero values for the integral. Figure \ref{fig:foolingfun} displays these fooling functions for problem $\int_0^1f(x)dx$ for these two algorithms. Each of of these algorithms is given the error tolerance $10^{-14}$, unfortunately, the true absolute error is 1. We are not criticizing that these algorithms are easily been fooled, nor the foolinf functions is too tricky, instead, we are concerning that there is no theory to tell us when the algorithms are fools or the problem with the integrad.
+%Our criticism is not these algorithms are easily been fooled, instead, our concern is there is no available theory to tell us what is wrong with the integrand when the algorithms are fooled. 
+In this thesis, we plan to address several algorithms that are guaranteed and adaptive for solving this kind of Monte Carlo problems.
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{7cm}\centering 
+\includegraphics[width=7cm]{chebintbw-2015-08-04-15-30-28.eps} \\ {\tt chebfun}  \end{minipage}% requires the graphicx package
+\begin{minipage}{7cm}\centering 
+\includegraphics[width=7cm]{integralbw-2015-08-12-16-01-57.eps} \\{\tt integral}
+\end{minipage}
+\caption{Plots of the fooling functions $f$ with $\mu = \int_0^1f(x)dx=1$, for which the corresponding algorithms return values of $\hmu=0$.}\label{fig:foolingfun}
  \end{figure}
  
 \Section{Outline of the thesis}
-The outline of this thesis is as follows:  Chapter \ref{basicInequalities} provides some basic inequalities and theorems that is related to the algorithms. Chapter \ref{chapter:meanMCabsg} describes an algorithm that is used estimate the mean of a random variable to some absolute error tolerance. A similar but more general algorithm that used to estimate the mean of a random variable to some hybrid error tolerance \ref{def:tolfun} with a high confidence level is described in Chapter \ref{chapter:meanMCg}. Chapter \ref{chapter:cubMCg} focus on numerical integration via Monte Carlo sampling and 
-Chapter \ref{chapter:meanMCberg} explains the way to estimate the mean of a Bernoulli random variable to some absolute and relative tolerance with a high confidence level. This thesis ends with a conclusion and some future work.
+The outline of this thesis is as follows: Chapter \ref{basicInequalities} provides some basic inequalities and theorems that are related to the algorithms. Chapter \ref{chapter:meanMCabsg} describes an algorithm that is used estimate the mean of a random variable to some absolute error tolerance. A similar but more general algorithm that used to estimate the mean of a random variable to some hybrid error tolerance \ref{def:tolfun} with a high confidence level is described in Chapter \ref{chapter:meanMCg}. Chapter \ref{chapter:meanMCberg} explains the way to estimate the mean of a Bernoulli random variable to some absolute and relative tolerance with a high confidence level. This thesis ends with a conclusion and some future work.
 
 \Chapter{Basic Theorem and inequalities}\label{basicInequalities}
-In Monte Carlo simulation, one want to estimate the mean of a real valued random variable $Y$, usually, it could be written as the expectation form i.e. $\mu:=\e(Y)$. Usually, the random variable $Y$ depends on the some underlying random vector $\vX \in \reals^d$ with probability density function $\rho$, where $Y = f(\vX)$, in other situations, the random vector $\vX$ may have the discrete distribution or may have infinite dimension. Sometimes, the process governing
-$Y$ may have a complex form,  i.e. the probability of a bankruptcy, in this case, we may be able to generate the IID sample of $Y$, but may not have a simple formula for computing $\rho$ analytically. 
+In Monte Carlo simulation, one want to estimate the mean $\mu$ of a real valued random variable $Y$. Usually, this problem could be written as the expectation form $\mu:=\e(Y)$. Sometimes, the random variable $Y$ depends on the some underlying random vector $\vX \in \reals^d$ with probability density function $\rho$, where $Y = f(\vX)$, in other situations, the random vector $\vX$ may have the discrete distribution or may have infinite dimension. In some practical situations, the process governing $Y$ may have a complex form, i.e. the probability of a bankruptcy or the fair price of an option. In these cases, we may be able to generate the IID sample of $Y$, but may not have a simple formula for computing $\rho$ analytically. 
+In this chapter, we will present some theorems, inequalities and terminologies that may be used to develop our algorithms and prove our theorems in chapter \ref{chapter:meanMCabsg},\ref{chapter:meanMCg} and \ref{chapter:meanMCberg}.
 
 \Section{Moments}
 let $Y$ be a random variable, given the sample size $n$, one generate $Y_1, Y_2, \cdots, Y_n$ samples and calculate the sample mean 
 \begin{align}\label{samplemean}
-\hmu_n = \sum_{i=1}^n Y_i
+\hmu_n = \sum_{i=1}^n Y_i,
 \end{align}
 and the sample variance
 \begin{align}\label{samplevar}
-s^2_n = \frac{1}{n-1}\sum_{i=1}^n (Y_i-\hmu_n)^2
+s^2_n = \frac{1}{n-1}\sum_{i=1}^n (Y_i-\hmu_n)^2.
 \end{align}
-as the true mean of $Y$ could be written as the expectation form
+The true mean of $Y$ could be written as the expectation form,
 \begin{align}\label{truemean}
-\mu = \e(Y)
+\mu = \e(Y),
 \end{align}
-and the true variance is
+the true variance is defined as
 \begin{align}\label{truevar}
-\sigma^2 = \e(Y-\mu)^2
+\sigma^2 = \e(Y-\mu)^2,
 \end{align}
-The skewness of $Y$ is defined as 
+the skewness of $Y$ is given as 
 \begin{align}\label{screwness}
-\gamma = \e(Y-\mu)^3/\sigma^3
+\gamma = \e(Y-\mu)^3/\sigma^3,
 \end{align}
-the modified kurtosis is defined as
+the modified kurtosis has the definition,
 \begin{align}\label{kurtosis}
-\kappa = \e(Y-\mu)^4/\sigma^4
+\kappa = \e(Y-\mu)^4/\sigma^4.
 \end{align}
-our main results of this paper relies on the upper bound on the modified kurtosis, which also implies that the variance and skewness are both finite.
+Note that, sometime the kurtosis has the form $\tilde{\kappa} = \kappa-3$. In this thesis, we only use the definition of the modified kurtosis \eqref{kurtosis}.
+
+Our main results of this paper relies on the upper bound on the modified kurtosis, which also implies that the variance and skewness are both finite. See \cite{HJLO12}.
 
 \Section{Central Limit Theorem}
-The CLT describes how the distribution of $\hmu_n$ approaches a Gaussian distribution as $n \to \infty$.
+The Central Limit Theorem(CLT) describes how the distribution of $\hmu_n$ approaches a Gaussian distribution as $n \to \infty$.
 \begin{theorem}[Central Limit Theorem {\cite[Theorem 21.1]{JP04}}] \label{clt} 
 If $Y_1, \ldots, Y_n$ are IID with $\e(Y_i)=\mu$ and $\var(Y_i) = \sigma^2$, then
 $$
@@ -335,14 +337,15 @@ This theorem implies an approximate confidence interval, called a CLT confidence
 \[
 \Pr(\abs{\hmu_{n_{\CLT}}-\mu} \le \varepsilon) \approx 1- \alpha \qquad \text{for } n_{\CLT} := \left \lceil \frac{z_{\alpha/2}\sigma^2}{\alpha \varepsilon^2} \right \rceil,
 \]
-where $z_{\alpha/2}$ is the $1-\alpha/2$ quantile of the standard Gaussian distribution.  When $\sigma^2$ is unknown, it may be replaced by the sample variance $s_n^2$.
+where $z_{\alpha/2}$ is the $1-\alpha/2$ quantile of the standard Gaussian distribution.  When $\sigma^2$ is unknown, it may be replaced by the sample variance $s_n^2$ defined in \eqref{samplevar}.
 
 \Section{Chebyshev's inequality}
 Chebyshev's inequality may be used to construct a fixed-width confidence interval for $\mu$.  It makes relatively mild assumptions on the distribution of the random variable.
 
-\begin{theorem}[Chebyshev's Inequality {\cite[6.1.c]{LB10}}] \label{ChebyThm}If $X$ is a random variable, for any $\varepsilon>0$, $\Pr(\abs{X-E(X)} \ge \varepsilon) \le  \var(X)/\varepsilon^2$.
+\begin{theorem}[Chebychev's Inequality {\cite[6.1.c]{LB10}}] \label{ChebyThm}If $X$ is a random variable, for any $\varepsilon>0$, 
+$$\Pr(\abs{X-E(X)} \ge \varepsilon) \le  \var(X)/\varepsilon^2.$$
 \end{theorem}
-Choosing $X=\sum_{i=1}^n Y_i/n = \mu_n $, noting that $\e(X) = \e(Y) = \mu$, $\var(X) = \var(Y)/n = \sigma^2/n$, and setting $\var(X)/\varepsilon^2=\sigma^2/(n\varepsilon^2) = \alpha$ leads to the fixed-width confidence interval 
+Let $Y_1, \ldots, Y_n$ be IID. Choosing $X=\sum_{i=1}^n Y_i/n = \mu_n$, noting that $\e(X) = \e(Y) = \mu$, $\var(X) = \var(Y)/n = \sigma^2/n$, and setting $\var(X)/\varepsilon^2=\sigma^2/(n\varepsilon^2) = \alpha$ leads to the fixed-width confidence interval 
 \[
 \Pr(\abs{\hmu_{n}-\mu} \le \varepsilon) \ge 1- \alpha 
 \]
@@ -350,22 +353,25 @@ Choosing $X=\sum_{i=1}^n Y_i/n = \mu_n $, noting that $\e(X) = \e(Y) = \mu$, $\v
  \begin{align}
 n=N_{\Cheb}(\varepsilon/\sigma,\alpha):= \left \lceil \frac{1}{\alpha (\varepsilon/\sigma)^2} \right \rceil.
  \end{align}
+ Chebychev's inequality ensures that the random variable $\hmu_n$ is not too far from its true value $\mu$ with a fixed width confidence interval, however, this inequality is too conservative that required a significantly large sample size than CLT. In some settings, we need a one sided inequality like Chebychev's, we will appeal to Cantelli's inequality.
+ 
 \Section{Cantelli's Inequality}
-\begin{theorem}[Cantelli's Inequality {\cite[6.1.e]{LB10}}]\label{CanThm} If $X$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for any $a \geq 0$, it follows that: 
+\begin{theorem}[Cantelli's Inequality {\cite[6.1.e]{LB10}}]\label{CanThm} If $Y$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for any $a \geq 0$, it follows that: 
 \begin{align}
-\Pr(X-\mu \ge a) \le  \frac{\sigma^2}{a^2+\sigma^2}.
+\Pr(Y-\mu \ge a) \le  \frac{\sigma^2}{a^2+\sigma^2}.
 \end{align}
 \end{theorem}
+Cantelli's inequality may be used to get a reliable upper on the variance $\sigma^2$ of a random variable $Y$ in chapter \ref{chapter:meanMCabsg} and \ref{chapter:meanMCg} for algorithm \ref{alg:meanMCabsg}, \ref{alg:cubMCabsg}, \ref{alg:meanMCg} and \ref{alg:cubMCg}.
+
 \Section{Jensen's Inequality}
 \begin{theorem}[Jensen's Inequality{\cite[8.4a]{LB10}}]\label{Jensen}
-Let$g$ be a convex function on $\reals$. Suppose that the expectations of $X$ and $g(X)$ exist, then
+Let $g$ be a convex function on $\reals$. Suppose that the expectations of $X$ and $g(X)$ exist, then
 $$g(\e X) \leq \e(g(X)).$$
 Equality holds for strictly convex $g$ if and only if $X=EX$ a.s.
-
 \end{theorem}
-\Section{The Berry-Esseen Inequality}
+As Jensen's inequality could be used to bound the third moment $M_3$ of a random variable $Y$ by its fourth moment $\kappa$ from above. This following lemma shows the result.
 \begin{lemma}\label{M3kappalemma}
-Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2>0$, third centered moment $M_3 = \e\abs{Y-\mu}^3/\sigma^3 < \infty$ and modified kurtosis $\kappa = \e\abs{Y-\mu}^4/\sigma^4< \infty$, then we have the inequality below:
+Let $Y$ be a random variable with mean $\mu$, and variance $\sigma^2>0$, third centered moment $M_3 = \e\abs{Y-\mu}^3/\sigma^3 < \infty$ and modified kurtosis $\kappa = \e\abs{Y-\mu}^4/\sigma^4< \infty$. Then the thrid moment $M_3$ may be bounded as 
 \begin{align}\label{M3kappa}
 M_3\leq \kappa^{3/4}.
 \end{align}
@@ -373,19 +379,23 @@ M_3\leq \kappa^{3/4}.
 \begin{proof}
 By Jensen's Inequality in Theorem \ref{Jensen}, let the convex function be $g(y) = y^{4/3}$ and define the random variable $X = \abs{Y-\mu}^3$. Then we would have:
 $$g(\e X) = \left (\e\abs{Y-\mu}^3\right)^{4/3} \leq \e\left(\left(\abs{Y-\mu}^3\right)^{4/3}\right) = \e(g(X)).$$
-which is equivalent to:
+By deviding both side of the inequality by $\sigma^3$, we will get:
 $$\frac{\e\left(\abs{Y-\mu}^3\right)}{\sigma^3} \leq \left (\frac{\e\left(\abs{Y-\mu}^4\right)}{\sigma^4}\right)^{3/4}.$$
-Then we have:
+Hence, the result is: 
 \begin{align}
 M_3\leq \kappa^{3/4}.
 \end{align}
 \end{proof}
-\begin{theorem}[The Berry Esseen Inequality (cite)] \label{BEThm}
-Let $Y_1,\cdots,Y_n$ be IID random variables with mean $\mu$, variance $\sigma^2 >0$, and thrid centered moment $M_3 = \e\abs{Y_i-\mu}^3/\sigma^3 < \infty$. Let $\hmu_n = (Y_1+\cdots+Y_n)/n$ denote the sample mean, Then
-\[
-\abs{\Pr\left(\frac{\hmu-\mu}{\sigma/\sqrt{n}}<x\right)-\Phi(x)} \leq \delta_n(x,M_3):=\frac{1}{n}\min\left( A_1(M_3+A_2),  A_3(M_3+A_4), A_5M_3, \frac{A_6M_3}{1+\abs{x}^3}\right)
-\]
-where $A_1 = 0.3322$, $A_2 = 0.429$, $A_3=0.3031$, $A_4=0.646$, $A_5=0.469$ and $A_6=18.1139$.
+This inequality may be used to get the sample size determined by the Berry-Esseen inequality.
+
+\Section{The Berry-Esseen Inequality}
+\begin{theorem}[The Berry Esseen Inequality] \label{BEThm}
+Let $Y_1,\cdots,Y_n$ be IID random variables with mean $\mu$, variance $\sigma^2 >0$, and thrid centered moment $M_3 = \e\abs{Y_i-\mu}^3/\sigma^3 < \infty$. Let $\hmu_n = (Y_1+\cdots+Y_n)/n$ denote the sample mean. Then
+\begin{align}
+&\abs{\Pr\left(\frac{\hmu-\mu}{\sigma/\sqrt{n}}<x\right)-\Phi(x)}\\
+& \leq \delta_n(x,M_3):=\frac{1}{n}\min\left( A_1(M_3+A_2),  A_3(M_3+A_4), A_5M_3, \frac{A_6M_3}{1+\abs{x}^3}\right)
+\end{align}
+where $A_1 = 0.3322$, $A_2 = 0.429$, $A_3=0.3031$, $A_4=0.646$, $A_5=0.469$ \cite{She13} and $A_6=18.1139$ \cite{NeShe12}.
 \end{theorem}
 By applying theorem \ref{BEThm} with given $M_3$, let $\hmu_n$ donates a sample mean of $n$ IID random instances of $Y$, then the non-uniform Berry-Esseen inequality implies that
 \begin{align} 
@@ -417,14 +427,16 @@ $$\Pr(\hp_n-p \geq \varepsilon) \leq e^{-2n\varepsilon^2},$$
 $$\Pr(p-\hp_n \geq \varepsilon) \leq e^{-2n\varepsilon^2},$$
 $$\Pr(\abs{\hp_n-p} \geq \varepsilon) \leq 2e^{-2n\varepsilon^2}.$$
 \end{theorem}
-
+ 
 \Section{Fr\'{e}chet formula}
-\begin{theorem}[Fr\'{e}chet Formula] \cite{FrechetIneq}
+\begin{theorem}[Fr\'{e}chet Formula] \cite{Frechet35}
 Probability of a logical conjunction have the following inequality:
 \begin{align}
 \max(0, P(A_1) + P(A_2)+\cdots +P(A_n)-(n -1)) \leq P\left(\bigcap_{i=1}^n A_i\right)\leq \min(P(A_1), P(A_2), ..., P(A_n))
 \end{align}
 \end{theorem}
+
+\Section{Some theorems used}
 \begin{lemma}\cite[Lemma 1]{HJLO12} \label{samplevarbound}
 Let $Y_1,\cdots,Y_n$ be IID random variables with variance $\sigma^2>0$ and modified kurtosis $\kappa$, Let $s_n^2$ be the sample variance defined at \eqref{samplevar}. Then
 \begin{subequations}
@@ -480,6 +492,10 @@ Apply the inequality \eqref{boundsamplevar1} in lemma \ref{samplevarbound}, mult
 \end{proof}
 
 \Chapter{Guaranteed Monte Carlo method with an absolute error tolerance}\label{chapter:meanMCabsg}
+In this chapter, we will present two guaranteed automatic adaptive algorithms {\tt meanMC\_g}, which estimate the mean of a random variable $Y$; {\tt cubMC\_g}, which estimate the integral with the integrand $f(\vx)$. In order to estimate the mean $\mu$ of a random variable $Y$, where $\mu = \e(Y)$, we feed {\tt meanMC\_g} with a random number generator $\Yrand$, an absolute error tolerance $\varepsilon_a$ and a confidence level $1-\alpha$. This algorithm will determine the sample sized needed in order to make the answer $\hmu_n$ satisfy the fixed width confidence interval condition $\Pr (\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha$. Similar for the {\tt cubMC\_g}, which estimate the interval $I$ with the integrad $f(\vx)$, we feed this algorithm with the integrand $f(\vx)$, integration interval $[a_i,b_i]^d$, the measure $\rho(\vx)$, the absolute error tolerance $\varepsilon_a$ and the confidence interval $1-\alpha$. We will expect the answer $\hIn$ satisfying the fixed width confidence interval $\Pr \left(\abs{I-\hIn} \leq \varepsilon_a\right) \geq 1-\alpha$
+
+
+
 Here, we would illustrate our two-stage algorithm. In the first stage, we sample $n_\sigma$ IID samples from the distribution of $Y$, from this sample we compute the sample variance, $s_{n_\sigma}^2$, according to \eqref{samplevar} and estimate the upper bound on variance $Y_i$ by $\hsigma^2 = \fudge^2s_{n_{\sigma}}^2$, where $\fudge^2>1$ is a variance inflation factor. For the second stage, we replace the true variance $\sigma^2$ by its upper bound $\hsigma^2$, then use the Berry-Esseen Theorem \ref{BEThm} to get the sample size needed for computing the sample mean $\hmu$, if the modified kurtosis $\kappa$ is less than $\kmax$, then we could guarantee that the fixed width confidence interval condition \eqref{absCI} may be satisfied.
 
 \Section{the Algorithm :{\tt meanMCabs\_g}} 
@@ -654,7 +670,7 @@ Here $\vx$ is a $d$ dimensional vector, and $a_0, b_0, \ldots, b_d, c_1, \ldots,
 These ranges of parameters are chosen so that the algorithms being tested fail to meet the error tolerance a significant number of times.
 \begin{figure}
 \centering
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
 {gaussiand=1iidErrTime-2015-08-12-16-25-16.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubSobolErrTime-2015-08-12-16-25-17.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubLatticeErrTime-2015-08-12-16-25-17.eps} \\ {\tt cubLattice\_g} \end{minipage}
@@ -662,7 +678,7 @@ These ranges of parameters are chosen so that the algorithms being tested fail t
 {gaussiand=1chebfunErrTime-2015-08-12-16-25-18.eps} \\ {\tt chebfun} \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]
 {gaussiand=1integralErrTime-2015-08-12-16-25-18.eps} \\ {\tt integral} \end{minipage}
-\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=1$ and error tolerance $\varepsilon_a=10^{-3}$, and a variety of parameters giving a range of $\sigma$ and $\kappa$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the Algorithm \ref{cubMCabsg} the points labeled * are those for which the Corollary \ref{thm:meanMCabsg} guarantees the error tolerance.\label{fig:GaussianTestFun} }
+\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=1$ and error tolerance $\varepsilon_a=10^{-3}$, and a variety of parameters giving a range of $\sigma$ and $\kappa$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the Algorithm \ref{alg:cubMCabsg} the points labeled * are those for which the Theorem \ref{thm:meanMCabsg} guarantees the error tolerance.\label{fig:GaussianTestFun} }
 \end{figure}
 
 These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt integral},  {\tt cubMCabs\_g}, {\tt chebfun}, and {\tt cubLattice\_g}, {\tt cubSobol\_g} [cite here], 
@@ -687,7 +703,7 @@ Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{f
 
 \begin{figure}
 \centering
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=6iidErrTime-2015-08-12-00-37-05.eps} \\ {\tt cubMCabs\_g} \end{minipage}
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{gaussiand=6iidErrTime-2015-08-12-00-37-05.eps} \\ {\tt cubMCabs\_g} \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=6cubSobolErrTime-2015-08-12-00-37-06.eps} \\ {\tt cubSobol\_g} \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=6cubLatticeErrTime-2015-08-12-00-37-06.eps} \\ {\tt cubLattice\_g} \end{minipage}
 \caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=2, \ldots, 8$ and $\varepsilon_a=10^{-3}$, with the rest of the parameters as in Figure \ref{fig:GaussianTestFun}.\label{fig:GaussianTestFunHD}}
@@ -723,7 +739,7 @@ where $\vx_i = (x_{i1},\cdots,x_{id}) \in \reals$ , $i=1,\cdots, n.$
 As Keister [cite] showed an exact formula for calculating the exact integral, by coding them into MATLAB, we compared the numerical results over three different algorithms with a specified absolute error tolerance.
 \begin{figure}
 \centering
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeisteriidErrTime-2015-09-13-00-24-11.eps} \\ {\tt cubMCabs\_g} \end{minipage}
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{KeisteriidErrTime-2015-09-13-00-24-11.eps} \\ {\tt cubMCabs\_g} \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubSobolErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubSobol\_g} \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubLatticeErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubLattice\_g} \end{minipage}
 \caption{Execution times and errors for Keister test function \eqref{KeisterTestFun} for dimension $d$ random chosen from $1, 2, \ldots, 8$ and absolute error tolerance $\varepsilon_a=10^{-2}$. The points labeled as a diamond are those tends to exceed the budget.Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times. \label{fig:keistertestfunabstol}}
@@ -860,7 +876,7 @@ For example, one might choose $\alpha_{\sigma}$ and
 \begin{equation} \label{alphaseqex}
 \alpha_{i} = \frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-i}, \ i\in \naturals, \quad \text{where} \  a \in (1,\infty).
 \end{equation}
-\begin{algorithm}\label{meanMCg} 
+\begin{algorithm}\label{alg:meanMCg} 
 Specify the following parameters defining the algorithm:
 \begin{itemize}
 \item initial sample size for variance estimation, $n_{\sigma} \in \naturals$,
@@ -891,7 +907,7 @@ If this algorithm terminates, then the general error criterion, \eqref{hybridCI}
 \end{algorithm}
 
 \begin{theorem}\label{thm:meanMCg}
-Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that Algorithm \ref{meanMCg} terminated in a finite time step almost surely, the cost of this algorithm has an probabilistic upper bound $N_{\max}$. If the algorithm terminates, then the general error criterion, \eqref{hybridCI}, is satisfied.
+Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that Algorithm \ref{alg:meanMCg} terminated in a finite time step almost surely, the cost of this algorithm has an probabilistic upper bound $N_{\max}$. If the algorithm terminates, then the general error criterion, \eqref{hybridCI}, is satisfied.
 \end{theorem}
 In order to prove this theorem, we need the following Lemmas.
 % this is the lemma to bound the sample variance
@@ -955,7 +971,7 @@ Define the upper bound on tolerance $\heps_1$ as:
 \begin{align}\label{eps1updef}
 \hvareps_{1\up}(\beta):=\hsigma_{\up}(\beta) N_{CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4}),
 \end{align}
-where $\hsigma_{\up}(\beta)$ is defined in \eqref{sigup}, the stopping time $\tau$ for Algorithm \ref{meanMCg}, has a probabilistic upper bound $\bar{\tau}(\beta)$ with confidence level $1-\beta$, i.e.:
+where $\hsigma_{\up}(\beta)$ is defined in \eqref{sigup}, the stopping time $\tau$ for Algorithm \ref{alg:meanMCg}, has a probabilistic upper bound $\bar{\tau}(\beta)$ with confidence level $1-\beta$, i.e.:
 \begin{align}
 \Pr(\tau <\bar{\tau}(\beta)) \geq 1-\beta.
 \end{align}
@@ -1056,7 +1072,7 @@ $\kappa\leq\kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, Algorithm \ref{alg:meanMCa
 \end{lemma}
 \begin{proof}
 This result could be derived from the proof of the Theorem \ref{thm:meanMCabsg}, by applying the conditional expectation on $\varepsilon_a$.
-Let $\alpha_\sigma$, $n_\sigma$, $\fudge$ be the parameters and $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$ as given in Algorithm \ref{meanMCg}. Also, let the tolerance $\varepsilon_a$ be a random variable depending on $\hsigma^2$. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, then we could find a probabilistic upper bound on $\sigma^2$, which is:
+Let $\alpha_\sigma$, $n_\sigma$, $\fudge$ be the parameters and $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$ as given in Algorithm \ref{alg:meanMCg}. Also, let the tolerance $\varepsilon_a$ be a random variable depending on $\hsigma^2$. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, then we could find a probabilistic upper bound on $\sigma^2$, which is:
 $$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
 Let $\varepsilon$ be a fixed parameter, then the probability could be written as:
 \begin{align}		
@@ -1073,7 +1089,7 @@ Let $\varepsilon$ be a fixed parameter, then the probability could be written as
 %\begin{lemma}\label{step3} 
 %In Algorithm \ref{meanMCg}, suppose $\hsigma$, $\tau$, $\heps_i$, $\hmu_i$, $n_i$, $i = 1,2,\cdots,\tau$ and are random, all other parameters are given as constants in the Algorithm \ref{meanMCg}, then the generalized error criterion \eqref{hybridCI} would be satisfied.
 %\end{lemma}
-With the preparation of the Lemmas, we are ready to prove the Theorem \ref{hybriderrthm}.
+With the preparation of the Lemmas, we are ready to prove the Theorem \ref{thm:meanMCg}.
 \begin{proof}
 Let $\tau$ be the stopping time, by adding the condition of $\hsigma$ and applying proposition \ref{meanMCgProp} we have the inequality below:
 \begin{align*}
@@ -1094,33 +1110,33 @@ Let $\tau$ be the stopping time, by adding the condition of $\hsigma$ and applyi
 &\geq \lim_{i\to \infty}\left ( 1-\sum_{j=1}^{i}\alpha_j\right)\Pr(\tau< i|\hsigma \geq \sigma)(1-\alpha_\sigma)\\
 & = \left(1-\sum_{j=1}^\infty\alpha_j\right)\Pr(\tau< \infty |\hsigma \geq \sigma)(1-\alpha_\sigma)= 1-\alpha
 \end{align*}
-
+%
 %& =  \sum_{i = 1}^\infty \Pr(\abs{\mu-\hmu_\tau}\leq \heps_\tau,\tau = i |\hsigma \geq \sigma)\\
 %& = \sum_{i = 1}^\infty \Pr(\abs{\mu-\hmu_\tau}\leq \heps_\tau,\tau = i |\hsigma \geq \sigma)\\
-%\begin{align}
-%&\Pr(\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})) \\
-%& = \e(\Pr{\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})})\\
-%& \geq\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma})\\
-%&\intertext{as the stopping time $\tau$ is finite almost surely, we could add another constraint as below}\\
-%&\Pr(\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})) \\
-%& \geq\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma})\\
-%& = \e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\tau < \infty }1_{\hsigma \geq \sigma})+\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\tau = \infty }1_{\hsigma \geq \sigma})\\
-%& =\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}1_{\tau < \infty })\\
-%&\intertext{as the stopping time $\tau$ is a random variable that takes value in $\naturals$, then the expection could be written as the sum of all possible values }\\
-%& \e\left(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}\right)\\
-%&= \lim_{n \to \infty}\sum_{i=1}^{n} \e\left(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}|\tau = i\right) \e(1_{\tau=i})\\
-%& = \lim_{n \to \infty}\sum_{i=1}^n\left(1-\sum_{j=1}^i\alpha_j\right)(1-\alpha_{\sigma})\e(1_{\tau=i})\\
-%& \geq \lim_{n \to \infty} \sum_{i=1}^n\left(1-\sum_{j=1}^n\alpha_j\right)(1-\alpha_{\sigma})\e\left(1_{\tau=i}\right) \\
-%& = \lim_{n \to \infty} \left(1-\sum_{j=1}^n\alpha_j\right)(1-\alpha_{\sigma})\sum_{i=1}^n \e\left(1_{\tau=i}\right) \\
-%&=\left(1-\sum_{j=1}^\infty \alpha_j\right)(1-\alpha_{\sigma})=(1-\alpha) \\
-%\end{align}
+\begin{align}
+&\Pr(\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})) \\
+& = \e(\Pr{\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})})\\
+& \geq\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma})\\
+&\intertext{as the stopping time $\tau$ is finite almost surely, we could add another constraint as below}\\
+&\Pr(\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})) \\
+& \geq\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma})\\
+& = \e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\tau < \infty }1_{\hsigma \geq \sigma})+\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\tau = \infty }1_{\hsigma \geq \sigma})\\
+& =\e(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}1_{\tau < \infty })\\
+&\intertext{as the stopping time $\tau$ is a random variable that takes value in $\naturals$, then the expection could be written as the sum of all possible values }\\
+& \e\left(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}\right)\\
+&= \lim_{n \to \infty}\sum_{i=1}^{n} \e\left(1_{\abs{\mu-\hmu_\tau} \leq \varepsilon_\tau}1_{\hsigma \geq \sigma}|\tau = i\right) \e(1_{\tau=i})\\
+& = \lim_{n \to \infty}\sum_{i=1}^n\left(1-\sum_{j=1}^i\alpha_j\right)(1-\alpha_{\sigma})\e(1_{\tau=i})\\
+& \geq \lim_{n \to \infty} \sum_{i=1}^n\left(1-\sum_{j=1}^n\alpha_j\right)(1-\alpha_{\sigma})\e\left(1_{\tau=i}\right) \\
+& = \lim_{n \to \infty} \left(1-\sum_{j=1}^n\alpha_j\right)(1-\alpha_{\sigma})\sum_{i=1}^n \e\left(1_{\tau=i}\right) \\
+&=\left(1-\sum_{j=1}^\infty \alpha_j\right)(1-\alpha_{\sigma})=(1-\alpha) \\
+\end{align}
 \end{proof}
 \Section{The upper bound on cost of Algorithm {\tt meanMC\_g}}
 \begin{theorem}
-The Algorithm \ref{meanMCg} as a cost upper bound by $N_{\up}$
+The Algorithm \ref{alg:meanMCg} as a cost upper bound by $N_{\up}$
 \end{theorem}
 \begin{proof}
-The number of sample size required by the algorithm \ref{meanMCg} is $n_{\sigma}+\sum_{i=1}^\tau n_i$, where $n_\sigma$ is the sample size used to calculate the sample variance $s_{n_\sigma}^2$, and $n_i$ is the sample size used to estimate $\hmu_i$ in each iteration.
+The number of sample size required by the algorithm \ref{alg:meanMCg} is $n_{\sigma}+\sum_{i=1}^\tau n_i$, where $n_\sigma$ is the sample size used to calculate the sample variance $s_{n_\sigma}^2$, and $n_i$ is the sample size used to estimate $\hmu_i$ in each iteration.
  Although $n_{\sigma}$ and $n_1$ are deterministic, the $n_2, n_3,\cdots, n_\tau$ and $\tau$ are random variables. The cost of this particular Monte Carlo algorithm may be defined probablistically. The dependency of the random variables is as below:
  \begin{itemize}
  \item $\hsigma$ depends on the random samples $Y_1,\cdots, Y_{n_\sigma}$;
@@ -1140,30 +1156,28 @@ Thus we have
 &\varepsilon_i \geq  \min(\heps_{i-1}/2,,\varepsilon_a,0.95\varepsilon_r\abs{\hmu_{i-1}})\\
 & = \min(\heps_12^{1-i},\varepsilon_a,0.95\varepsilon_r\abs{\hmu_{i-1}})\\
 \end{align}
-%
-% 
-%\begin{equation*}
-%N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Prob(n_{\sigma} + n_1+\sum_{i=2}^\tau n_i) \le N) \ge 1-\beta  \right \}.
-%\end{equation*}
-%since $n_\sigma$ and $n_1$ are fixed and $n_i =  N_{\text{CB}}(\hvareps_{i}/\hsigma,\alpha_{i},\kappa_{\max}^{3/4})$, $ $ the inequality is equivalent to 
-%\begin{equation*}
-%N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Prob\left(\sum_{i=2}^\tau N_{\text{CB}}(\heps_i/\hsigma,\alpha_i,\tilde\kappa_{\max}^{3/4}) \le N\right) \ge 1-\beta  \right \}+n_{\sigma} + n_1.
-%\end{equation*}
-%define 
-%\begin{align}\label{sigmax}
-%\hsigma_{\max}^2 (\fudge, \alpha_{\sigma},\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma_{\max}^2
-%\end{align}
-%and
-%\begin{align}
-%  \underline{\varepsilon_i} = \min \left \{ \heps_12^{1-i},\varepsilon_a, 0.95\varepsilon_r\abs{\mu} \right \}
-%\end{align}
-%by the way we define $\heps_i$, we have the inequality : $\underline{\varepsilon_i}\leq \heps_i$.
-%Also, define the upper bound on the cost as:
-%$$N_{\up} = \sum_{i=2}^{\bar{\tau}} N_{\text{CB}}(\underline{\varepsilon_i} /\hsigma_{\max},\alpha_i,\tilde\kappa_{\max}^{3/4})$$
-%This, algorithm \ref{meanMCg} has a probablistic upper bounded by
-%\begin{align}
-%N_{\text{tot}} < N_{\up}+n_\sigma+n_1
-%\end{align}
+\begin{equation*}
+N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Prob(n_{\sigma} + n_1+\sum_{i=2}^\tau n_i) \le N) \ge 1-\beta  \right \}.
+\end{equation*}
+since $n_\sigma$ and $n_1$ are fixed and $n_i =  N_{\text{CB}}(\hvareps_{i}/\hsigma,\alpha_{i},\kappa_{\max}^{3/4})$, $ $ the inequality is equivalent to 
+\begin{equation*}
+N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Prob\left(\sum_{i=2}^\tau N_{\text{CB}}(\heps_i/\hsigma,\alpha_i,\tilde\kappa_{\max}^{3/4}) \le N\right) \ge 1-\beta  \right \}+n_{\sigma} + n_1.
+\end{equation*}
+define 
+\begin{align}\label{sigmax}
+\hsigma_{\max}^2 (\fudge, \alpha_{\sigma},\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma_{\max}^2
+\end{align}
+and
+\begin{align}
+  \underline{\varepsilon_i} = \min \left \{ \heps_12^{1-i},\varepsilon_a, 0.95\varepsilon_r\abs{\mu} \right \}
+\end{align}
+by the way we define $\heps_i$, we have the inequality : $\underline{\varepsilon_i}\leq \heps_i$.
+Also, define the upper bound on the cost as:
+$$N_{\up} = \sum_{i=2}^{\bar{\tau}} N_{\text{CB}}(\underline{\varepsilon_i} /\hsigma_{\max},\alpha_i,\tilde\kappa_{\max}^{3/4})$$
+This, algorithm \ref{alg:meanMCg} has a probablistic upper bounded by
+\begin{align}
+N_{\text{tot}} < N_{\up}+n_\sigma+n_1
+\end{align}
 \end{proof}
 
 \Section{The Algorithm {\tt cubMC\_g }}
@@ -1245,11 +1259,11 @@ Figure \ref{fig:GaussiankerHDTestFun} repeats the simulation shown in Figure \re
 
 \begin{figure}
 \centering
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
 {gaussiankerd=3iidErrTime-2015-08-19-00-11-43.eps} \\ {\tt cubMC\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=3cubSobolErrTime-2015-08-19-00-11-44.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=3cubLatticeErrTime-2015-08-19-00-11-44.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for the single hump test function \eqref{GaussiankerTestFun} for $d=2, \ldots, 8$, with the rest of the parameters as in Figure \ref{GaussiankerTestFunFig}.\label{fig:GaussiankerHDTestFun} }
+\caption{Execution times and errors for the single hump test function \eqref{GaussiankerTestFun} for $d=2, \ldots, 8$, with the rest of the parameters as in Figure \ref{fig:GaussiankerTestFun}.\label{fig:GaussiankerHDTestFun} }
 \end{figure}
 
 \Subsection{integrating Keister's test function}
@@ -1287,7 +1301,7 @@ For {\tt cubSobol\_g} and {\tt cubLattice\_g}, the tolerance was met $98\%$ and 
 
 \begin{figure}
 \centering
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
 {KeisteriidErrTime-2015-08-25-16-52-14.eps} \\ {\tt meanMC\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubSobolErrTime-2015-08-25-16-52-15.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubLatticeErrTime-2015-08-25-16-52-15.eps} \\ {\tt cubLattice\_g} \end{minipage}
@@ -1337,7 +1351,7 @@ could be evaluated by univariate quadrature techniques.
 Numerical experiments was done using 500 replications with dimension $d$ IID uniformly chosen from 2 to 8, all other parameters were chosen according to \eqref{MVNPexp1param}. The tolerance was set to be $\max\{\varepsilon_a,\varepsilon_r \abs{\mu}\}$, where $\mu$ was computed by \eqref{truesolMVNP} using univariate quadrature function {\tt integral} in MATLAB, the absolute error tolerance was chosen to be $\varepsilon_a = 10^{-4}$ and the relative error tolerance was set as $\varepsilon_a = 10^{-3}$. The initial sample size for estimating the variance was set to be $2^10$, while the initial sample size using {\tt cubSobol\_g} and {\tt cubLattice\_g} were both set to be $2^10$. Time and error were recorded and plotted in figure \ref{fig:MVNPTestFun1} for using three algorithms.
 \begin{figure}
 \centering
-\begin{minipage}{10cm} \centering \includegraphics[width=9cm]
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
 {MVNPiidErrTime-2015-09-17-23-49-43.eps} \\ {\tt cubMC\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{MVNPcubSobolErrTime-2015-09-17-23-49-44.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{MVNPcubLatticeErrTime-2015-09-17-23-49-45.eps} \\ {\tt cubLattice\_g} \end{minipage}
@@ -1389,7 +1403,7 @@ where $\log_{10}\sigma_i$ is uniformly distributed in $U[1,3]$, $\delta_t$ is a 
 The 500 replications was done with four different shrinkage factor $\delta_t =  0.01,0.1, 1, 10$, the time was recorded and plotted in figure \ref{fig:MVNPadaptivitiy}
 \begin{figure}
 \centering
- \includegraphics[width=10cm]{boxplotofMVNP-2015-09-17-15-58-17.eps} \\ {\tt cubMC\_g} 
+ \includegraphics[width=9cm]{boxplotofMVNP-2015-09-17-15-58-17.eps} \\ {\tt cubMC\_g} 
 \caption{Box and whisker plot for excution time of integrating Multivariate Normal Probability function \eqref{MVNP} with lower triangular matrix chosen as in \eqref{lowertrimatrixC}. The horizonal axis denotes the different $\delta_t$ ranged from $0.01$ to $10$, the vertical axis denotes the computation time. \label{fig:MVNPadaptivitiy} }
 \end{figure}
 
