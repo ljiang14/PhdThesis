@@ -14,7 +14,7 @@
 %\def\e{\text{e}}
 %\def\E{\text{E}}
 %\newcommand{\dif}{{\rm d}}
-
+%\newcommand{\meanMCB}{\texttt{meanMCBer\_g}\xspace}
 \newlength{\overwdth}
 \def\overstrike#1{ 
 \settowidth{\overwdth}{#1}\makebox[0pt][l]{\rule[0.5ex]{\overwdth}{0.1ex}}#1}
@@ -59,7 +59,19 @@
 \DeclareMathOperator{\nullspace}{null}
 \DeclareMathOperator{\Order}{{\mathcal O}}
 %\DeclareMathOperator{\rank}{rank}
-
+\DeclareMathOperator{\rel}{rel}
+\DeclareMathOperator{\tol}{tol}
+\DeclareMathOperator{\up}{up}
+\DeclareMathOperator{\tot}{tot}
+\newcommand{\fudge}{\mathfrak{C}}
+\newcommand{\Cheb}{\text{Cheb}}
+\newcommand{\CLT}{\text{CLT}}
+\newcommand{\BE}{\text{BE}}
+\newcommand{\CB}{\text{CB}}
+\newcommand{\Hoeff}{\text{Hoeff}}
+\newcommand{\hIn}{\hat{I}_n}
+\newcommand{\heps}{\hat{\varepsilon}}
+\newcommand{\kmax}{\kappa_{\max}}
 \newcommand{\bbZ}{\mathbb{Z}}
 \newcommand{\vzero}{\bvec{0}}
 \newcommand{\vone}{\bvec{1}}
@@ -157,8 +169,6 @@
 \newcommand{\hTheta}{\hat{\Theta}}
 \newcommand{\hxi}{\hat{\xi}}
 \newcommand{\hvxi}{\hat{\vxi}}
-
-
 \newcommand{\ta}{\tilde{a}}
 \newcommand{\tA}{\tilde{A}}
 \newcommand{\tvb}{\tilde{\vb}}
@@ -269,7 +279,3 @@
 \newcommand{\hp}{\hat{p}}
 \newcommand{\e}{\mathbb{E}}
 %\newcommand{\abs}[1]{\left|#1\right|}
-\newcommand{\meanMCB}{\texttt{meanMCBer\_g}}
-\newcommand{\Cheb}{\text{Cheb}}
-\newcommand{\CLT}{\text{CLT}}
-\newcommand{\Hoeff}{\text{Hoeff}}
