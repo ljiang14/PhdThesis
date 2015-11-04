@@ -1292,24 +1292,47 @@ As $\tau$ is the first time that the stopping criterion $\Delta_{+, \tau} \geq \
 \begin{align}\label{STrelationshop}
 \{\tau = t\} \Leftrightarrow \{\Delta_{+,t} \geq \heps_t\} \& \{\Delta_{+,i} \leq \heps_t, \text{for }  i = 1,2,\cdots, t-1 \}.
 \end{align}
-Now let's consider the worst case. Define a infinity sequence of the estimator $\hmu_i$ and $\heps_i$, $i=1,2,\cdots$. Suppose at stopping time $\tau$, given an upper bound on the variance $\hsigma$, the fixed width confidence interval condition is not reached.
+Now let's consider the worst case. Expend the definition of $\hmu_t$ and $\heps_t$ given in Algorithm \ref{alg:meanMCg} for all $t = \tau+1, \tau+2, \cdots$ by defining $\heps_t = \heps_\tau$ for $t >\tau$ and $\hmu_t =\hmu_\tau$. Suppose at stopping time $\tau$, the desired error tolerance is not obtained, the probability of this event happens is
 \begin{align}
-&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
-&= \e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
-\intertext{As $\tau$ is random variable and is bounded almost surely, we could write the probability as}
-&\e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
-&=\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right].
-\intertext{By Proposition \ref{meanMCgProp}, we know}
-&\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right]\\
-&\leq
-\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma \right)\right].
-\intertext{As the stopping time $\tau =t$ is defined in \eqref{STrelationshop}, which is incompatible with event $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then  the inequality is equal to}
-&\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma\right)\right]\\
-&= \sum_{t=1}^\infty\e\left[ \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right].\\
-\intertext{As the sample size chosen at step $t$ is defined as $n_t  =N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kmax\right)$, apply inequality \eqref{fixedwidthintervalrandomheps} in Lemma \ref{thm:fixedwidthrandomeps}, we know}
-&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
- &\leq\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right] \\ & \leq \sum_{t=1}^\infty \alpha_t. 
+&\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right)\\
+&=\sum_{t=1}^\infty\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t  \right) .
 \end{align}
+
+By Proposition \ref{meanMCgProp}, we know
+\begin{align}
+ &\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t  \right)\\
+&\leq
+\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t  \right).
+\end{align}
+The definition of stopping time in \eqref{STrelationshop} implied that $\tau = t$ is incompatible with $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then the inequality is equal to
+\begin{align}
+&\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t\right)\\
+&= \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right).\\
+\end{align}
+As the sample size chosen at step $t$ is defined as $n_t  =N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kmax\right)$, apply inequality \eqref{fixedwidthintervalrandomheps} in Lemma \ref{thm:fixedwidthrandomeps}, we know
+\begin{align}
+\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right)
+= \e_{\hsigma} \left[ \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right]
+\leq \alpha_t
+\end{align}
+
+%\begin{align}
+%&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+%&= \e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+%\intertext{As $\tau$ is random variable and is bounded almost surely, we could write the probability as}
+%&\e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+%&=\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right].
+%\intertext{By Proposition \ref{meanMCgProp}, we know}
+%&\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right]\\
+%&\leq
+%\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma \right)\right].
+%\intertext{As the stopping time $\tau =t$ is defined in \eqref{STrelationshop}, which is incompatible with event $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then  the inequality is equal to}
+%&\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma\right)\right]\\
+%&= \sum_{t=1}^\infty\e\left[ \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right].\\
+%\intertext{As the sample size chosen at step $t$ is defined as $n_t  =N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kmax\right)$, apply inequality \eqref{fixedwidthintervalrandomheps} in Lemma \ref{thm:fixedwidthrandomeps}, we know}
+%&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+% &\leq\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right] \\ & \leq \sum_{t=1}^\infty \alpha_t. 
+%\end{align}
 According to the argument above, we could prove the fixed width confidence interval as follows:
 \begin{align}
 &\Pr\left (\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})\right)\\
@@ -1393,44 +1416,46 @@ The number of sample required by the Algorithm \ref{alg:meanMCg} is $n_{\sigma}+
  \item $\heps_i$ depends on $\heps_{i-1}$, $\hmu_{i-1}$, where $i = 2,3,\cdots,\tau$;
  \item $n_i$ depends on  $\hsigma$ and $\heps_i$, where  $i = 2,3,\cdots,\tau$;
  \end{itemize}
- In order to bound the total cost, we need to bound the stopping time $\tau$ and also the sample size needed in each iteration. As the stopping time $\tau$ has a probabilistic bound by $\bar{\tau}(\beta)$ defined in \eqref{taubarrel} as shown in Lemma \eqref{tauprobbound}. Also, in each iteration, $n_i$ is defined as:
-$$n_{i} = N_{CB}\left(\hvareps_{i}/\hsigma,\alpha_{i},\kappa_{\max}^{3/4}\right).$$
-In order to bound $n_i$ we need to get the upper bound of $\hsigma$ and the lower bound of $\heps_i$. As the upper bound on $\hsigma$ is defined in \eqref{sigup} in Lemma \ref{upperboundhsigma} and $\heps_i$ has the form
+ 
+ In order to bound the total cost, we need to bound the stopping time $\tau$ and also the sample size needed in each iteration. As the stopping time $\tau$ has a probabilistic bound by $\bar{\tau}(\beta)$ defined in \eqref{taubarrel} as been proved in Lemma \ref{tauprobbound}.  Also, in each iteration, the sample size $n_t$ is defined as:
+$$n_t = N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kappa_{\max}^{3/4}\right).$$
+In order to bound $n_t$ we need to get the upper bound of $\hsigma$ and the lower bound of $\heps_t$. As the upper bound on $\hsigma$ is defined in \eqref{sigup} in Lemma \ref{upperboundhsigma} and $\heps_t$ has the form
 \begin{align}
-\heps_i= \min(\heps_{i-1}/2, \max(\varepsilon_a,\theta\varepsilon_r\abs{\hmu_{i-1}})).
+\heps_i= \min(\heps_{t-1}/2, \max(\varepsilon_a,\theta\varepsilon_r\abs{\hmu_{t-1}})).
 \end{align}
-Define the lower bound of $\heps_i$ as
-\begin{align}
-  \underline{\varepsilon_i} = \min \left \{ \heps_12^{1-i},\varepsilon_a, \theta\varepsilon_r\abs{\mu} \right \}.
-\end{align}
+Define the lower bound of $\heps_t$ as
+\begin{align*}
+  \underline{\varepsilon_t} = \min \left \{ \heps_12^{1-t},\varepsilon_a, \theta\varepsilon_r\abs{\mu} \right \}.
+\end{align*}
 It is obvious that
-\begin{align}
-&\heps_i \geq  \min\left(\heps_{i-1}/2, \varepsilon_a, \theta\varepsilon_r\abs{\hmu_{i-1}}\right)\\
-& = \min\left(\heps_12^{1-i}, \varepsilon_a, \theta\varepsilon_r\abs{\hmu_{i-1}}\right)\\
-\end{align}
-Define the cost as
+\begin{align*}
+&\heps_t \geq  \min\left(\heps_{t-1}/2, \varepsilon_a, \theta\varepsilon_r\abs{\hmu_{t-1}}\right)\\
+& = \min\left(\heps_12^{1-t}, \varepsilon_a, \theta\varepsilon_r\abs{\hmu_{t-1}}\right) =   \underline{\varepsilon_t} .\\
+\end{align*}
+Then, define the total cost as
 \begin{equation*}
-N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Pr\left(n_{\sigma} + n_1+\sum_{i=2}^\tau n_i \le N\right) \ge 1-\beta  \right \}.
+N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Pr\left(n_{\sigma} + n_1+\sum_{t=2}^\tau n_t \le N\right) \ge 1-\beta  \right \}.
 \end{equation*}
-Since $n_\sigma$ and $n_1$ are fixed and $n_i =  N_{\text{CB}}(\hvareps_{i}/\hsigma,\alpha_{i},\kappa_{\max}^{3/4})$, $ $ the cost is equivalent to 
+Since $n_\sigma$ and $n_1$ are fixed and $n_t =  N_{\text{CB}}\left(\hvareps_t/\hsigma,\alpha_t,\kappa_{\max}^{3/4}\right)$, $ $ the cost is equivalent to 
 \begin{equation*}
-N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Pr\left(\sum_{i=2}^\tau N_{\text{CB}}\left(\heps_i/\hsigma,\alpha_i,\tilde\kappa_{\max}^{3/4}\right) \le N\right) \ge 1-\beta  \right \}+n_{\sigma} + n_1.
+N_{\text{tot}} = \sup_{\substack{\kappa \le \kappa_{\max} \\ \sigma \le \sigma_{\max}}} \min\left\{N : \Pr\left(\sum_{t=2}^\tau N_{\text{CB}}\left(\heps_t/\hsigma,\alpha_t,\kappa_{\max}^{3/4}\right) \le N\right) \ge 1-\beta  \right \}+n_{\sigma} + n_1.
 \end{equation*}
 Define the maximum possible value of sample variance $\hsigma^2$ as
 \begin{align}\label{sigmax}
 \hsigma_{\max}^2 (\fudge, \alpha_{\sigma},\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma_{\max}^2.
 \end{align}
-Also, define the lower bound of $\heps_i$ as
-\begin{align}
-  \underline{\varepsilon_i} = \min \left \{ \heps_12^{1-i},\varepsilon_a, \theta\varepsilon_r\abs{\mu} \right \}
-\end{align}
-by the way we define $\heps_i$, we have the inequality : $\underline{\varepsilon_i}\leq \heps_i$.
+%Also, define the lower bound of $\heps_i$ as
+%\begin{align}
+%  \underline{\varepsilon_i} = \min \left \{ \heps_12^{1-i},\varepsilon_a, \theta\varepsilon_r\abs{\mu} \right \}
+%\end{align}
+%by the way we define $\heps_i$, we have the inequality : $\underline{\varepsilon_i}\leq \heps_i$.
 Also, define the upper bound on the cost as:
-$$N_{\up} = \sum_{i=2}^{\bar{\tau}} N_{\text{CB}}\left(\underline{\varepsilon_i} /\hsigma_{\max},\alpha_i,\tilde\kappa_{\max}^{3/4}\right)$$
+$$N_{\up} = \sum_{t=2}^{\bar{\tau}} N_{\text{CB}}\left(\underline{\varepsilon_t} /\hsigma_{\max},\alpha_i,\kmax^{3/4}\right)$$
 This Algorithm \ref{alg:meanMCg} has a probabilistic upper bounded by
 \begin{align}
-N_{\text{tot}} < N_{\up}+n_\sigma+n_1
+\Pr(N_{\text{tot}} < N_{\up}+n_\sigma+n_1) \geq \Pr(\tau \geq \bar{\tau}(\beta))>1-\beta
 \end{align}
+[still need some work]
 \end{proof}
 
 \Section{The Algorithm {\tt cubMC\_g }}\label{sec:cubmcgalg}
