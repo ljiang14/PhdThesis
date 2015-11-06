@@ -185,7 +185,7 @@ J. Hickernell who not only served as my supervisor but also encouraged and chall
 %%% Abstract %%%
 \begin{abstract}% abstract environment, this is optional
 
-Monte Carlo is versatile computational method that may be used to approximate the means, $\mu$, of random variables $Y$, whose distributions are not known explicitly. This thesis studies the ways to reliably construct a fixed width confidence interval for $\mu$ with some prescribed absolute error tolerance $\varepsilon_a$, relative error tolerance $\varepsilon_r$ and some generalized error criterion. The assumption is the kurtosis $\kappa$ of the random variable does not exceed a user specified bound $\kmax$. The key idea is to confidently estimate the variance of $Y$ in the first step by applying Cantelli's inequality. A Berry-Esseen inequality makes it possible to determine the sample size required to construct such a confidence interval. Several algorithms are developed and implemented, which included ones to calculate the mean of a random variable, perform numerical integration and estimate the probability. They have became part of Guaranteed Automatic Integration Library (GAIL).
+Monte Carlo is versatile computational method that may be used to approximate the means, $\mu$, of random variables, $Y$, whose distributions are not known explicitly. This thesis investigates how to reliably construct fixed width confidence intervals for $\mu$ with some prescribed absolute error tolerance $\varepsilon_a$, relative error tolerance $\varepsilon_r$ or some generalized error criterion. To facilitate this, it is assumed that the kurtosis, $\kappa$, of the random variable, $Y$, does not exceed a user specified bound $\kmax$. The key idea is to confidently estimate the variance of $Y$ in the first step by applying Cantelli's Inequality. A Berry-Esseen Inequality makes it possible to determine the sample size required to construct such a confidence interval. When relative error is involved, this requires an iterative process.  This idea for computing $\mu = \e(Y)$  can be used to develop a numerical integration by writing the integral as $\mu = \e (f(\vx)) = \int_{\reals^d}f(\vx)\rho(\vx)d\vx$, where $\vx$ is a $d$ dimensional random vector with probability density function $\rho$. A similar idea is used to develop an algorithm for computing $\mu = \e(Y)$ where $Y$ is a Bernoulli random variable. All of the algorithms have been implemented in the Guaranteed Automatic Integration Library (GAIL).
 
 \end{abstract}
 \textpages     % Settings of text-pages are done with \textpages command
@@ -194,17 +194,17 @@ Monte Carlo is versatile computational method that may be used to approximate th
 %Monte Carlo are used to approximate the means, $\mu$, of random variables $Y$, whose distributions are not known explicitly.  The key idea is that the average of a random sample, $Y_1, \ldots, Y_n$, tends to $\mu$ as $n$ tends to infinity. This article explores how one can reliably construct a confidence interval for $\mu$ with a prescribed half-width (or error tolerance) $\varepsilon$.  
 %\Chapter{BACKGROUND}
 
-Monte Carlo is a widely used simulation method that can be applied to understand and control complex stochastic systems, pricing financial derivatives, estimating default probabilities, evaluating means of random variables, performing numerical integration and solving other real world problems. 
+Monte Carlo is a widely used simulation method that can be applied to understand and control complex stochastic systems, price financial derivatives, estimate default probabilities, evaluate means of random variables, perform numerical integration and solve other real world problems. %Monte Carlo simulation could handle very complex and realistic systems, whereas we need to do a certain number of replications in order to achieve the desired accuracy.
 %It is not like the analytical methods, which are limited to simple models whose solutions could be solved analytically, nor the numerical methods, which are still limited to certain simple models. Monte Carlo simulation could handle very complex and realistic systems, whereas we need to do a certain number of replications in order to achieve the desired accuracy.
 
 \Section{Numerical integration}
 
 Numerical integration covers a board range of algorithms that are used to calculate the numerical value of a definite integral, or to estimate the numerical solution of a differential equation.
-The basic problem in one dimension is to calculate the $I$ to a certain accuracy, i.e.:
+The basic problem in one dimension is to estimate $I$ as $\hat{I}$ to a certain accuracy $\varepsilon$, i.e.:
 \begin{align}
-I = \int_a^b f(x)dx \approx \sum_{i=1}^nA_i f(x_i)
+\abs{I -\hat{I}}  = \abs{\int_a^b f(x)dx -\sum_{i=1}^nA_i f(x_i)} \leq \varepsilon
 \end{align}
-where $f$ is the integrand, $x_i$ are the nodes and $A_i$ are the coefficients. The integration points and weights depend on the specific method used and the accuracy required from the approximation. This problem is often called quadrature. For one dimensional integrals, the quadrature method such as Trapezoidal rule and Simpson's rule are known to be efficient if the integrand is smooth. To compute multidimensional integrals, one approach is to phrase the multiple integral as repeated one-dimensional integrals by appealing to Fubini's theorem \cite{Fubini1907}. Cubature \cite{cubature} is one of the well known packages using quadrature methods that work great for low-dimensional integration. However, this approach requires the function evaluations to grow exponentially as the number of dimensions, $d$, increases. Richard E. Bellman give this problem a name: curse of dimensionality. One way to overcome this is by Monte Carlo Method.
+where $f$ is the integrand, $x_i$ are the nodes and $A_i$ are the coefficients. The integration points and weights depend on the specific method used and the accuracy required from the approximation. This problem is often called quadrature. For one dimensional integrals, the quadrature method such as Trapezoidal rule and Simpson's rule are known to be efficient if the integrand is smooth. To compute multidimensional integrals, one approach is to phrase the multiple integral as repeated one-dimensional integrals by appealing to Fubini's theorem \cite{Fubini1907}. However, this approach requires the function evaluations to grow exponentially as the number of dimensions, $d$, increases. Richard E. Bellman give this problem a name: curse of dimensionality. One way to overcome this is by Monte Carlo Method.
 
 \Section{Monte Carlo simulation}
 
@@ -365,7 +365,7 @@ $$
 \end{theorem}
 This theorem implies an approximate confidence interval, called a CLT confidence interval, of the form
 \[
-\Pr(\abs{\hmu_{n_{\CLT}}-\mu} \le \varepsilon) \approx 1- \alpha \qquad \text{for } n_{\CLT} := \left \lceil \frac{z_{\alpha/2}\sigma^2}{\alpha \varepsilon^2} \right \rceil,
+\Pr(\abs{\hmu_{n_{\CLT}}-\mu} \le \varepsilon) \approx 1- \alpha \qquad \text{for } n_{\CLT} := \left \lceil \frac{z_{\alpha/2}^2\sigma^2}{ \varepsilon^2} \right \rceil,
 \]
 where $z_{\alpha/2}$ is the $1-\alpha/2$ quantile of the standard Gaussian distribution.  When $\sigma^2$ is unknown, it may be replaced by the sample variance $s_n^2$ defined in \eqref{samplevar}.
 
@@ -385,7 +385,7 @@ Let $Y_1, \ldots, Y_n$ be IID. Choosing $X=\sum_{i=1}^n Y_i/n = \mu_n$, noting t
  \begin{align}
 n=N_{\Cheb}(\varepsilon/\sigma,\alpha):= \left \lceil \frac{1}{\alpha (\varepsilon/\sigma)^2} \right \rceil.
  \end{align}
- Chebychev's inequality ensures that the random variable $\hmu_n$ is not too far from its true value $\mu$ with a fixed width confidence interval, however, this inequality is too conservative that required a significantly large sample size than CLT. In some settings, we need a one sided inequality like Chebychev's, we will appeal to Cantelli's inequality.
+ Chebyshev's inequality ensures that the random variable $\hmu_n$ is not too far from its true value $\mu$ with a fixed width confidence interval, however, this inequality is too conservative that required a significantly large sample size than CLT. In some settings, we need a one sided inequality like Chebyshev's, we will appeal to Cantelli's inequality.
  
 \Section{Cantelli's Inequality}
 
@@ -1179,7 +1179,7 @@ Apply Lemma \ref{upperboundhsigma}, we would have the probability relationship a
 \Pr(\tau < \bar{\tau}(\beta)) \geq  \Pr(\hsigma < \hsigma_{\up}(\beta)) \geq 1-\beta.
 \end{align}
 \end{proof}
-Applying the result of Lemma \ref{tauprobbound}, we have the following lemma.
+
 \begin{lemma}\label{taufinite}
 The stopping time $\tau$ is finite almost surely, i.e.:
 $$\Pr(\tau < \infty) = 1$$
@@ -1191,16 +1191,16 @@ As $\bar{\tau}(\beta)$ is a function in terms of $\beta$, which has the form
 $$\bar{\tau}(\beta):= \left \lceil 1+\log_2 \left(\frac{\left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right) N_{CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4})(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil.$$
 Taking the limit that $\beta \to 0$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, which is
 \begin{align}\label{betagoesto0}
-\Pr(\tau \leq \infty) = \Pr(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)) 
+\Pr(\tau < \infty) = \Pr(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)).
 \end{align}
 By the continuity of probability 
 \begin{align}\label{contofprob}
- \Pr(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)) =\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)) 
+ \Pr(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)) =\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)),
 \end{align}
 and preservation of inequality, we have
 \begin{align}\label{preofineq}
 \lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)) 
-\geq \lim_{\beta \to 0}(1-\beta) = 1
+\geq \lim_{\beta \to 0}(1-\beta) = 1.
 \end{align}
 By inequality \eqref{betagoesto0}, \eqref{contofprob} and \eqref{preofineq}, the theorem is proved.
 \end{proof}
@@ -1232,22 +1232,18 @@ By inequality \eqref{betagoesto0}, \eqref{contofprob} and \eqref{preofineq}, the
 %\end{proof}
 %%
 \begin{lemma}\label{thm:fixedwidthrandomeps}
-Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. Suppose that the width of the confidence interval, $\heps$, is not a random number. It follows that Algorithm \ref{alg:meanMCabsg} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the fixed width confidence interval condition
+Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. Suppose that the width of the confidence interval, $\heps$, is a random number. It follows that Algorithm \ref{alg:meanMCabsg} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the following condition
 \begin{align}\label{eq:fixedwidthrandomeps}
-\Pr\left( \abs{\mu-\hmu} \leq \heps \right) \geq (1-\alpha_\mu)(1-\alpha_\sigma),
-\end{align}
-\begin{align}
-\Pr\left( \abs{\mu-\hmu} > \heps \right) <\alpha_\mu.
+\Pr\left( \abs{\mu-\hmu} > \heps |\hsigma \geq \sigma \right) <\alpha_\mu.
 \end{align}
 Here, the samples of $Y$ used to calculate $\hmu$ are independent of $\heps$, although the number of samples, $n_\mu$, depends on $\heps$.
 \end{lemma}
 \begin{proof}
 This result could be derived from the proof of the Theorem \ref{thm:meanMCabsg}, by applying the conditional expectation on $\heps$.
-Let $\alpha_\sigma$, $n_\sigma$, $\fudge$ be the parameters and $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$ as given in Algorithm \ref{alg:meanMCabsg}. Also, let the tolerance $\heps$ be a random variable depending on $\hsigma^2$. By Lemma \ref{lowerboundhsigma}, if the modified kurtosis $\kappa \leq \kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, then we could find a probabilistic upper bound on $\sigma^2$, which is:
-$$\Pr \left(\hsigma^2 > \sigma^2\right)\geq 1-\alpha_{\sigma}.$$
+Let $\alpha_\sigma$, $n_\sigma$, $\fudge$ be the parameters and $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$ as given in Algorithm \ref{alg:meanMCabsg}. Also, let the tolerance $\heps$ be a random variable depending on $\hsigma^2$. 
 The probability \eqref{eq:fixedwidthrandomeps} could be written as:
 \begin{align}
-&\Pr(\abs{\mu-\hmu} \leq \heps) \geq \e_{\hsigma,\heps}\left[\Pr({\abs{\mu-\hmu} \leq \heps}| \hsigma , \heps)1_{\hsigma \geq \sigma }\right].
+&\Pr(\abs{\mu-\hmu} > \heps|\hsigma \geq \sigma) = \e_{\heps}\left[\Pr({\abs{\mu-\hmu}  > \heps}| \hsigma\geq\sigma , \heps)\right].
 \end{align}
 %\begin{align}		
 %&\Pr(\abs{\mu-\hmu} \leq \heps) \geq  \e\Pr({\abs{\mu-\hmu} \leq \heps}, {\hsigma >\sigma}, \heps = \varepsilon).
@@ -1259,19 +1255,14 @@ The probability \eqref{eq:fixedwidthrandomeps} could be written as:
 %\intertext{Our assumption is the random variable lies in the cone, which is $\kappa \leq \kmax$. Given $\hsigma >\sigma$ and $\heps= \varepsilon$, by applying Berry Esseen inequality results in \eqref{BEresult} we have:}
 %&\Pr(\abs{\mu-\hmu} \leq \heps) \geq g\left(n_\mu,\hsigma, \kmax^{3/4}, \varepsilon\right)\left(1-\alpha_\sigma\right) = (1-\alpha_\mu)(1-\alpha_\sigma) = (1-\alpha).
 %\end{align}
-We choose the random sample size, $n_\mu$, to calculate $\hmu$ according to \eqref{BEresult}, namely $n_\mu= N_{CB}\left(\heps/\hsigma,\alpha_\mu, \kmax^{3/4}\right)$. Again, the $Y_i$ used to calculate $\hmu$ is independent of the $Y_i$ used to calculate $\hsigma$.  The following inequality holds:
+We choose the random sample size, $n_\mu$, to calculate $\hmu$ according to \eqref{BEresult}, namely $n_\mu= N_{CB}\left(\heps/\hsigma,\alpha_\mu, \kmax^{3/4}\right)$. 
+%Again, the $Y_i$ used to calculate $\hmu$ is independent of the $Y_i$ used to calculate $\hsigma$.  
+The following inequality holds:
 \begin{align*}
-&\Pr(\abs{\mu-\hmu} \leq \heps)\\
-&\geq \e_{\hsigma,\heps}\left[\Pr\left({\abs{\mu-\frac{1}{n_\mu}\sum_{i=1}^{n_\mu}Y_i} \leq \heps}\bigg \vert \hsigma , \heps, n_\mu= N_{CB}\left(\heps/\hsigma,\alpha_\mu, \kmax^{3/4}\right)\right)1_{\hsigma \geq \sigma }\right]\\
-&\geq (1-\alpha_\mu)(1-\alpha_\sigma) 
+&\e_{\heps}\left[\Pr({\abs{\mu-\hmu}  > \heps}| \hsigma\geq\sigma , \heps)\right]\\
+&\geq \e_{\heps}\left[\Pr\left({\abs{\mu-\frac{1}{n_\mu}\sum_{i=1}^{n_\mu}Y_i} > \heps}\bigg \vert \hsigma\geq\sigma , \heps, n_\mu= N_{CB}\left(\heps/\hsigma,\alpha_\mu, \kmax^{3/4}\right)\right)\right]\\
+&<\alpha_\mu
 \end{align*}
-
-By the same argument, the following inequality also holds
-\begin{align}\label{fixedwidthintervalrandomheps}
-&\e_{\hsigma,\heps}\left[\Pr({\abs{\mu-\hmu} >\heps}| \hsigma , \heps)\right]\\
-&= \e_{\hsigma,\heps}\left[\Pr\left({\abs{\mu-\frac{1}{n_\mu}\sum_{i=1}^{n_\mu}Y_i} >\heps}\bigg \vert \hsigma , \heps, n_\mu= N_{CB}\left(\heps/\hsigma,\alpha_\mu, \kmax^{3/4}\right)\right)\right]\\
-&\leq \alpha_\mu.
-\end{align}
 %\begin{align}
 %&\Pr\left(\abs{\mu-\hmu} >\heps | \hsigma \geq \sigma,\heps = \varepsilon \right) \\
 %&=\Pr\left( \left({\abs{\mu-\sum_{i=1}^{n_\mu} Y_i} > \heps},{n_\mu= N_{CB}\left(\heps/\hsigma,\alpha_\mu, \kmax^{3/4}\right)}\right)\,\bigg\vert \,\hsigma>\sigma, \heps = \varepsilon \right)\\
@@ -1281,7 +1272,9 @@ By the same argument, the following inequality also holds
 %\begin{lemma}\label{step3} 
 %In Algorithm \ref{meanMCg}, suppose $\hsigma$, $\tau$, $\heps_i$, $\hmu_i$, $n_i$, $i = 1,2,\cdots,\tau$ and are random, all other parameters are given as constants in the Algorithm \ref{meanMCg}, then the generalized error criterion \eqref{hybridCI} would be satisfied.
 %\end{lemma}
-With the preparation of the lemmas, we are ready to prove the Theorem \ref{thm:meanMCg}.
+\begin{theorem}\label{thm:meanMCg}
+Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that Algorithm \ref{alg:meanMCg} terminated in a finite time step almost surely. If the algorithm terminates, then the general error criterion, \eqref{hybridCI}, is satisfied.
+\end{theorem}
 \begin{proof}
 In the Algorithm \ref{alg:meanMCg}, several quantities are random, the random variable $Y$, the stopping time $\tau$, the sample size $n_i$,  the confidence interval width $\heps_i$ in each iteration, for $i = 1,2,\cdots, \tau$. 
 %By Proposition \ref{meanMCgProp}, at step $\tau$, we know that
@@ -1292,54 +1285,75 @@ As $\tau$ is the first time that the stopping criterion $\Delta_{+, \tau} \geq \
 \begin{align}\label{STrelationshop}
 \{\tau = t\} \Leftrightarrow \{\Delta_{+,t} \geq \heps_t\} \& \{\Delta_{+,i} \leq \heps_t, \text{for }  i = 1,2,\cdots, t-1 \}.
 \end{align}
-Now let's consider the worst case. Expend the definition of $\hmu_t$ and $\heps_t$ given in Algorithm \ref{alg:meanMCg} for all $t = \tau+1, \tau+2, \cdots$ by defining $\heps_t = \heps_\tau$ for $t >\tau$ and $\hmu_t =\hmu_\tau$. Suppose at stopping time $\tau$, the desired error tolerance is not obtained, the probability of this event happens is
-\begin{align}
-&\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right)\\
-&=\sum_{t=1}^\infty\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t  \right) .
-\end{align}
 
+Now let's consider the worst case. Expend the definition of $\hmu_t$ and $\heps_t$ given in Algorithm \ref{alg:meanMCg} for all $t = \tau+1, \tau+2, \cdots$ by defining $\heps_t = \heps_\tau$ for $t >\tau$. And let $\hmu_t$ been defined according to step 3 in Algorithm \ref{alg:meanMCg}. Suppose at stopping time $\tau$, the desired error tolerance is not obtained, the probability of this event happens is
+\begin{align}\label{439}
+&\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right)\\
+&=\sum_{t=1}^\infty\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t \right) .
+\end{align}
 By Proposition \ref{meanMCgProp}, we know
-\begin{align}
+\begin{align*}
  &\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t  \right)\\
 &\leq
-\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t  \right).
-\end{align}
+\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t \right).
+\end{align*}
 The definition of stopping time in \eqref{STrelationshop} implied that $\tau = t$ is incompatible with $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then the inequality is equal to
-\begin{align}
-&\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t\right)\\
-&= \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right).\\
+\begin{align*}
+\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t\right)= \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right).
+\end{align*}
+Adding extra condition of $\hsigma$ we have:
+\begin{align*}
+& \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right) \\
+ &=  \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t , \hsigma\geq\sigma\right) + \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t,\hsigma<\sigma \right) \\
+ & \leq \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right)
+\end{align*}
+By Lemma \ref{thm:fixedwidthrandomeps}, the inequality has the form
+\begin{align}\label{440}
+\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right)
+<\alpha_t \Pr(\hsigma \geq \sigma) +\Pr \left(  \tau = t,\hsigma<\sigma \right).
 \end{align}
-As the sample size chosen at step $t$ is defined as $n_t  =N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kmax\right)$, apply inequality \eqref{fixedwidthintervalrandomheps} in Lemma \ref{thm:fixedwidthrandomeps}, we know
-\begin{align}
-\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right)
-= \e_{\hsigma} \left[ \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right]
-\leq \alpha_t
-\end{align}
-
+Thus, by \eqref{439} and \eqref{440}
+\begin{align*}
+\Pr \left( \abs{\mu-\tmu} > \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) 
+&\leq \Pr(\hsigma \geq \sigma) \sum_{t=1}^\infty \alpha_t+\Pr(\hsigma<\sigma)\\
+&=1-\Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right)
+\end{align*}
+which is 
+\begin{align*}
+\Pr \left( \abs{\mu-\tmu} \leq \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) &\geq \Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right) \\&\geq \left(1-\sum_{t=1}^\infty \alpha_t\right) (1-\alpha_\sigma) \\&= 1-\alpha
+\end{align*}
+%
+%As the sample size chosen at step $t$ is defined as $n_t  =N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kmax\right)$, apply inequality \eqref{fixedwidthintervalrandomheps} in Lemma \ref{thm:fixedwidthrandomeps}, we know
 %\begin{align}
-%&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
-%&= \e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
-%\intertext{As $\tau$ is random variable and is bounded almost surely, we could write the probability as}
-%&\e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
-%&=\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right].
-%\intertext{By Proposition \ref{meanMCgProp}, we know}
-%&\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right]\\
-%&\leq
-%\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma \right)\right].
-%\intertext{As the stopping time $\tau =t$ is defined in \eqref{STrelationshop}, which is incompatible with event $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then  the inequality is equal to}
-%&\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma\right)\right]\\
-%&= \sum_{t=1}^\infty\e\left[ \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right].\\
-%\intertext{As the sample size chosen at step $t$ is defined as $n_t  =N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kmax\right)$, apply inequality \eqref{fixedwidthintervalrandomheps} in Lemma \ref{thm:fixedwidthrandomeps}, we know}
-%&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
-% &\leq\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right] \\ & \leq \sum_{t=1}^\infty \alpha_t. 
+%\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right)
+%= \e_{\hsigma} \left[ \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right]
+%\leq \alpha_t
 %\end{align}
-According to the argument above, we could prove the fixed width confidence interval as follows:
-\begin{align}
-&\Pr\left (\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})\right)\\
-& \geq \e\left[\Pr\left (\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) |\hsigma\right)1_{\hsigma \geq \sigma}\right]\\
-& = \left(1-\e\left[\Pr\left (\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) |\hsigma\right)\right]\right) \e(1_{\hsigma \geq \sigma})\\
-& \geq \left(1-\sum_{t=1}^\infty \alpha_t\right)(1-\alpha_\sigma) = 1-\alpha
-\end{align}
+%
+%%\begin{align}
+%%&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+%%&= \e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+%%\intertext{As $\tau$ is random variable and is bounded almost surely, we could write the probability as}
+%%&\e\left[\Pr \left( \abs{\mu-(\hmu_\tau+\Delta_{-}(\hmu_\tau,\heps_\tau))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+%%&=\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right].
+%%\intertext{By Proposition \ref{meanMCgProp}, we know}
+%%&\sum_{t=1}^\infty \e\left[ \Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t | \hsigma \right)\right]\\
+%%&\leq
+%%\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma \right)\right].
+%%\intertext{As the stopping time $\tau =t$ is defined in \eqref{STrelationshop}, which is incompatible with event $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then  the inequality is equal to}
+%%&\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t |\hsigma\right)\right]\\
+%%&= \sum_{t=1}^\infty\e\left[ \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right].\\
+%%\intertext{As the sample size chosen at step $t$ is defined as $n_t  =N_{CB}\left(\heps_t/\hsigma,\alpha_t,\kmax\right)$, apply inequality \eqref{fixedwidthintervalrandomheps} in Lemma \ref{thm:fixedwidthrandomeps}, we know}
+%%&\e\left[\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}) | \hsigma \right)\right]\\
+%% &\leq\sum_{t=1}^\infty \e\left[\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t |\hsigma \right)\right] \\ & \leq \sum_{t=1}^\infty \alpha_t. 
+%%\end{align}
+%According to the argument above, we could prove the fixed width confidence interval as follows:
+%\begin{align}
+%&\Pr\left (\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu})\right)\\
+%& \geq \e\left[\Pr\left (\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) |\hsigma\right)1_{\hsigma \geq \sigma}\right]\\
+%& = \left(1-\e\left[\Pr\left (\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) |\hsigma\right)\right]\right) \e(1_{\hsigma \geq \sigma})\\
+%& \geq \left(1-\sum_{t=1}^\infty \alpha_t\right)(1-\alpha_\sigma) = 1-\alpha
+%\end{align}
 Figure \ref{WorstcasemeanMCgproof} illustrates the worst case when estimating $\tmu$. Summing up all the 'bad' scenarios would end up with a worst case error bound. 
 \begin{figure} 
 \centering

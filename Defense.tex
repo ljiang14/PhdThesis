@@ -1,0 +1,555 @@
+\documentclass[hyperref={pdfpagelabels=false}]{beamer}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usetheme{CambridgeUS}
+\newcommand{\dif}{{\rm d}}
+\newcommand{\norm}[2][{}]{\ensuremath{\left \lVert #2 \right \rVert}_{#1}}
+\input Ljiangdef.tex
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{defn}[theorem]{Definition}
+\title[Ph.D Defense]{Ph.D Defense:\\Guaranteed Adaptive Monte Carlo Methods for Estimating Means of Random Variables}
+\author[ljiang14@hawk.iit.edu]{Lan Jiang}
+\large\institute{Department of Applied Mathematics \\  Illinois
+Institute of Technology \\ Email: \url{ljiang14@hawk.iit.edu}
+\\[3ex]
+\textbf{Supervised by Professor Fred J. Hickernell.}}
+\date{\today}
+\normalsize
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame} 
+
+
+\begin{frame}
+\frametitle{Table of contents}
+\tableofcontents
+\end{frame} 
+
+\section{Introduction and background}
+
+\subsection{Monte Carlo Simulation}
+\frame{\frametitle{The Framework for Monte Carlo Simulation}
+
+Suppose that one want to estimate the mean $\mu$ of some random variable $Y$, i.e., $\mu=E(Y)$. Monte Carlo gives the following procedure:
+\begin{enumerate}
+\item Generate $n$ \alert{IID} random samples $Y_1, Y_2,\cdots,Y_n$ from the distribution of $Y$\\
+\item Take the sample average as
+$$\mu \alert{\approx} \hmu = \hat{\mu}_n=\frac{1}{n}\sum_{i=1}^n Y_i.$$
+\end{enumerate}
+\pause
+The \href{https://en.wikipedia.org/wiki/Law_of_large_numbers}{Law of Large Numbers} states that
+\begin{equation*}
+\hmu_n \to \mu \text{  as } \alert{n \to \infty}
+\end{equation*}
+}
+\subsection{Guaranteed Fixed Width Confidence Interval}
+\frame{\frametitle{Guaranteed Fixed Width Confidence Interval}
+Our goal is to obtain a \alert{guaranteed} confidence interval
+\begin{equation} \label{absCI}
+\alert{\Pr[\abs{\mu - \hmu} \le \varepsilon_a] \ge 1-\alpha,}
+\end{equation}
+\begin{equation} \label{genCI}
+\alert{\Pr[\abs{\mu - \hmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge 1-\alpha.}
+\end{equation}
+\pause
+Our assumption is that the modified kurtosis of the random variable $Y$ is less than some constant.
+\alert{$$\kappa \leq \kmax:=\kmax(n_\sigma,\alpha_\sigma,\fudge),$$}
+where 
+\begin{equation}
+\label{def:kmax}
+\kmax(\alpha_\sigma, n_\sigma,\fudge):= \frac{n_\sigma-3}{n_\sigma-1} + \left(\frac{ \alpha_\sigma n_\sigma}{1-\alpha_\sigma}\right) \left(1 - \frac{1}{\fudge^2}\right)^2.
+\end{equation}
+
+$n_\sigma$ is the sample size used to estimate variance $\sigma^2$, $\alpha_\sigma$ is the uncertainty for the variance estimation and $\fudge^2$ is the variance inflation factor.
+}
+\subsection{Central Limit Theorem}
+\frame{\frametitle{Central Limit Theorem}
+\begin{theorem}[Central Limit Theorem]
+If $Y_1, \ldots, Y_n$ are IID with $\e(Y_i)=\mu$ and $\var(Y_i) = \sigma^2$, then
+$$
+\frac{\hmu_n-\mu}{\sigma/\sqrt{n}} \to \dnorm(0,1) \quad \text{in distribution, as} \ \ n\to\infty.
+$$
+\end{theorem}
+This theorem implies an \alert{approximate} confidence interval, called a CLT confidence interval, of the form
+\[
+\Pr(\abs{\hmu_{n_{\CLT}}-\mu} \le \varepsilon_a) \approx 1- \alpha \qquad \text{ for  } \alert{n_{\CLT}(\varepsilon_a/\sigma,\alpha) := \left \lceil \frac{z_{\alpha/2}^2}{(\varepsilon_a/\sigma)^2} \right \rceil},
+\]
+where $z_{\alpha/2}= \Phi^{-1}(1-\alpha/2)$.  When $\sigma^2$ is unknown, it may be substituted by the sample variance times an inflation factor
+\begin{align*}
+\sigma^2\approx \hsigma^2:=\alert{\fudge^2}s^2_n = \alert{\fudge^2}\frac1{n-1}\sum_{i=1}^n(Y_i-\hat\mu_n)^2.
+\end{align*}
+}
+
+\subsection{Chebyshev's Inequality}
+\frame{\frametitle{Chebyshev's Inequality}
+%Chebyshev's inequality may be used to construct a fixed-width confidence interval for $\mu$.  It makes relatively mild assumptions on the distribution of the random variable.
+\begin{theorem}[Chebyshev's Inequality {\cite[6.1.c]{LB10}}]
+If $X$ is a random variable, for any $\varepsilon>0$, 
+$$\Pr(\abs{X-E(X)} \ge \varepsilon) \le  \var(X)/\varepsilon^2.$$
+\end{theorem}
+Let $Y_1, \ldots, Y_n$ be IID with mean $\mu$ and variance $\sigma^2$. Choosing $X=\sum_{i=1}^n Y_i/n = \mu_n$ and setting $\var(X)/\varepsilon_a^2=\sigma^2/(n\varepsilon_a^2) = \alpha$ leads to the fixed-width confidence interval 
+ \begin{align*}
+ \Pr(\abs{\hmu_{n}-\mu} \le \varepsilon_a) \ge 1- \alpha \text{ for  }
+\alert{n_{\Cheb}(\varepsilon_a/\sigma,\alpha):= \left \lceil \frac{1}{\alpha (\varepsilon_a/\sigma)^2} \right \rceil}.
+ \end{align*}
+ }
+ 
+ \subsection{Cantelli's Inequality}
+\frame{\frametitle{Cantelli's inequality}
+\begin{theorem}[Cantelli's inequality {\cite[6.1.e]{LB10}}]
+If $Y$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for any $a \geq 0$, it follows that: 
+\begin{align*}
+\Pr(Y-\mu \ge a) \le  \frac{\sigma^2}{a^2+\sigma^2}.
+\end{align*}
+\end{theorem}
+Cantelli's Inequality may be used to get a reliable upper bound on variance $\sigma^2$ of a random variable $Y$, which will be discussed in the later section.
+}
+
+\subsection{The Berry-Esseen Inequality}
+\frame{\frametitle{The Berry-Esseen Inequality}
+\begin{theorem}[The Berry-Esseen Inequality] \label{BEThm}
+Let $Y_1,\cdots,Y_n$ be IID with mean $\mu$, variance $\sigma^2 >0$, and third moment $M_3 = \e\abs{Y_i-\mu}^3/\sigma^3 < \infty$. Let $\hmu_n = \sum_{i=1}^nY_i/n$. Then
+\begin{align*}
+&\abs{\Pr\left(\frac{\hmu_n-\mu}{\sigma/\sqrt{n}}<x\right)-\Phi(x)}\\
+& \leq \delta_n(x,M_3):=\frac{1}{n}\min\left( A_1(M_3+A_2),  A_3(M_3+A_4), A_5M_3, \frac{A_6M_3}{1+\abs{x}^3}\right)
+ %\label{deltaBEconstant}
+\end{align*}
+where $A_1 = 0.3322$, $A_2 = 0.429$, $A_3=0.3031$, $A_4=0.646$, $A_5=0.469$ \cite{She13} and $A_6=18.1139$ \cite{NeShe12}.
+\end{theorem}
+The Berry-Esseen Inequality leads to a confidence interval when
+\begin{align*}
+ \alert{n_{\BE}(\varepsilon_a/\sigma,\alpha,M_3) := \min  \left \{ n \in \naturals : \Phi\left(-\sqrt{n}\varepsilon_a/\sigma  \right)+\delta_n(\sqrt{n}\varepsilon_a/\sigma,M_3)
+\le \frac{\alpha}{2} \right \}}.
+ \end{align*}
+}
+
+\section{Absolute error criterion}
+\subsection{The algorithm {\tt meanMCabs\_g}}
+\frame{\frametitle{The algorithm {\tt meanMCabs\_g}}
+User input a random number generator \alert{$Y$} and the absolute error tolerance \alert{$\varepsilon_a$}. With the parameters $\alpha$, $\alpha_\sigma$, $n_\sigma$ and $\fudge$, we first
+\begin{enumerate}
+%\renewcommand{\labelenumi}{\alph{enumi})}
+\item compute the sample variance, $s^2_{n_{\sigma}}$ and conservative upper bound on variance $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$.
+\item Compute the uncertainty level for the second stage $\alpha_\mu = (\alpha-\alpha_\sigma)/(1-\alpha_{\sigma})$ and the sample size for the mean estimation,
+\begin{align*}
+n_\mu &=n_{\BE} \left(\varepsilon_a/\hsigma,\alpha_\mu, \kmax^{3/4}\right)\\&:=\min \left\{n_{\Cheb}\left(\varepsilon_a/\hsigma,\alpha_\mu \right),n_{\BE}\left(\varepsilon_a/\hsigma,\alpha_\mu, \kmax^{3/4}\right)\right\}
+\end{align*} Calculate the mean,
+\begin{align}\label{def:meanmcabsghmu}
+\hmu = \frac{1}{n_\mu}\sum_{i = n_\sigma+1}^{n_\sigma+n_\mu}Y_i.
+\end{align}
+\end{enumerate}
+}
+\frame{\frametitle{The algorithm {\tt meanMCabs\_g}}
+\begin{theorem}\label{thm:meanMCabsg}
+Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2 >0$, and modified kurtosis $\kappa$. For any random variable $Y$ with a bounded kurtosis $\kappa\leq\kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, where $\kmax$ is defined in \eqref{def:kmax}. Algorithm {\tt meanMCabs\_g} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the fixed width confidence interval condition
+\begin{align*}
+\Pr\left( \abs{\mu-\hmu} \leq \varepsilon_a \right) \geq 1-\alpha.
+\end{align*}
+\end{theorem}
+}
+\subsection{Numerical Examples of {\tt meanMCabs\_g}}
+\frame{\frametitle{Integrating Keister test function}
+Accuracy and timing results have been recorded for the integration problem $\mu=\int_{\reals^d} f(\vx) \, \dif \vx$ for Keister \cite{Keister96} test function:
+\begin{align*}
+ \int_{\reals^d} \cos (\norm[2]{\vx})e^{-\norm{\vx}^2} d\vx = \pi^{s/2} \int_{[0,1)^d} \cos \left ( \sqrt{\sum_{j=1}^d \frac{[\Phi^{-1}(y_i)]^2}{2}}\right )d\vy,
+\end{align*}
+%where $\Phi$ denotes the standard Gaussian distribution function defined as below:
+%$$\Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^x e^{-s^2/2}ds, x \in [-\infty, \infty].$$
+By applying Monte Carlo methods, the integral could be estimated as follows:
+\begin{align*}
+\hmu_n = \frac{\pi^{d/2}}{n}\sum_{i=1}^n \cos \left (\sqrt{\frac12 \sum_{j=1}^d (\phi^{-1}(y_{i,j}))^2}\right),
+\end{align*}
+where $\vy_i = (y_{i1},\cdots,y_{id}) \in \reals$ , $i=1,\cdots, n.$
+}
+
+\frame{\frametitle{Integrating Keister test function}
+\begin{figure}
+\centering
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeisteriidErrTime-2015-09-13-00-24-11.eps} \\ {\tt cubMCabs\_g} \end{minipage}
+\caption{dimension $d$ is random chosen from $1, 2, \ldots, 8$ and absolute error tolerance is $\varepsilon_a=10^{-2}$. The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of time. }
+\end{figure}
+
+}
+
+\frame{\frametitle{Integrating Keister test function}
+\begin{figure}
+\centering
+\begin{minipage}{5.5cm} \centering \includegraphics[width=5.5cm]{KeistercubSobolErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubSobol\_g} \end{minipage}
+\begin{minipage}{5.5cm} \centering \includegraphics[width=5.5cm]{KeistercubLatticeErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\end{figure}
+
+}
+\frame{\frametitle{Integrating a single hump}
+Accuracy and timing results have been recorded for the integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
+\begin{equation*} \label{GaussianTestFun}
+f(\vx)=a_0 + b_0\prod_{j=1}^d\left[ 1 +b_j \exp \left(-\frac{(x_j-h_j)^2}{c_j^2}\right) \right].
+\end{equation*}
+Here $\vx$ is a $d$ dimensional vector, and $a_0, b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ are parameters chosen as follows:
+\begin{itemize} 
+\item $b_1, \ldots, b_d \in [0.1,10]$ with $\log(b_j)$ being i.i.d.\ uniform,
+\item $c_1, \ldots, c_d \in [10^{-6},1]$ with $\log(c_j)$ being i.i.d.\ uniform,
+\item $h_1, \ldots, h_d \in [0,1]$ with $h_j$ being i.i.d.\ uniform,
+\item $b_0$ chosen in terms of the $b_1, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\sigma^2 =\norm[2]{f-\mu}^2 \in [10^{-2}, 10^2]$, with $\log(\sigma)$ being i.i.d.\ uniform for each instance, and
+\item $a_0$ chosen in terms of the $b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\mu=1$.
+\end{itemize}
+}
+\frame{\frametitle{Integrating a single hump}
+\begin{figure}
+\centering
+\begin{minipage}{5.5cm} \centering \includegraphics[width=6cm]
+{gaussiand=1chebfunErrTime-2015-08-12-16-25-18.eps} \\ {\tt chebfun} \end{minipage}
+\begin{minipage}{5.5cm} \centering \includegraphics[width=6cm]
+{gaussiand=1integralErrTime-2015-08-12-16-25-18.eps} \\ {\tt integral} \end{minipage}
+%\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=1$ and error tolerance $\varepsilon_a=10^{-3}$, and a variety of parameters giving a range of $\sigma$ and $\kappa$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the Algorithm \ref{alg:cubMCabsg} the points labeled * are those for which the Theorem \ref{thm:meanMCabsg} guarantees the error tolerance.\label{fig:GaussianTestFun} }
+\end{figure}
+}
+\frame{\frametitle{Integrating a single hump}
+\begin{figure}\label{fig:GaussianTestFun} 
+\centering
+\begin{minipage}{6cm} \centering \includegraphics[width=6cm]
+{gaussiand=1iidErrTime-2015-08-12-16-25-16.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
+\caption{ Set $d=1$ and absolute error tolerance $\varepsilon_a=10^{-3}$. The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of time.  The points labeled * are those with guarantees.}
+\end{figure}
+}
+\frame{\frametitle{Integrating a single hump}
+\begin{figure}
+\centering
+\begin{minipage}{5.5cm} \centering \includegraphics[width=6cm]{gaussiand=1cubSobolErrTime-2015-08-12-16-25-17.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{5.5cm} \centering \includegraphics[width=6cm]{gaussiand=1cubLatticeErrTime-2015-08-12-16-25-17.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\end{figure}
+}
+
+
+\section{Relative error criterion}
+\subsection{Notations and a proposition}
+\frame{\frametitle{Proposition \label{meanMCgProp}}
+Given an absolute error tolerance, $\varepsilon_a\geq 0$, a relative error tolerance, $0 \leq \varepsilon_r\le 1$, and some $\hmu$ and $\heps\geq 0$. Define $\Delta_\pm$ by
+\begin{align}\Delta_{\pm}(\hmu,\heps) = \frac{1}{2} [\max(\varepsilon_a, \varepsilon_r |\hmu-\heps|) \pm \max(\varepsilon_a, \varepsilon_r |\hmu+\heps|)] \label{deltadef}
+\end{align}
+and the approximation $\tmu$ by
+\begin{align}
+\tmu = \hmu + \Delta_{-}. \label{appxsol}
+\end{align}
+If error bound $\abs{\hmu-\mu}\leq \heps$ holds, and $\heps$ satisfies the following condition,
+\begin{align*}
+\heps\leq \Delta_{+}(\hmu,\heps),\label{deltacondition}
+\end{align*}
+ then the generalized error criterion for $\tmu$, 
+ \begin{equation*} 
+\abs{\mu - \tmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu}),
+\end{equation*} is satisfied. 
+}
+\frame{\frametitle{Some notations}
+For any fixed $\alpha \in (0,1)$, and $M>0$, define the inverse of the functions $n_{\Cheb}(\cdot,\alpha)$, $n_{\BE}(\cdot,\alpha,M)$, and $n_{\CB}(\cdot,\alpha,M)$ as 
+\begin{itemize}
+\item $n_\text{Cheb}^{-1}(n,\alpha) := \frac{1}{\sqrt{n \alpha}}$,
+\item $n_\text{BE}^{-1}(n,\alpha,M) := \min \left \{ b>0 : \Phi\left(-b \sqrt{n}  \right)+\delta_n(b\sqrt{n},M)
+\le \frac{\alpha}{2} \right \}$,
+\item $n_{\text{CB}}^{-1}(n,\alpha,M) := \min\left(n_\Cheb^{-1}(n,\alpha),n_\BE^{-1}(n,\alpha,M)\right)$.
+\end{itemize}
+Given $\kappa\leq\kmax$, It then follows by Chebyshev's Inequality and the Berry-Esseen Inequality that 
+\begin{equation*}
+\Pr[\abs{\hmu_n -\mu}<\hvareps] \geq 1-\alpha,  \text{ where }\hvareps=\sigma n_{\text{CB}}^{-1}\left(n,\alpha,\kappa_{\max}^{3/4}\right), 
+\end{equation*} 
+where $\sigma$ is the standard deviation of the random variable $Y$.
+}
+\frame{\frametitle{Some notations}
+Given the uncertainty $\alpha \in (0,1)$, let $\alpha_{\sigma}, \alpha_1,  \alpha_2, \ldots$ be an infinite sequence of positive numbers all less than one, such that 
+\begin{equation} \label{alphaseq}
+(1-\alpha_{\sigma})\left [(1-(\alpha_1+\alpha_2+\cdots)\right] = 1-\alpha.
+\end{equation}
+For example, one might choose $\alpha_{\sigma}$ and 
+\begin{equation*} \label{alphaseqex}
+\alpha_{i} = \frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-i}, \ i\in \naturals, \quad \text{where} \  a \in (1,\infty).
+\end{equation*}
+}
+\subsection{The algorithm {\tt meanMC\_g}}
+\frame{\frametitle{The algorithm {\tt meanMC\_g}}
+User provide us several inputs:
+\begin{itemize}
+\item a random number generator $Y$,
+\item the absolute error tolerance $\varepsilon_a \geq 0$,
+\item the relative error tolerance $0 \leq \varepsilon_r <1$ ( we require $\varepsilon_a+\varepsilon_r >0$),
+\end{itemize}
+With the parameters $\alpha$, $\alpha_\sigma$, $\alpha_t$, $n_\sigma$, $n_1$, $\fudge$ and $\theta$, we first calculate $\kmax=\kappa_{\max}(n_\sigma,\alpha_\sigma,\fudge)$ as defined in \eqref{def:kmax}, then do the following:
+%\renewcommand{\labelenumi}{\alph{enumi})}
+\\
+Compute the sample variance, $s^2_{n_{\sigma}}$ and  $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. Calculate the width of the initial confidence interval for the mean estimation,
+\begin{align*}
+\heps_1=\hsigma n_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right).
+\end{align*}
+}
+\frame{\frametitle{The algorithm {\tt meanMC\_g}}
+For $t = 1,2,\cdots$, do the following:
+\begin{enumerate}
+\item  \label{deltamu}Compute $\hmu_t$ and $\Delta_{+}(\hmu_t,\heps_t)$ using sample size $n_t$ and tolerance $\heps_t$, where $\Delta_{+}$ is defined in \eqref{deltadef}.
+\item If \alert{$\Delta_{+}(\hmu_t,\heps_t) \geq  \heps_t$}, set stopping time $\tau = t$ and Let $\tmu = \hmu_{\tau}+\Delta_{-}(\hmu_\tau,\heps_\tau)$. Terminate the algorithm.
+\item Else, define the next tolerance, $$\heps_{t+1} = \min\left(\heps_t/2, \max(\varepsilon_a,\theta\varepsilon_r\abs{\hmu_t})\right)$$ and compute the next sample size, $$n_{t+1} = n_{\CB}\left(\hvareps_{t+1}/\hsigma,\alpha_{t+1},\kappa_{\max}^{3/4}\right).$$ Increase $t$ by one and go back to step \ref{deltamu}. 
+\end{enumerate}
+}
+
+\frame{\frametitle{Lemma needed to prove the theorem}
+
+\begin{itemize}
+%\item If $\heps$ is a random number, $\Pr(\abs{\hmu_n-\mu}> \heps_t|\hsigma \geq \sigma)<\alpha_t$
+\item the stopping time $\tau$ has a probabilistic upper bound $\bar{\tau}(\beta)$,  i.e.:
+$$\Pr(\tau < \bar{\tau}(\beta)) \geq 1-\beta$$
+where $\bar{\tau}(\beta):= \left \lceil 1+\log_2 \left(\frac{\left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right) n_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right)(1+\varepsilon_r)}{ \max(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil.$
+\item The stopping time $\tau$ is finite almost surely, i.e.:
+$$\Pr(\tau < \infty) = 1.$$
+\end{itemize}
+}
+\frame{\frametitle{Lemma needed to prove the theorem}
+\begin{proof}
+As we know
+$$\Pr(\tau < \bar{\tau}(\beta)) \geq 1-\beta$$
+Taking the limit that $\beta \to 0$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, which is
+\begin{align*}%\label{betagoesto0}
+\Pr(\tau < \infty) = \Pr\left(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)\right).
+\end{align*}
+By the continuity of probability,
+\begin{align*}%\label{contofprob}
+ \Pr\left(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)\right) =\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)).
+\end{align*}
+Taking the limit on both side of the inequality yields
+\begin{align*}
+\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)) 
+\geq \lim_{\beta \to 0}(1-\beta) = 1
+\end{align*}
+\end{proof}
+
+}
+
+\frame{\frametitle{Lemma needed to prove the theorem}
+\begin{lemma}\label{thm:fixedwidthrandomeps}
+Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. Suppose that the width of the confidence interval, $\heps$, is a random number. It follows that {\tt meanMCabs\_g} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the following condition
+\begin{align}\label{eq:fixedwidthrandomeps}
+\Pr\left( \abs{\mu-\hmu} > \heps |\hsigma \geq \sigma \right) <\alpha_\mu.
+\end{align}
+Here, the samples of $Y$ used to calculate $\hmu$ are independent of $\heps$, although the number of samples, $n_\mu$, depends on $\heps$.
+\end{lemma}
+}
+
+\frame{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
+\begin{theorem}\label{thm:meanMCg}
+Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that {\tt meanMC\_g} terminated in a finite time step almost surely. If the algorithm terminates, then the general error criterion, \eqref{genCI}, is satisfied.
+\end{theorem}
+}
+
+
+\frame{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
+In the {\tt meanMC\_g}, several quantities are random, the random variable $Y$, the stopping time $\tau$, the sample size $n_i$,  the confidence interval width $\heps_i$ in each iteration, for $i = 1,2,\cdots, \tau$. 
+As $\tau$ is the first time that the stopping criterion $\Delta_{+, \tau} \geq \heps_\tau$ firstly reached. Thus, we know the following events are equivalent
+\begin{align}\label{STrelationshop}
+\{\tau = t\} \Leftrightarrow \{\Delta_{+,t} \geq \heps_t\} \& \{\Delta_{+,i} \leq \heps_t, \text{for }  i = 1,2,\cdots, t-1 \}.
+\end{align}
+}
+\frame{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
+Now let's consider the worst case. Expend the definition of $\hmu_t$ and $\heps_t$ for all $t = \tau+1, \tau+2, \cdots$ by defining $\heps_t = \heps_\tau$ for $t >\tau$. And let $\hmu_t$ been defined according to step 3 in {\tt meanMC\_g}. Suppose at stopping time $\tau$, the desired error tolerance is not obtained, the probability of this event happens is
+\begin{align}\label{439}
+&\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right)\nonumber\\
+&=\sum_{t=1}^\infty\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t \right) .
+\end{align}
+}
+\frame{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
+By Proposition \ref{meanMCgProp}, we know
+\begin{align*}
+ &\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t  \right)\\
+&\leq
+\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t \right).
+\end{align*}
+The definition of stopping time in \eqref{STrelationshop} implied that $\tau = t$ is incompatible with $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then the inequality is equal to
+\begin{align*}
+\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t\right)= \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right).
+\end{align*}
+Adding extra condition of $\hsigma$ we have:
+\begin{align*}
+& \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right) \\
+ &=  \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t , \hsigma\geq\sigma\right) + \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t,\hsigma<\sigma \right) \\
+ & \leq \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right)
+\end{align*}
+}
+\frame{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
+By Lemma \ref{thm:fixedwidthrandomeps}, the inequality has the form
+\begin{align}\label{440}
+&\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right) \nonumber\\
+&<\alpha_t \Pr(\hsigma \geq \sigma) +\Pr \left(  \tau = t,\hsigma<\sigma \right).
+\end{align}
+Thus, by \eqref{439} and \eqref{440}
+\begin{align*}
+\Pr \left( \abs{\mu-\tmu} > \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) 
+&\leq \Pr(\hsigma \geq \sigma) \sum_{t=1}^\infty \alpha_t+\Pr(\hsigma<\sigma)\\
+&=1-\Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right)
+\end{align*}
+}
+
+\frame{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
+Hence, the probability could be written as
+\begin{align*}
+\Pr \left( \abs{\mu-\tmu} \leq \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) &\geq \Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right) \\&\geq \left(1-\sum_{t=1}^\infty \alpha_t\right) (1-\alpha_\sigma) \\&= 1-\alpha
+\end{align*}
+}
+\subsection{Numerical Examples for{\tt meanMC\_g}}
+\frame{\frametitle{Integrating Multivariate Normal Probability with a deterministic covariance matrix}
+A function that has been used in may statistics applications it the numerical computation of Multivariate Normal Probability function 
+\begin{equation*}\label{MVNP}
+F(\va,\vb) = \frac{1}{\sqrt{\abs{\Sigma}(2\pi)^d}}\int_{a_1}^{b_1}\cdots\int_{a_d}^{b_d} e^{-\frac{1}{2} \boldsymbol{\theta}'\Sigma^{-1}\boldsymbol{\theta} }d\boldsymbol{\theta},
+\end{equation*}
+where $\va$ and $\vb$ are $d$ dimensional vectors. $\boldsymbol{\theta} = (\theta_1,\cdots,\theta_d)^t$ and $\Sigma$ are given as $d \times d$ symmetric positive definite covariance matrix. 
+
+}
+
+\frame{\frametitle{Integrating Multivariate Normal Probability with a deterministic covariance matrix}
+Now, consider the parameters defined as follows 
+\begin{subequations}\ \label{MVNPexp1param}
+\begin{gather}
+a_1=\cdots=a_d =-\infty, \nonumber\\
+b_j \text{ IID uniformly on } [0,\sqrt{d}], \nonumber\\
+\Sigma = (\sigma_{ij})_{d\times d}, \text{where } \sigma_{ij} =  
+  \begin{cases}1 \quad i=j \nonumber\\
+   \sigma \quad i \neq j 
+  \end{cases},\nonumber\\
+\sigma \text{ distributed uniformly on } [0,1]\nonumber.
+\end{gather}
+\end{subequations}
+As the off diagonal elements of the convariance matrix are all $\sigma$ and the lower limits of the integration are all $-\infty$, the analytic solution has the form,
+\begin{align}\label{truesolMVNP}
+F(-\infty, \vb,\Sigma) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{\infty} e^{-\frac{t^2}{2}} \prod_{j=1}^d \left(\Phi\left(\left(b_j+\sqrt{\sigma}t\right)/\sqrt{1-\sigma}\right)\right)dt,\nonumber
+\end{align}}
+%which could be evaluated by univariate quadrature techniques.}
+
+\frame{\frametitle{Integrating Multivariate Normal Probability with a deterministic covariance matrix}
+\begin{figure}
+\centering
+\begin{minipage}{5cm} \centering \includegraphics[width=5cm]
+{MVNPiidErrTime-2015-09-17-23-49-43.eps} \\ {\tt cubMC\_g}  \end{minipage}
+\caption{The dimension uniformly random chosen between 2 and 8. The absolute and relative error tolerance are $10^{-4}$ and $10^{-3}$ respectively. The points labeled with a diamond are those for which  {\tt cubMC\_g}  attempts to exceed the cost budget.The solid line denotes the empirical distribution function of the error, and the dot-dashed line denotes the empirical distribution function of the time.\label{fig:MVNPTestFun1} }
+\end{figure}
+}
+
+\frame{\frametitle{Integrating Multivariate Normal Probability with a deterministic covariance matrix}
+\begin{figure}
+\centering
+\begin{minipage}{5cm} \centering \includegraphics[width=5cm]{MVNPcubSobolErrTime-2015-09-17-23-49-44.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{5cm} \centering \includegraphics[width=5cm]{MVNPcubLatticeErrTime-2015-09-17-23-49-45.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\end{figure}
+}
+
+\frame{\frametitle{Integrating Multivariate Normal Probability with a random covariance matrix}
+Another example with a random covariance matrix could be used to test the adaption of the algorithms. 
+
+First, Generate a random lower triangular matrix $C$ and covariance matrix $\Sigma$: Construct the lower triangular matrix in the following form
+\begin{equation*}\label{lowertrimatrixC}
+C = \left (\begin{array}{ccccc}
+\sigma_1&0&0&\cdots&0\\
+0&\sigma_2&0& \cdots &0 \\
+\cdots\\
+0&0&\cdots&0&\sigma_d \end{array}\right)+\delta_t  \left (\begin{array}{ccccc}
+0&0&0&\cdots&0\\
+x_{21}&0&0& \cdots &0 \\
+\cdots\\
+x_{d1}&x_{d2}&\cdots&x_{dd}&0 \end{array}\right)
+\end{equation*}
+where $\log_{10}\sigma_i$ is IID in $U[1,3]$, $\delta_t$ is a shrinkage parameter, $x_{ij}$ is IID in $U[-1,1]$.
+
+}
+\frame{ \frametitle{Integrating Multivariate Normal Probability with a random covariance matrix}
+The lower triangular matrix $C$ multiplies its transpose $C'$ would be the covariance matrix $\Sigma = CC'$.
+
+Second, choose integration dimension and interval as follows:
+\begin{subequations} \label{MVNPexp2param}
+\begin{gather}
+d \text{ IID uniformly on } [2,8] \nonumber\\
+a_1=\cdots=a_d =-\infty,\nonumber\\
+b_j \text{ IID uniformly on } [0,\sqrt{d}].\nonumber
+\end{gather}
+\end{subequations}
+
+}
+\frame{ \frametitle{Integrating Multivariate Normal Probability with a random covariance matrix}
+\begin{figure}
+\centering
+ \includegraphics[width=6cm]{boxplotofMVNP-2015-09-17-15-58-17.eps} \\ {\tt cubMC\_g} 
+\caption{Box and whisker plot. The horizonal axis denotes the different $delta$ chosen as $ 0.01,0.1, 1, 10$. The absolute error tolerance $\varepsilon_a$  and relative error tolerance are both set to be $10^{-5}$. The vertical axis denotes the computation time. \label{fig:MVNPadaptivitiy} }
+\end{figure}
+}
+
+\section{Introduction to GAIL}
+\frame{\frametitle{Introduction to GAIL}
+Guaranteed Automatic Integration Library (GAIL) is a suite of algorithms for integration problems in one and many dimensions, and whose answers are guaranteed to be correct.
+\\
+This purpose is to create a reliable and robust open source MATLAB package, following the philosophy of reproducible research (RR) championed by Claerbout \cite{Claerbout10} and Donoho\cite{BuckheitDonoho95} and developing supportable scientific software (SSS) that promote reliable reproducible research (RRR). 
+\\
+In the next section, we will describe the structure of GAIL and the way we develop it.
+}
+\frame{\frametitle{Introduction to GAIL}
+\begin{figure}[hb]
+\centering
+\includegraphics[width=4.5in]
+{GAILTree.pdf} 
+\caption{GAIL directory hierarchy \label{GAILTree}}
+\end{figure}
+
+}
+
+\frame{\frametitle{Introduction to GAIL}
+Figure \ref{GAILTree} shows the structure and hierarchy of the toolbox GAIL. It contains several levels of directories.
+\begin{itemize}
+\item Documentations: includes the scripts that generate the html supporting and explaining the algorithms.
+\item Papers: includes the published papers related to GAIL.
+\item Algorithms: the core part of GAIL, which included the ten algorithms shown in Figure \ref{GAILTree}.
+\item Tests: includes doctest and unittest for all the algorithms.
+\item Workouts: several examples are tested here.
+\item Output Files: the output files generated from workouts and papers.
+\item Third Party: the useful third party tools are added including doctest package and chebfun package.
+\end{itemize}
+}
+%\frame{
+%GAIL can be downloaded from
+%\url{http://code.google.com/p/gail/}
+%
+%Alternatively, you can get a local copy of the GAIL repository with this command:
+%\begin{lstlisting}
+%git clone https://github.com/GailGithub/GAIL_Dev.git
+%\end{lstlisting}
+%
+%You will need to install MATLAB 7 or a later version.
+%
+%}
+\frame{\frametitle{Algorithms}
+GAIL Version 2.1 \cite{GAIL_2_1} includes the following ten algorithms:
+\begin{itemize}
+\item {\tt funappx\_g}: 1-D function approximation on a bounded interval with local adaption.
+\item {\tt funmin\_g}: global univariate function minimization on a bounded interval.
+\item {\tt integral\_g}: 1-D numerical integration on a bounded interval based on Trapezoidal rule.
+\item {\tt cubLattice\_g}: Numerical integration via Quasi-Monte Carlo method using rank-1 Lattices.
+\item {\tt cubSobol\_ g}: Numerical integration via Quasi-Monte Carlo method using Sobol’ points.
+\end{itemize}
+}
+\frame{\frametitle{Algorithms}
+\begin{itemize}
+\item {\tt meanMCabs\_g}: Monte Carlo method for estimating mean of a random variable with an absolute error tolerance.
+\item {\tt meanMC\_g}: Monte Carlo method for estimating mean of a random variable with a generalized error tolerance.
+\item {\tt cubMCabs\_g}: Monte Carlo method for numerical integration with an absolute error tolerance.
+\item {\tt cubMC\_g}: Monte Carlo method for numerical integration with a generalized error tolerance.
+\item  {\tt meanMCBer\_g}: Monte Carlo method to estimate the mean of a Bernoulli random variable.
+\end{itemize}
+}
+
+\section{Future work}
+\frame{\frametitle{Future work}
+\begin{itemize}
+\item Better algorithm for estimating the mean of a Bernoulli random variable {\tt meanMCber\_g}
+\item Lower bound of {\tt meanMC\_g}
+\item Add more practical examples for GAIL.
+\end{itemize}
+Bib problems//Lemma prop do not shown numbers...
+}
+
+\frame{\frametitle{Bibliography}
+\bibliographystyle{alpha}
+\bibliography{Ljiang}
+}
+\end{document}
