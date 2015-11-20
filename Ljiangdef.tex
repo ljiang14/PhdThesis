@@ -13,14 +13,14 @@
 \def\betahat{\hat\beta}
 %\def\e{\text{e}}
 %\def\E{\text{E}}
-%\newcommand{\dif}{{\rm d}}
+\newcommand{\dif}{{\rm d}}
 %\newcommand{\meanMCB}{\texttt{meanMCBer\_g}\xspace}
 \newlength{\overwdth}
 \def\overstrike#1{ 
 \settowidth{\overwdth}{#1}\makebox[0pt][l]{\rule[0.5ex]{\overwdth}{0.1ex}}#1}
 
 \def\abs#1{\ensuremath{\left \lvert #1 \right \rvert}}
-%\newcommand{\norm}[2][{}]{\ensuremath{\left \lVert #2 \right \rVert}_{#1}}
+\newcommand{\norm}[2][{}]{\ensuremath{\left \lVert #2 \right \rVert}_{#1}}
 \newcommand{\ip}[3][{}]{\ensuremath{\left \langle #2, #3 \right \rangle_{#1}}}
 \DeclareMathOperator{\Ber}{Ber}
 \DeclareMathOperator{\success}{succ}
@@ -103,7 +103,7 @@
 \newcommand{\vv}{\bvec{v}}
 \newcommand{\vV}{\bvec{V}}
 \newcommand{\vw}{\bvec{w}}
-\newcommand{\vx}{\bvec{x}}
+\newcommand{\vx}{\boldsymbol{x}}
 \newcommand{\vX}{\bvec{X}}
 \newcommand{\vy}{\bvec{y}}
 \newcommand{\vY}{\bvec{Y}}
