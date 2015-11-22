@@ -543,7 +543,7 @@ Define the upper bound on $\hsigma^2$ as:
 \end{align}
 Then the following inequality must be true: 
 \begin{align}\label{hsighsigupineq}
-\Pr\left(\hsigma^2 <\hsigma_{\up}(\beta)\right) \geq 1-\beta.
+\Pr\left(\hsigma^2 <\hsigma_{\up}^2(\beta)\right) \geq 1-\beta.
 \end{align}
 \end{lemma}
 
@@ -561,7 +561,49 @@ Starting with inequality \eqref{boundsamplevar1} in Lemma \ref{samplevarbound}, 
 & =\Pr \left ( \hsigma^2< \hsigma_{\up}^2 \right)
 \end{align*}
 \end{proof}
+The following two lemmas will be used to prove the stopping time in Algorithm \ref{alg:meanMCg} is finite.
+\begin{lemma}[continuity of probability]\label{contiofprob}
+Let $A_1, A_2, \cdots$ be a sequence of events increasing to $A$. Then
+\begin{align}
+\lim_{n \to \infty}\Pr(A_n) =\Pr(A).
+\end{align}
+\end{lemma}
+\begin{proof}
+Since $A_i \subseteq A_{i+1}$, then we know $A_i \cap A_{i+1} = A_i$. Therefore, define $C_{i+1} = A_{i+1} \cap A_i^c$ for $i = 2,3,\cdots$, and let $C_1 = A_1$. Thus, we have
+$$\cup_{i=1}^n C_i = A_n$$
+$$\cup_{i=1}^\infty C_i=\cup_{i=1}^\infty A=A$$
+As the probability has the property of countably additive, we conclude
+$$\Pr (A) = \Pr (\cup_{i=1}^\infty C_i) = \sum_{i=1}^\infty \Pr(C_i) =  \lim_{n \to \infty}\sum_{i=1}^n\Pr(C_i)=\lim_{n\to \infty}\Pr(A_n).$$
+\end{proof}
 
+\begin{lemma}[preservation of inequality]\label{presofineq}
+Suppose that $f, g: A \to \reals$ and c is a limit point of $A$. If
+\begin{equation*}
+f(x) \leq g(x) \text{ for all } x\in A,
+\end{equation*}
+and $\lim_{x\to c}f(x)$, $\lim_{x\to c} g(x)$ exist, then
+$$\lim_{x\to c}f(x)\leq\lim_{x\to c} g(x)$$
+\end{lemma}
+\begin{proof}
+Let
+\begin{equation*}
+\lim_{x \to c} f(x) =L, \lim_{x \to c}g(x) = M.
+\end{equation*}
+Prove by contradiction, suppose that $L >M$, and let
+$$\varepsilon =\frac12(L-M) >0.$$
+From the definition of the limit, there exsit $\delta_1, \delta_2>0$ such that
+\begin{equation*}
+\abs{f(x)-L}<\varepsilon \quad \quad \text{if } x \in A \text{ and } 0<\abs{x-c}<\delta_1,
+\end{equation*}
+\begin{equation*}
+\abs{g(x)-M}<\varepsilon \quad \quad \text{if } x \in A \text{ and } 0<\abs{x-c}<\delta_2.
+\end{equation*}
+Let $\delta=\min(\delta_1,\delta_2)$. Since $c$ is a limit point of $A$, there exists $x \in A$ such that $0<\abs{x-a}<\delta$, and it follows that
+\begin{align*}
+f(x)-g(x) = (f(x)-L)+(M-g(x))+L-M >L-M-2\varepsilon>0,
+\end{align*}
+which contradicts the assumption, hence the proof proceeds.
+\end{proof}
 \Chapter{Guaranteed Monte Carlo method with an absolute error tolerance}\label{chapter:meanMCabsg}
 
 In this chapter, we will present two guaranteed automatic adaptive algorithms: {\tt meanMCabs\_g}, which estimate the mean $\mu$ of a random variable $Y$; {\tt cubMCabs\_g}, which estimate the integral $I$ with the integrand $f$ with respect to some density function $\rho$ within the interval $(\va,\vb)$. In order to estimate the mean $\mu$ of a random variable $Y$, we feed {\tt meanMCabs\_g} with a random number generator $\Yrand$ and an absolute error tolerance $\varepsilon_a$. This algorithm automatically and adaptively determines the sample size needed in order to guarantee that the answer $\hmu_n$ satisfy the fixed width confidence interval condition: $\Pr (\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha$. Similar for the {\tt cubMCabs\_g}, which estimate the integral $I=\int_{\va}^{\vb} f(\vx)\rho(\vx)\dif\vx$, we feed this algorithm with the integrand $f$, integration interval $(\va,\vb)$, the probability density function $\rho$, and the absolute error tolerance $\varepsilon_a$. We have the guarantee that the answer $\hIn$ satisfies the fixed width confidence interval condition $\Pr \left(\abs{I-\hIn} \leq \varepsilon_a\right) \geq 1-\alpha$.
@@ -692,11 +734,11 @@ I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\boldsymbol{x})\rho(\vx)\dif \vx.
 \end{align*}
 Note that given the problem of evaluating $I = \int_{\reals^d}g(\vx)\dif\vx$, one must choose a probability density function $\rho$ for which one can easily generate random vectors $\vx$, then set $f = g/\rho$. The quantities $\sigma^2$ and $\kappa$ defined above can be written in terms of weighted $\mathcal{L}_p$ norms of $f$:
 \begin{align*}
-\norm{f}[4]:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm{f-\mu}[2]^2,\quad \kappa = \frac{\norm{f-\mu}[4]^4}{\norm{f-\mu}[2]^4}.
+\norm[4]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
 \end{align*}
 For a given $g$, the choice of $\rho$ is not unique, and making an optimal choice belongs to the realm of the importance sampling. The assumption of bounded kurtosis in \eqref{def:boundedkurtosis} required by Algorithm \ref{alg:meanMCabsg} corresponds to an assumption that integrand $f$ lies in the cone of functions \cite{CDHHZ13}
 \begin{align*}
-C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm{f-\mu(f)}[4] \leq \kmax^{1/4} \norm{f-\mu(f)}[2]\right\}.
+C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[4]{f-\mu(f)}\right\}.
 \end{align*}
 This is in contrast to a ball of functions, which wound be the case if one was satisfying a bounded variance condition.
 Below, we will present our Algorithm {\tt cubMCabs\_g} which estimate the integral
@@ -707,9 +749,9 @@ as $\hat{I}$ in order to satisfy the fixed width confidence interval condition
 \end{align}
 
 \Section{The Algorithm {\tt cubMCabs\_g }}\label{sec:cubMCabsg}
-$\boldsymbol{a}$ $a$
+
 \begin{algorithm}\label{alg:cubMCabsg} 
-User provide the integrand $f$, the integration interval $\boldsymbol{a}$,$(\va,\vb)$, the measure $\rho$, and the absolute error tolerance $\varepsilon_a$. 
+User provide the integrand $f$, the integration interval, $(\va,\vb)$, the measure $\rho$, and the absolute error tolerance $\varepsilon_a$. 
 \begin{table}[hb]
 \caption{Parameters specified in Algorithm \ref{alg:cubMCabsg}.\label{cubMCabsgparam}}
 \begin{tabular}{c|c|c}
@@ -819,13 +861,13 @@ Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{f
 \Subsection{Integrating the Keister Test function}\label{subsec:keitertestfunmeanMCg}
 Keister \cite{Keister96} considered the following multidimensional integral that has applications in physics:
 \begin{equation}\label{KeisterTestFun}
-\int_{R^d} \cos (\norm{x}[2])e^{-\norm{x}[2]^2} \dif x 
+\int_{R^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx 
 \end{equation}
 This isotropic integral take the form
 \begin{align*}
- \int_{\reals^d} \cos (\norm{x}[2])e^{-\norm{x}[2]^2} \dif x &= 2^{-d/2}\int_{\reals^d} \cos(\norm{y}/\sqrt{2}) e^{-\norm{y}^2/2} dy \\
-&= \pi^{d/2} \int_{\reals^d} \cos(\norm{y}/\sqrt{2}) \frac{e^{-\norm{y}^2/2}}{(2\pi)^{d/2}} dy\\
- &= \pi^{s/2} \int_{[0,1)^d} \cos \left ( \sqrt{\sum_{j=1}^d \frac{[\Phi^{-1}(y_i)]^2}{2}}\right )dy,
+ \int_{\reals^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx &= 2^{-d/2}\int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) e^{-\norm[2]{\vy}^2/2} \dif \vy \\
+&= \pi^{d/2} \int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) \frac{e^{-\norm[2]{\vy}^2/2}}{(2\pi)^{d/2}} \dif \vy\\
+ &= \pi^{s/2} \int_{[0,1)^d} \cos \left ( \sqrt{\sum_{j=1}^d \frac{[\Phi^{-1}(y_i)]^2}{2}}\right )\dif \vy,
 \end{align*}
 where $\Phi$ denotes the standard Gaussian distribution function defined as below:
 $$\Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^x e^{-s^2/2}ds, x \in [-\infty, \infty].$$
@@ -1148,10 +1190,15 @@ By the hypothesis of the theorem, this completes the proof.
 \begin{lemma}\label{tauprobbound}
 Define the upper bound on tolerance $\heps_1$ as:
 \begin{align}\label{eps1updef}
-\hvareps_{1\up}(\beta):=\hsigma_{\up}(\beta)/N_{\CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4}),
+\hvareps_{1\up}(\beta)&:=\hsigma_{\up}(\beta)/N_{\CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4}),
 \end{align}
-where $\hsigma_{\up}(\beta)$ is defined in \eqref{sigup}. The stopping time $\tau$ for Algorithm \ref{alg:meanMCg}, has a probabilistic upper bound $\bar{\tau}(\beta)$, which is defined in \eqref{taubarrel}, with confidence level $1-\beta$, i.e.:
+where $\hsigma_{\up}(\beta)$ is defined in \eqref{sigup}. The stopping time $\tau$ for Algorithm \ref{alg:meanMCg}, has a probabilistic upper bound
 \begin{align}
+\bar{\tau}(\beta)&:= \left \lceil 1+\log_2 \left(\frac{\heps_{1\up}(\beta)(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil \label{taubardef} \\
+&=1+\left \lceil \log_2 \left(\frac{\sqrt{\left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)}\sigma(1+\varepsilon_r)}{ N_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right)\tol\left(\varepsilon_a,\varepsilon_r \abs{\mu}\right)}\right)\right \rceil \label{taubarexplicitdef}
+\end{align}
+with confidence level $1-\beta$, i.e.:
+\begin{align}\label{ineq:taufinite}
 \Pr(\tau <\bar{\tau}(\beta)) \geq 1-\beta.
 \end{align}
 \end{lemma}
@@ -1161,69 +1208,61 @@ The stopping time $\tau$ is defined as:
 \tau = \min \{ i: \Delta_{+}(\hmu_i, \heps_i) \geq \heps_i \}
 \end{align}
  and the tolerance in each step of iteration is defined as:
- $$\heps_{i+1} = \min(\heps_i/2, \max(\varepsilon_a,\theta\varepsilon_r\abs{\hmu_i})).$$ 
-The new tolerance must be no greater than half of the previous tolerance, i.e. $\heps_{i+1} \leq\heps_i/2$, which yields: 
+ $$\heps_{t+1} = \min(\heps_t/2, \tol(\varepsilon_a,\theta\varepsilon_r\abs{\hmu_t})).$$ 
+The new tolerance must be no greater than half of the previous tolerance, i.e. $\heps_{t+1} \leq\heps_t/2$, which yields: 
 \begin{align}\label{eps1niRelation}
-\heps_i \le\heps_1/2^{i-1}.
+\heps_t\le\heps_1/2^{t-1}.
 \end{align} 
-If the tolerance $\varepsilon_i$ satisfies the upper bound in Lemma \ref{cost2}, which is, $$\varepsilon_i \leq \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r},$$ then it must also satisfy
-$$\varepsilon_i \leq \Delta_{+}(\hmu_i, \heps_i).$$ 
+If the tolerance $\varepsilon_t$ satisfies the upper bound in Lemma \ref{cost2}, which is, $$\varepsilon_t \leq \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r},$$ then it must also satisfy
+$$\varepsilon_t \leq \Delta_{+}(\hmu_t, \heps_t).$$ 
 Define an upper bound on stopping time $\tau$ in terms of the random $\heps_1$ as follows
 $$T := 1+\left \lceil \log_{2} \left(\frac{\heps_{1}(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil. $$
-This definition of $\tau$ then implies that:
+This definition of $T$ then implies that:
 \begin{align*}
 & T \geq 1+\log_{2} \left(\frac{\heps_{1}(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right)\\&
 \Leftrightarrow  \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r} \ge \heps_1/2^{T-1}\\
-& \Rightarrow \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r} \ge \heps_\tau  \text{ \quad by Inequality \eqref{eps1niRelation}}\\&
+& \Rightarrow \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r} \ge \heps_\tau  \text{ \quad by inequality \eqref{eps1niRelation}}\\&
 \Rightarrow \Delta_{+,T} \ge \heps_{T} \text{\quad by Lemma \ref{cost2}}.
 \end{align*}
 Since the first occurrence $\heps_t \leq \Delta_+(\heps_t,\heps_t)$ defines the stopping time $\tau$, we must have
 \begin{align}\label{taurel}
 \tau \le T= 1+\left \lceil \log_{2} \left(\frac{\heps_{1}(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil.
 \end{align}
-Next, define $\bar{\tau}(\beta)$ as the upper bound on $T$:
-\begin{align}\label{taubarrel}
-\bar{\tau}(\beta):= \left \lceil 1+\log_2 \left(\frac{\heps_{1\up}(\beta)(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil.
-\end{align}
-Then by \eqref{taurel} and \eqref{taubarrel}, we have the relationship below:
+Then by \eqref{taurel} and \eqref{taubardef}, we have the relationship below:
 \begin{align} \label{epstau}
  \heps_1 <\heps_{1\up}(\beta) \Rightarrow \tau \le T<\bar{\tau}(\beta).
 \end{align}
-Also, according to the definition of $\heps_1$ in \eqref{eps1def} and $\heps_{1\up}(\beta)$ in \eqref{eps1updef}, which are functions of $\hsigma_1$ and $\hsigma_{\up}(\beta)$ respectively, we have the relationship below
+Also, according to the definition of $\heps_1$ in \eqref{eps1def} and $\heps_{1\up}(\beta)$ in \eqref{eps1updef}, which are functions of $\hsigma$ and $\hsigma_{\up}(\beta)$ respectively, we have the relationship below
 \begin{align}\label{sigmaeps}
- \hsigma_1 < \hsigma_{\up}(\beta) \Rightarrow \heps_1 < \heps_{1\up}(\beta).
+ \hsigma < \hsigma_{\up}(\beta) \Rightarrow \heps_1 < \heps_{1\up}(\beta).
 \end{align}
 Combining \eqref{epstau} and \eqref{sigmaeps} yields
-$$\hsigma_1 < \hsigma_{\up}(\beta) \Rightarrow\tau <\bar{\tau}(\beta).$$
+$$\hsigma < \hsigma_{\up}(\beta) \Rightarrow\tau <\bar{\tau}(\beta).$$
 Apply Lemma \ref{upperboundhsigma}, we would have the probability relationship as below: 
 \begin{align*}
 \Pr(\tau < \bar{\tau}(\beta)) \geq  \Pr(\hsigma < \hsigma_{\up}(\beta)) \geq 1-\beta.
 \end{align*}
 \end{proof}
-
+[add some discussion here]
 \begin{lemma}\label{taufinite}
 The stopping time $\tau$ is finite almost surely, i.e.:
 $$\Pr(\tau < \infty) = 1.$$
 \end{lemma}
 \begin{proof}
-By Lemma \ref{tauprobbound}, the stopping time $\tau$ has a probabilistic upper bound $\bar{\tau}(\beta)$,  i.e.:
-$$\Pr(\tau < \bar{\tau}(\beta)) \geq 1-\beta$$
-As $\bar{\tau}(\beta)$ is a function in terms of $\beta$, which has the form
-$$\bar{\tau}(\beta):= \left \lceil 1+\log_2 \left(\frac{\left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right) N_{CB}^{-1}(n_1,\alpha_1,\kappa_{\max}^{3/4})(1+\varepsilon_r)}{ \tol(\varepsilon_a,\varepsilon_r \abs{\mu})}\right) \right \rceil.$$
-Taking the limit that $\beta \to 0$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, which is
+By Lemma \ref{tauprobbound}, the stopping time $\tau$ has a probabilistic upper bound $\bar{\tau}(\beta)$ defined in \eqref{ineq:taufinite}. As $\bar{\tau}(\beta)$ is a function in terms of $\beta$, taking the limit that $\beta \to 0$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, which is
 \begin{align}\label{betagoesto0}
 \Pr(\tau < \infty) = \Pr(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)).
 \end{align}
-By the continuity of probability 
+By the continuity of probability in Lemma \ref{contiofprob}, 
 \begin{align}\label{contofprob}
  \Pr(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)) =\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)),
 \end{align}
-and preservation of inequality, we have
+and preservation of inequality in Lemma \ref{presofineq}, we have
 \begin{align}\label{preofineq}
 \lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)) 
 \geq \lim_{\beta \to 0}(1-\beta) = 1.
 \end{align}
-By inequality \eqref{betagoesto0}, \eqref{contofprob} and \eqref{preofineq}, the proof proceeds
+By inequality \eqref{betagoesto0}, \eqref{contofprob} and \eqref{preofineq}, the proof proceeds.
 \end{proof}
 
 %\begin{lemma}\label{step1}
@@ -1440,7 +1479,7 @@ This completes the proof.
 \begin{theorem}\label{cost:meanMCg}
 The cost of Algorithm \ref{alg:meanMCg}, $n_{\tot}$, has a probabilistic upper bound by $n_{\up}$, 
 \begin{equation}
-\Pr \left(n_{\tot}<n_{\up} (\beta)\right) >1-\beta
+\Pr \left(n_{\tot}\leq n_{\up} (\beta)\right) \geq 1-\beta
 \end{equation}
 \end{theorem}
 \begin{proof}
@@ -1453,7 +1492,7 @@ The number of sample required by the Algorithm \ref{alg:meanMCg} is $$n_{\tot} =
  \item $n_t$ depends on  $\hsigma$ and $\heps_t$, where  $t = 2,3,\cdots,\tau$;
  \end{itemize}
  
- In order to bound the total cost, we need to bound the stopping time $\tau$ and also the sample size needed in each iteration. The stopping time $\tau$ has a probabilistic bound by $\bar{\tau}$ defined in \eqref{taubarrel} as been proved in Lemma \ref{tauprobbound}. In each iteration, the sample size $n_t$ is defined as:
+ In order to bound the total cost, we need to bound the stopping time $\tau$ and also the sample size needed in each iteration. The stopping time $\tau$ has a probabilistic bound by $\bar{\tau}$ defined in \eqref{taubarexplicitdef} as been proved in Lemma \ref{tauprobbound}. In each iteration, the sample size $n_t$ is defined as:
 $$n_t = N_{\CB}\left(\hsigma/\heps_t,\alpha_t,\kappa_{\max}^{3/4}\right).$$
 In order to bound $n_t$ we need to get the upper bound of $\hsigma$ and the lower bound of $\heps_t$. As the upper bound on $\hsigma$ is defined as $\hsigma_{\up}$ in \eqref{sigup} proved in Lemma \ref{upperboundhsigma}. and $\heps_t$ has the form
 \begin{align*}
