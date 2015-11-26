@@ -221,11 +221,11 @@ Under the assumption of a bounded kurtosis
 \begin{equation} \label{def:boundedkurtosis}
 \kappa = \frac{\e[(Y-\mu)^4]}{\sigma^4} \le \kappa_{\max}.
 \end{equation}
-where $\kmax$ is some bound defined in Definition \ref{def:kmax}, we present several algorithms that estimate the mean, $\mu$, of a random variable, $Y$, that satisfies the fixed width confidence intervals with some prescribed absolute error tolerance $\varepsilon_a$,  
+where $\kmax$ is some bound defined in Definition \ref{def:kmax}, we present several algorithms that estimate the mean, $\mu$, of a random variable, $Y$, that satisfies the fixed width confidence interval condition with some prescribed absolute error tolerance $\varepsilon_a$,  
 \begin{align}\label{absCI}
 \Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha,
 \end{align}
-or with relative error tolerance $\varepsilon_r$,
+or relative error tolerance $\varepsilon_r$,
 \begin{align}\label{relCI}
 \Pr\left(\abs{\mu-\hmu_n}\leq \varepsilon_r\right) \geq 1-\alpha,
 \end{align}
@@ -234,6 +234,42 @@ or with some generalized error criterion $\tol(\varepsilon_a,\varepsilon_r \abs{
 \Pr\left(\abs{\mu-\tmu_n}\leq \tol\left(\varepsilon_a, \varepsilon_r\abs{\mu}\right)\right) \geq 1-\alpha.
 \end{align}
 
+\Section{Background}
+
+The width of a confidence interval tends to become smaller as the number $n$ of sampled
+function values increases. In special circumstances, we can choose $n$ to get a confidence interval of at most the desired length and at least the desired coverage level, $1-\alpha$. For instance, if the variance, $\sigma^2=\var(Y)$, is known then an approach based on Chebyshev's Inequality is available, though the actual coverage will usually be much higher than the nominal level, meaning that much narrower intervals would have sufficed. Known variance in addition to a Gaussian distribution for $Y$ supports a fixed width confidence interval construction that is not too conservative. The CLT provides a confidence interval that is asymptotically correct, but our aim is for something that is definitely correct for finite sample sizes. Finally, conservative fixed width confidence intervals for means can be constructed for bounded random variables, by appealing to exponential inequalities such as Hoeffding's or Chernoff's inequality.  Unfortunately, $Y$ is often unbounded, e.g., in the case where it represents the payoff of a call option.
+
+If the relevant variance or bound is unknown, then approaches based on sequential statistics \cite{Siegmund85} may be available.  In sequential methods one keeps increasing $n$ until the interval is narrow enough. Sequential confidence intervals require us to take account of the stopping rule when computing the confidence level. Unfortunately, all existing sequential methods are lacking in some aspects. 
+
+Serfling and Wackerly \cite{SerflingaWackerlyb76} consider sequential confidence intervals for the mean (alternatively for the median) in parametric distributions, symmetric about their center point. The symmetry condition is not suitable for general
+purpose Monte Carlo applications.
+
+Chow and Robbins\cite{ChowRobbins65} develop a sequential sampling fixed width confidence interval procedure for the mean, but its guarantees are only asymptotic (as $\varepsilon \to 0$). \cite{MukhDatta96} give a procedure similar to Chow and Robbins's, and it has similar drawbacks.
+
+Bayesian methods can support a fixed width interval containing $\mu$ with $1-\alpha$ posterior probability, and
+Bayesian methods famously do not require one to account for stopping rules. They do however require strong distributional assumptions.
+
+\Section{Numerical integration}
+
+An important special case of computing $\mu=\e(Y)$ is when $Y = f(\vX)$ for some function $f:\reals^d \to \reals$ and some random vector $\vX$ with probability density function $\rho: \reals^d \to [0,\infty)$. One may then interpret the mean of $Y$ as the multidimensional integral
+\begin{align*}
+I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\vX)\rho(\vX)\dif \vX.
+\end{align*}
+%Note that given the problem of evaluating $I = \int_{\reals^d}g(\vx)\dif\vx$, one must choose a probability density function $\rho$ for which one can easily generate random vectors $\vx$, then set $f = g/\rho$. The quantities $\sigma^2$ and $\kappa$ defined above can be written in terms of weighted $\mathcal{L}_p$ norms of $f$:
+%\begin{align*}
+%\norm[4]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
+%\end{align*}
+%For a given $g$, the choice of $\rho$ is not unique, and making an optimal choice belongs to the realm of the importance sampling. The assumption of bounded kurtosis in \eqref{def:boundedkurtosis} required by Algorithm \ref{alg:meanMCabsg} corresponds to an assumption that integrand $f$ lies in the cone of functions \cite{CDHHZ13}
+%\begin{align*}
+%C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[4]{f-\mu(f)}\right\}.
+%\end{align*}
+%This is in contrast to a ball of functions, which wound be the case if one was satisfying a bounded variance condition.
+%An important case pf computing $\mu = \e(Y)$ arises in the situation where $Y=f(\vX)$ for some function 
+%Suppose we want to evaluate the multidimensional integral with integrand $f:\reals^d \to \reals$ with respect to some probability density function $\rho: \reals^d \to [0,\infty)$.
+%%and some random vector with probability density function $\rho: \reals^d \to [0,\infty)$.
+%The analytical solution may be written as:
+%$$\mu = \int_{\reals^d}f(\vx)\rho(\vx)\dif\vx \quad \text{   where } \vx \in \reals^d \text{ and } \vx \sim \rho(\vx).$$
+By appealing Monte Carlo technique, one need to generate a bunch of random variables $\vX_i \in \reals^d$ from the distribution of $\vX$, namely, $\rho$, and calculate the function values by $Y_i = f(\vX_i)$. Thus, the true solution could be approximated as $$\hmu_n = \frac1n\sum_{i=1}^n f(\vX_i).$$
 
 \Section{Outline of the thesis}
 
@@ -702,13 +738,15 @@ where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is uniformly random chosen between 2 and
 \begin{figure}
 \centering
 \begin{minipage}{9cm} \centering \includegraphics[width=9cm]
-{figProductFun/productiidErrTime-2015-11-23-14-52-21.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
+{fig_productfun/productiidErrTime-2015-11-24-16-11-57.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]
-{figProductFun/productcubSobolErrTime-2015-11-22-16-54-51.eps} \\ {\tt cubSobol\_g}  \end{minipage}
+{fig_productfun/productcubSobolErrTime-2015-11-24-16-11-57.eps} \\ {\tt cubSobol\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]
-{figProductFun/productcubLatticeErrTime-2015-11-22-16-54-52.eps} \\ {\tt cubLattice\_g}  \end{minipage}
-\caption{Execution times and errors for the product function \eqref{productfun} for $d$random chosen between 2 and 20, and error absolute tolerance $\varepsilon_a=10^{-4}$. \label{fig:cubMCabsgproductfun} }
+{fig_productfun/productcubLatticeErrTime-2015-11-24-16-11-57.eps} \\ {\tt cubLattice\_g}  \end{minipage}
+\caption{Execution times and errors for the product function \eqref{productfun} for $d$random chosen between 2 and 20, and error absolute tolerance $\varepsilon_a=10^{-3}$. \label{fig:cubMCabsgproductfun} }
 \end{figure}
+
+$n_\sigma = 2^{13}$ sample budget is: $10^10$
 
 \Subsection{Integrating a single hump}\label{subsec:meanmcabssinglehump}
 Accuracy and timing results have been recorded for the integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
