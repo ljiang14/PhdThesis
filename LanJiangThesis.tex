@@ -203,25 +203,17 @@ J. Hickernell who not only served as my supervisor but also encouraged and chall
 %%% Abstract %%%
 \begin{abstract}% abstract environment, this is optional
 
-${\mathbf x}$ Monte Carlo is a versatile computational method that may be used to approximate the means, $\mu$, of random variables, $Y$, whose distributions are not known explicitly. This thesis investigates how to reliably construct fixed width confidence intervals for $\mu$ with some prescribed absolute error tolerance $\varepsilon_a$, relative error tolerance $\varepsilon_r$ or some generalized error criterion. To facilitate this, it is assumed that the kurtosis, $\kappa$, of the random variable, $Y$, does not exceed a user specified bound $\kmax$. The key idea is to confidently estimate the variance of $Y$ by applying Cantelli's Inequality. A Berry-Esseen Inequality makes it possible to determine the sample size required to construct such a confidence interval. When relative error is involved, this requires an iterative process.  This idea for computing $\mu = \e(Y)$ can be used to develop a numerical integration by writing the integral as $\mu = \e (f(\vx)) = \int_{\reals^d}f(\vx)\rho(\vx)\dif\vx$, where $\vx$ is a $d$ dimensional random vector with probability density function $\rho$. A similar idea is used to develop an algorithm for computing $p = \e(Y)$ where $Y$ is a Bernoulli random variable. All of the algorithms have been implemented in the Guaranteed Automatic Integration Library (GAIL).
+Monte Carlo is a versatile computational method that may be used to approximate the means, $\mu$, of random variables, $Y$, whose distributions are not known explicitly. This thesis investigates how to reliably construct fixed width confidence intervals for $\mu$ with some prescribed absolute error tolerance $\varepsilon_a$, relative error tolerance $\varepsilon_r$ or some generalized error criterion. To facilitate this, it is assumed that the kurtosis, $\kappa$, of the random variable, $Y$, does not exceed a user specified bound $\kmax$. The key idea is to confidently estimate the variance of $Y$ by applying Cantelli's Inequality. A Berry-Esseen Inequality makes it possible to determine the sample size required to construct such a confidence interval. When relative error is involved, this requires an iterative process.  This idea for computing $\mu = \e(Y)$ can be used to develop a numerical integration by writing the integral as $\mu = \e (f(\vx)) = \int_{\reals^d}f(\vx)\rho(\vx)\dif\vx$, where $\vx$ is a $d$ dimensional random vector with probability density function $\rho$. A similar idea is used to develop an algorithm for computing $p = \e(Y)$ where $Y$ is a Bernoulli random variable. All of the algorithms have been implemented in the Guaranteed Automatic Integration Library (GAIL).
 
 \end{abstract}
 \textpages     % Settings of text-pages are done with \textpages command
 % Chapters are created with \Chapter{title} command
 \Chapter{INTRODUCTION}\label{introduction}
 
-\Section{Monte Carlo simulation}
-
 Monte Carlo is a widely used simulation method that can be applied to evaluate means of random variables, perform numerical integration, estimate default probabilities, understand and control complex stochastic systems, price financial derivatives and solve other real world problems.
 
  In the case of estimating the mean, $\mu$, of a random variable, $Y$, i.e.: $\mu = \e(Y)$, one generates $n$ independent and identically distributed (IID) $Y_i$ from the distribution of $Y$ and take the sample average, 
-$$\mu \approx \hmu_n :=\frac1n\sum_{i=1}^nY_i.$$ The Strong Law of Large Numbers ensures that the sample mean converges to the true solution almost surely, i.e.: $\lim_{n \to \infty} \hmu_n =\mu \text{ a.s.}$ \cite[Theorem 20.1]{JP04}.
-
-
-
-
-
-
+$$\hmu_n :=\frac1n\sum_{i=1}^nY_i.$$ The Strong Law of Large Numbers ensures that the sample mean, $\hmu_n$, converges to the true mean, $\mu$, almost surely, i.e.: $\lim_{n \to \infty} \hmu_n =\mu \text{ a.s.}$ \cite[Theorem 20.1]{JP04}.
 
 In this thesis, we investigate the ways to estimate the mean, $\mu$, of a random variable, $Y$, that satisfies the fixed width confidence interval condition with some prescribed absolute error tolerance $\varepsilon_a$,  
 \begin{align}\label{absCI}
@@ -241,45 +233,44 @@ assuming a bounded kurtosis of the random variable $Y$,
 \end{equation}
 where $\kmax$ is some bound defined in Definition \ref{def:kmax}. 
 
-\Section{Background}
+\Section{Background}\label{sec:background}
 
-The Central Limit Theorem (CLT) provides a way to construct an approximate confidence interval for the $\mu$ in terms of the sample mean assuming a known variance $\var(Y)$. However, this is an asymptotic result, which is, the proposed procedure attains the desired coverage level in the limit as $\varepsilon\to 0$ but does not provide coverage guarantees for fixed $\varepsilon>0$.  We want such fixed $\varepsilon$ guarantees. The existing theory of fixed width confidence interval may make distributional assumptions that are too strong. 
-Stein \cite{stein45} proposed a similar two stage procedure, however, his result requires normally distributed data and has no relative error criterion involved. In Monte Carlo applications one typically does not have much information about the underlying distribution. The form of the distribution for $Y$ is generally not known, $\var(Y)$ is generally not  known, and $Y$ is not necessarily bounded. We are aiming to derive fixed width confidence intervals that do not require such assumptions.  
+The Central Limit Theorem (CLT) stated in Theorem \ref{clt} provides a way to construct an approximate confidence interval for the $\mu$ in terms of the sample mean assuming a known variance $\var(Y)$. However, this is an asymptotic result, which is, the proposed procedure attains the desired coverage level in the limit as $\varepsilon\to 0$ but does not provide coverage guarantees for fixed $\varepsilon>0$.  We want such fixed $\varepsilon$ guarantees. The existing theory of fixed width confidence interval may make distributional assumptions that are too strong. Stein \cite{stein45} proposed a similar two stage procedure, however, his result requires normally distributed data and has no relative error criterion involved. In Monte Carlo applications one typically does not have much information about the underlying distribution. The form of the distribution for $Y$ is generally not known, $\var(Y)$ is generally not  known, and $Y$ is not necessarily bounded. We are aiming to derive fixed width confidence intervals that do not require such assumptions.  
 
 The width of a confidence interval tends to become smaller as the number $n$ of sampled
-function values increases. In special circumstances, we can choose $n$ to get a confidence interval of at most the desired length and at least the desired coverage level, $1-\alpha$. For instance, if the variance, $\sigma^2=\var(Y)$, is known then an approach based on Chebyshev's Inequality is available, though the actual coverage will usually be much higher than the nominal level, meaning that much narrower intervals would have sufficed. Known variance in addition to a Gaussian distribution for $Y$ supports a fixed width confidence interval construction that is not too conservative. The CLT provides a confidence interval that is asymptotically correct, but our aim is for something that is definitely correct for finite sample sizes. Finally, conservative fixed width confidence intervals for means can be constructed for bounded random variables, by appealing to exponential inequalities such as Hoeffding's or Chernoff's inequality.  Unfortunately, $Y$ is often unbounded, e.g., in the case where it represents the payoff of a call option.
+function values increases. In special circumstances, we can choose $n$ to get a confidence interval of at most the desired length and at least the desired coverage level, $1-\alpha$. For instance, if the variance, $\sigma^2=\var(Y)$, is known then an approach based on Chebyshev's Inequality is available, though the actual coverage will usually be much higher than the nominal level, meaning that much narrower intervals would have sufficed. Known variance in addition to a Gaussian distribution for $Y$ supports a fixed width confidence interval construction that is not too conservative. The CLT provides a confidence interval that is asymptotically correct, but our aim is for something that is definitely correct for finite sample sizes. Finally, conservative fixed width confidence intervals for means can be constructed for bounded random variables, by appealing to exponential inequalities such as Hoeffding's or Chernoff's Inequality, we will discuss the way to estimate the mean of Bernoulli random variables by such inequalities.
 
 If the relevant variance or bound is unknown, then approaches based on sequential statistics \cite{Siegmund85} may be available.  In sequential methods one keeps increasing $n$ until the interval is narrow enough. Sequential confidence intervals require us to take account of the stopping rule when computing the confidence level. Unfortunately, all existing sequential methods are lacking in some aspects. 
 
-Serfling and Wackerly \cite{SerflingaWackerlyb76} consider sequential confidence intervals for the mean (alternatively for the median) in parametric distributions, symmetric about their center point. The symmetry condition is not suitable for general
-purpose Monte Carlo applications.
+Serfling and Wackerly \cite{SerflingaWackerlyb76} consider sequential confidence intervals for the mean (alternatively for the median) in parametric distributions, symmetric about their center point. The symmetry condition is not suitable for general purpose Monte Carlo applications.
 
 Chow and Robbins\cite{ChowRobbins65} develop a sequential sampling fixed width confidence interval procedure for the mean, but its guarantees are only asymptotic (as $\varepsilon \to 0$). \cite{MukhDatta96} give a procedure similar to Chow and Robbins's, and it has similar drawbacks.
 
 Bayesian methods can support a fixed width interval containing $\mu$ with $1-\alpha$ posterior probability, and
 Bayesian methods famously do not require one to account for stopping rules. They do however require strong distributional assumptions.
 
-\Section{Numerical integration}
+\Section{Numerical integration}\label{sec:numericalintegration}
 
 An important special case of computing $\mu=\e(Y)$ is when $Y = f(\vX)$ for some function $f:\reals^d \to \reals$ and some random vector $\vX$ with probability density function $\rho: \reals^d \to [0,\infty)$. One may then interpret the mean of $Y$ as the multidimensional integral
 \begin{align*}
 I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\vX)\rho(\vX)\dif \vX.
 \end{align*}
-%Note that given the problem of evaluating $I = \int_{\reals^d}g(\vx)\dif\vx$, one must choose a probability density function $\rho$ for which one can easily generate random vectors $\vx$, then set $f = g/\rho$. The quantities $\sigma^2$ and $\kappa$ defined above can be written in terms of weighted $\mathcal{L}_p$ norms of $f$:
-%\begin{align*}
-%\norm[4]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
-%\end{align*}
-%For a given $g$, the choice of $\rho$ is not unique, and making an optimal choice belongs to the realm of the importance sampling. The assumption of bounded kurtosis in \eqref{def:boundedkurtosis} required by Algorithm \ref{alg:meanMCabsg} corresponds to an assumption that integrand $f$ lies in the cone of functions \cite{CDHHZ13}
-%\begin{align*}
-%C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[4]{f-\mu(f)}\right\}.
-%\end{align*}
-%This is in contrast to a ball of functions, which wound be the case if one was satisfying a bounded variance condition.
+By appealing Monte Carlo technique, one need to generate a bunch of random variables $\vX_i \in \reals^d$ from the distribution of $\vX$, namely, $\rho$, and calculate the function values by $Y_i = f(\vX_i)$. Thus, the true solution could be approximated as $$\hIn = \hmu_n(f) = \frac1n\sum_{i=1}^n f(\vX_i).$$
+Note that given the problem of evaluating $I = \int_{\reals^d}g(\vx)\dif\vx$, one must choose a probability density function $\rho$ for which one can easily generate random vectors $\vx$, then set $f = g/\rho$. The quantities $\sigma^2$ and $\kappa$ defined above can be written in terms of weighted $\mathcal{L}_p$ norms of $f$:
+\begin{align*}
+\norm[4]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
+\end{align*}
+For a given $g$, the choice of $\rho$ is not unique, and making an optimal choice belongs to the realm of the importance sampling. The assumption of bounded kurtosis in \eqref{def:boundedkurtosis} required by Algorithm \ref{alg:meanMCabsg} corresponds to an assumption that integrand $f$ lies in the cone of functions \cite{CDHHZ13}
+\begin{align*}
+C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[4]{f-\mu(f)}\right\}.
+\end{align*}
+This is in contrast to a ball of functions, which wound be the case if one was satisfying a bounded variance condition.
+
 %An important case pf computing $\mu = \e(Y)$ arises in the situation where $Y=f(\vX)$ for some function 
 %Suppose we want to evaluate the multidimensional integral with integrand $f:\reals^d \to \reals$ with respect to some probability density function $\rho: \reals^d \to [0,\infty)$.
 %%and some random vector with probability density function $\rho: \reals^d \to [0,\infty)$.
 %The analytical solution may be written as:
 %$$\mu = \int_{\reals^d}f(\vx)\rho(\vx)\dif\vx \quad \text{   where } \vx \in \reals^d \text{ and } \vx \sim \rho(\vx).$$
-By appealing Monte Carlo technique, one need to generate a bunch of random variables $\vX_i \in \reals^d$ from the distribution of $\vX$, namely, $\rho$, and calculate the function values by $Y_i = f(\vX_i)$. Thus, the true solution could be approximated as $$\hmu_n = \frac1n\sum_{i=1}^n f(\vX_i).$$
 
 \Section{Outline of the thesis}
 
@@ -737,14 +728,10 @@ As {\tt cubMCabs\_g} uses the same argument as {\tt meanMCabs\_g}, just treat th
 
 \Section{Numerical examples for {\tt cubMCabs\_g}}
 
-In this section, we will show some numerical examples to integrate some test functions using different algorithms including {\tt cubMCabs\_g}, {\tt cubSobol\_g}\cite{HicJim16a},\\ {\tt cubLattice\_g}\cite{JimHic16a}, {\tt integral}\cite{Shampone08} and {\tt chebfun} \cite{Chebfun14}.
+In this section, we will show some numerical examples to integrate some test functions using different algorithms including {\tt cubMCabs\_g}, {\tt cubSobol\_g} \cite{HicJim16a},\\ {\tt cubLattice\_g} \cite{JimHic16a}, {\tt integral} \cite{Shampone08} and {\tt chebfun} \cite{Chebfun14}.
 
 \Subsection{Integrating a product function}
-A product function are used here to perform a integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$, where the integrand chosen as
-\begin{equation}\label{productfun}
-f(\vx) = \prod_{i=1}^d(x_i^2+a_i),
-\end{equation}
-where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is uniformly random chosen between 2 and 20, $a_i$ is uniformly random chosen between 0 and $4/3$, for $i=1,2,\cdots,d$. Accuracy and time are recorded with 500 replications performed using algorithm {\tt cubMCabs\_g}, {\tt cubSobol\_g} and {\tt cubLattice\_g}.
+%mat file used to plot   TestcubMCgFixedCovon-product-N500d2abstol0.001rel0-2015-11-24-16-01-55.mat
 \begin{figure}
 \centering
 \begin{minipage}{9cm} \centering \includegraphics[width=9cm]
@@ -753,12 +740,34 @@ where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is uniformly random chosen between 2 and
 {fig_productfun/productcubSobolErrTime-2015-11-24-16-11-57.eps} \\ {\tt cubSobol\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]
 {fig_productfun/productcubLatticeErrTime-2015-11-24-16-11-57.eps} \\ {\tt cubLattice\_g}  \end{minipage}
-\caption{Execution times and errors for the product function \eqref{productfun} for $d$random chosen between 2 and 20, and error absolute tolerance $\varepsilon_a=10^{-3}$. \label{fig:cubMCabsgproductfun} }
+\caption{Execution times and errors for the product function \eqref{productfun} with $d$ random chosen between 2 and 20, and the absolute error tolerance $\varepsilon_a=10^{-3}$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid green line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times. \label{fig:cubMCabsgproductfun} }
 \end{figure}
 
-$n_\sigma = 2^{13}$ sample budget is: $10^10$
+A product function are used here to perform a integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$, where the integrand chosen as
+\begin{equation}\label{productfun}
+f(\vx) = \prod_{i=1}^d(x_i^2+a_i),
+\end{equation}
+where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is uniformly random chosen between 2 and 20, $a_i$ is uniformly random chosen between 0 and $4/3$, for $i=1,2,\cdots,d$. Accuracy and time are recorded with 500 replications performed using algorithms {\tt cubMCabs\_g}, {\tt cubSobol\_g} \cite{HicJim16a} and {\tt cubLattice\_g} \cite{JimHic16a}. For all of these three algorithms, the absolute error tolerance is $10^{-3}$, the initial sample size is $2^{13}$, and the sample budget is $10^{10}$. 
+
+In the plots for {\tt cubMCabs\_g}, an asterisk is used to label those points satisfying $\kappa \le \kmax$, where $\kappa$ is defined in \eqref{kurtosis}. All such points fall within the prescribed error tolerance,
+which is even better than the guaranteed confidence of $99\%$.  Those points labeled with a dot, are those for which $\kappa > \kmax$, and so no guarantee holds. The points labeled with a diamond are those for which  {\tt cubMCabs\_g}  attempts to exceed the cost budget that we set, i.e., it wants to choose $n_\mu$ such that $n_{\sigma}+n_\mu > n_{\max}:=10^{10}$. In these cases $n_\mu$ is chosen as $\lfloor 10^{10} - n_\sigma \rfloor$, which often is still large enough to get an answer that satisfies the error tolerance. 
+ 
+For {\tt cubSobol\_g} there are 444 out of 500 samples that reach the desired accuracy, which is, the successful rate is $88.8\%$. Similarly, for {\tt cubLattice\_g}, there are 347 out of 500 samples that have the error less than the tolerance, i.e. the accuracy rate is $69.4\%$. These two quasi-Monte Carlo methods perform not as good as {\tt cubMCabs\_g} since this particular test function has a high effective dimension, which make the Fourier coefficient decays slow.
 
 \Subsection{Integrating a single hump}\label{subsec:meanmcabssinglehump}
+
+\begin{figure}
+\centering
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
+{gaussiand=1iidErrTime-2015-08-12-16-25-16.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubSobolErrTime-2015-08-12-16-25-17.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubLatticeErrTime-2015-08-12-16-25-17.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{gaussiand=1chebfunErrTime-2015-08-12-16-25-18.eps} \\ {\tt chebfun} \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{gaussiand=1integralErrTime-2015-08-12-16-25-18.eps} \\ {\tt integral} \end{minipage}
+\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=1$ and error tolerance $\varepsilon_a=10^{-3}$. \label{fig:GaussianTestFun} }
+\end{figure}
 Accuracy and timing results have been recorded for the integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
 \begin{equation} \label{GaussianTestFun}
 f(\vx)=a_0 + b_0\prod_{j=1}^d\left[ 1 +b_j \exp \left(-\frac{(x_j-h_j)^2}{c_j^2}\right) \right].
@@ -772,27 +781,9 @@ Here $\vx$ is a $d$ dimensional vector, and $a_0, b_0, \ldots, b_d, c_1, \ldots,
 \item $a_0$ chosen in terms of the $b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\mu=1$.
 \end{itemize}
 These ranges of parameters are chosen so that the algorithms being tested fail to meet the error tolerance a significant number of times.
-\begin{figure}
-\centering
-\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
-{gaussiand=1iidErrTime-2015-08-12-16-25-16.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubSobolErrTime-2015-08-12-16-25-17.eps} \\  {\tt cubSobol\_g}\end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubLatticeErrTime-2015-08-12-16-25-17.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
-{gaussiand=1chebfunErrTime-2015-08-12-16-25-18.eps} \\ {\tt chebfun} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
-{gaussiand=1integralErrTime-2015-08-12-16-25-18.eps} \\ {\tt integral} \end{minipage}
-\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=1$ and error tolerance $\varepsilon_a=10^{-3}$. \label{fig:GaussianTestFun} }
-\end{figure}
+
 %Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the {\tt cubMCabs\_g} the points labeled * are those for which the Theorem \ref{thm:meanMCabsg} guarantees the error tolerance.
-These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt integral} \cite{Shampone08},  {\tt cubMCabs\_g}, {\tt chebfun}\cite{Chebfun14},{\tt cubLattice\_g}\cite{JimHic16a}, and {\tt cubSobol\_g}\cite{HicJim16a}.
-%The sample size is increased until this error estimate decreases to no more than the tolerance
-%and an automatic quasi-Monte Carlo algorithm that uses scrambled Sobol' sampling \citep{Owe95,Owe96,Owe97,Mat98,HonHic00a,DicPil10a}.  For the Sobol' sampling algorithm the error is estimated by an inflation factor of $1.1$ times the sample standard deviation of $8$ internal replicates of one scrambled Sobol' sequence \citep{Owe06a}.  The sample size is increased until this error estimate decreases to no more than the tolerance.  We 
-%have not yet found simple conditions on integrands for which this procedure is guaranteed to produce an estimate satisfying the error tolerance, 
-%and so we do not discuss it in detail.  We are however, intrigued by the fact that it does seem to perform rather well in practice.
-%
-For all but {\tt chebfun}, the specified absolute error tolerance is $\epsilon=10^{-3}$. The algorithm {\tt chebfun} attempts to do all calculations to near machine precision.  The observed error and execution times are plotted in Figure \ref{fig:GaussianTestFun}.  
-%
+These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt integral} \cite{Shampone08},  {\tt cubMCabs\_g}, {\tt chebfun}, {\tt cubLattice\_g}, and {\tt cubSobol\_g}. For all but {\tt chebfun}, the specified absolute error tolerance is $\epsilon=10^{-3}$. The algorithm {\tt chebfun} attempts to do all calculations to near machine precision.  The observed error and execution times are plotted in Figure \ref{fig:GaussianTestFun}.  
 
 Figure \ref{fig:GaussianTestFun} shows that {\tt integral} is quite fast, nearly always providing an answer in less than $0.01$ seconds.  Unfortunately, it successfully meets the error tolerance only about $18\%$ of the time.  The difficult cases are those where $c_1$ is quite small, and these algorithms miss the sharp peak.  The performance of {\tt chebfun} is similar to that of {\tt integral}. {\tt chebfun} plots there are a significant proportion of the data that do not appear because their errors are smaller than $10^{-5}$.
 %
@@ -816,6 +807,7 @@ Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{f
 \end{figure}
 
 \Subsection{Integrating the Keister Test function}\label{subsec:keitertestfunmeanMCg}
+
 Keister \cite{Keister96} considered the following multidimensional integral that has applications in physics:
 \begin{equation}\label{KeisterTestFun}
 \int_{R^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx 
@@ -1369,6 +1361,20 @@ As {\tt cubMC\_g} applies the same argument as {\tt meanMC\_g}, hence, the proof
 \Section{Numerical examples for {\tt cubMC\_g}}\label{sec:cubmcgnumericalexample}
 
 In this section, several integrands are used to test the timing and accuracy results for integrating problems over different algorithms such as {\tt cubMC\_g}, {\tt cubSobol\_g}, {\tt cubLattice\_g} and {\tt integral} in MATLAB, The first three algorithms are part of Guaranteed Automatic Integration Library(GAIL) \cite{GAIL_2_1}, which includes several algorithms that do numerical integration and function approximation with guarantee.
+
+\Subsection{Integrating a product function}
+
+% mat file used to plot TestcubMCgFixedCovon-product-N500d17abstol0.001rel0.001-2015-11-26-00-53-24.mat
+\begin{figure}
+\centering
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
+{fig_productfun/productiidErrTime-2015-11-26-01-00-46.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{fig_productfun/productcubSobolErrTime-2015-11-26-01-00-47.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{fig_productfun/productcubLatticeErrTime-2015-11-26-01-00-48.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=2,3,\cdots,20$ and error tolerance $\max(10^{-3},10^{-3}\abs{I})$. \label{fig:productfunreltol} }
+\end{figure}
+
+A numerical integration problem with integrand \eqref{productfun} and the generalized error tolerance $\max(10^{-3},10^{-3}\abs{I})$ is been tested. Time and accuracy are recorded in Figure \ref{fig:productfunreltol}. The initial sample size is $2^{13}$ and the sample budget is $10^{10}$ for all of the algorithms. As we can see, {\tt cubMC\_g} has an accuracy of $100\%$, which is higher than the nominal value of $99\%$. As been discussed before, {\tt cubMC\_g} uses a conservative way to construct the fixed width confidence interval for the numerical integration, which may take more time and cost more samples. It, however, gives a more reliable solution.  On the other hand, {\tt cubSobol\_g} has 455 out of 500 samples that reach the desired accuracy, whereas, {\tt cubLattice\_g} performs poorly with this test function, only 328 out of 500 samples have met the tolerance criterion, which means the accuracy is only $65.6\%$.
 
 \Subsection{Integrating a single hump}
 
