@@ -408,7 +408,7 @@ N_{\BE}(\sigma/\varepsilon,\alpha,M_3) := \min  \left \{ n \in \naturals : \Phi\
 \end{equation}
 To compute $N_{\BE}(\sigma /\varepsilon,\alpha,M_3)$, we need to know
 $M_3$. In practice, substituting an upper bound on $M_3$ yields an upper bound on the necessary sample size.
-As $M_3 \leq \kappa^{3/4}$ by Lemma \ref{M3kappalemma}, the sample size calculated by \eqref{BEn} is also $N_{\BE}\left(\sigma /\varepsilon,\alpha,\kappa^{3/4}\right) $.
+As $M_3 \leq \kappa^{3/4}$ by Lemma \ref{M3kappalemma}, the sample size calculated by \eqref{NBE} is also $N_{\BE}\left(\sigma /\varepsilon,\alpha,\kappa^{3/4}\right) $.
 %As the condition of the 
 %Define the sample sized calculated by Chebyshev's inequality and Berry-Esseen inequality as:
 %\begin{align*}
@@ -417,23 +417,30 @@ As $M_3 \leq \kappa^{3/4}$ by Lemma \ref{M3kappalemma}, the sample size calculat
 
 \Section{Hoeffding's Inequality}
 
-The conservative fixed-width confidence interval for general random variables constructed by  \cite{HJLO12} uses the Berry-Esseen Inequality \cite[Section 4.1]{LB10} and Cantelli's Inequality \cite[Section 6.1]{LB10}. However, in view of the particular form of the Bernoulli distribution, we may rely on inequalities that assume some bound on the random variable.  Here we use Hoeffding's Inequality \cite{H63}, which seems more suitable than, say, the Chernoff bound \cite{chernoff52}.  Below is the a special case of Hoeffding's Inequality for random variables lying in $[0,1]$.
+As mentioned in the introduction, we investigate the way to estimate the mean of Bernoulli random variables, namely, the probability, $p$. In view of the particular form of the Bernoulli distribution, the inequalities that assume some bound on the random variable may be more feasible.  Here we use Hoeffding's Inequality \cite{H63}, which seems more suitable than, say, the Chernoff bound \cite{chernoff52}.  Below is the a special case of Hoeffding's Inequality for random variables lying in $[0,1]$.
 \begin{theorem}[Hoeffding's Inequality {\cite{H63}}] \label{hoeff}
 If $Y_1$, $Y_2$, $\cdots$, $Y_n$ are IID observations such that $\e(Y_i)=p$ and $0 \leq Y_i \leq 1$, define $\hp_n=\sum_{i=1}^n Y_i/n$. Then, for any $\varepsilon>0$, 
-$$\Pr(\hp_n-p \geq \varepsilon) \leq e^{-2n\varepsilon^2},$$
-$$\Pr(p-\hp_n \geq \varepsilon) \leq e^{-2n\varepsilon^2},$$
-$$\Pr(\abs{\hp_n-p} \geq \varepsilon) \leq 2e^{-2n\varepsilon^2}.$$
+\begin{equation}\label{ineq:HoeffonesideB}\
+\Pr(\hp_n-p \geq \varepsilon) \leq e^{-2n\varepsilon^2},
+\end{equation}
+\begin{equation}\label{ineq:HoeffonesideA}
+\Pr(p-\hp_n \geq \varepsilon) \leq e^{-2n\varepsilon^2},
+\end{equation}
+\begin{equation}\label{ineq:Hoefftwoside}
+\Pr(\abs{\hp_n-p} \geq \varepsilon) \leq 2e^{-2n\varepsilon^2}.
+\end{equation}
 \end{theorem}
- Note, the reason we use $p$ represent the mean instead of $\mu$ is that, this Hoeffding's Inequality will be used to derive an algorithm used to estimate probability, we feel $p$ may be a better notation.
+ Note, the reason we use $p$ represent the mean instead of $\mu$ is that, the Hoeffding's Inequalities are used to develop an algorithm that estimate a probability, we feel $p$ may be a better notation.
  
 \Section{Fr\'{e}chet Formula}
 
 \begin{theorem}[Fr\'{e}chet Formula] \cite{Frechet35}
-Probability of a logical conjunction have the following inequality:
+Suppose $A_1, A_2,\cdots,A_n$ are events, the probability of a logical conjunction satisfies the following inequality:
 \begin{multline}
  \max(0, P(A_1) + \cdots +P(A_n)-(n -1)) \leq P\left(\bigcap_{i=1}^n A_i\right) \leq \min(P(A_1),  \cdots, P(A_n))
 \end{multline}
 \end{theorem}
+This inequality bounds the probability of joint events by the probability of the individual events without any dependence assumptions. It would be used to prove success of our algorithms in Chapter \ref{chapter:meanMCg} and \ref{chapter:meanMCberg}.
 
 \Section{Additional definition and lemmas}
 
@@ -963,15 +970,15 @@ If error bound \eqref{pointwiseerrorbound} holds, and $\heps$ satisfies the foll
 \Section{The Algorithm {\tt meanMC\_g}}\label{sec:algmeanMCg}
 
 In this section, we introduce an algorithm that estimate the mean of a random variable to a specified generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r\abs{\mu})$ defined in Definition \ref{def:tolfun}. Before presenting our algorithm, we first introduce some notations. 
-For any fixed $n \in \reals$, $\alpha \in (0,1)$, and $M>0$, define the inverse of the functions $N_\Cheb(\cdot,\alpha)$, $N_\BE(\cdot,\alpha,M)$, and $N_{\CB}(\cdot,\alpha,M)$ defined in \eqref{NCheb}, \eqref{NBE} and \eqref{NCBmeanMCabsg}:
+For any fixed $n \in \reals$, $\alpha \in (0,1)$, and $M>0$, define the inverse of the functions $N_{\Cheb}(\cdot,\alpha)$, $N_{\BE}(\cdot,\alpha,M)$, and $N_{\CB}(\cdot,\alpha,M)$ defined in \eqref{NCheb}, \eqref{NBE} and \eqref{NCBmeanMCabsg}:
 %\begin{subequations} \label{probadapterrcritBE}
 \begin{gather}\label{NCinv*}
-N_\Cheb^{-1}(n;\alpha) := \sqrt{n \alpha}, \\
+N_{\Cheb}^{-1}(n;\alpha) := \sqrt{n \alpha}, \\
 \label{NBinv*}
-N_\BE^{-1}(n;\alpha,M) := \min \left \{ b>0 : \Phi\left(-\sqrt{n}/b  \right)+\delta_n(\sqrt{n}/b,M)
+N_{\BE}^{-1}(n;\alpha,M) := \min \left \{ b>0 : \Phi\left(-\sqrt{n}/b  \right)+\delta_n(\sqrt{n}/b,M)
 \le \frac{\alpha}{2} \right \}, \\
 \label{NCBinv}
-N_{\CB}^{-1}(n;\alpha,M) := \min\left(N_\Cheb^{-1}(n,\alpha),N_\BE^{-1}(n,\alpha,M)\right),
+N_{\CB}^{-1}(n;\alpha,M) := \min\left(N_{\Cheb}^{-1}(n,\alpha),N_{\BE}^{-1}(n,\alpha,M)\right),
 \end{gather}
 where $\Phi$ is the standard Gaussian cumulative distribution function and $\delta_n$ is defined in \eqref{deltaBEconstant}. It then follows by Chebyshev's Inequality and the Berry-Esseen Inequality that 
 \begin{equation*}
@@ -1608,38 +1615,42 @@ The computational time is recorded and plotted in Figure \ref{fig:MVNPadaptiviti
 
 The Bernoulli trial is one of the simplest, yet most important, random processes. It takes two outcomes, namely, success or failure with a constant probability. Many real world problems can be modeled in term of Bernoulli trials, i.e. estimating the probability of bankruptcy or a power failure.
 
- A Bernoulli random variable, $Y$, takes two values, 0 and 1, with the probability $\Pr(Y=1) = p$. Sometimes the process governing $Y$ may have a complex form. This means that we may be able to generate IID $Y_i$, but not have a simple formula for computing $p$ analytically. 
+ A Bernoulli random variable, $Y$, takes two values, 0 and 1, with the probability $\Pr(Y=1) = p$. Denote the distribution as $ \Ber(p)$. Sometimes the process governing $Y$ may have a complex form. This means that we may be able to generate IID $Y_i$, but not have a simple formula for computing $p$ analytically. 
  %This distribution is denoted by $\Ber(p)$. 
 
-In this chapter, will will present the ways to reliably construct the fixed width confidence interval for $p$ with a guaranteed confidence level. That is, given an absolute error tolerance, $\varepsilon_a$ or a relative error tolerance $\varepsilon_r$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, to compute a sample mean, $\hp_n$, that satisfies the condition $\Pr(\abs{p-\hp_n}\leq \varepsilon_a) \geq 1-\alpha$ or $\Pr(\abs{p-\hp_n}/p\leq \varepsilon_r) \geq 1-\alpha$.  
+As been discussed in Chapter \ref{chapter:meanMCabsg} and \ref{chapter:meanMCg}, we present two algorithms for evaluating the mean of an arbitrary random variable based on the assumption that the kurtosis has a known upper bound. With knowledge of the distribution, we are looking into a better way to construct the fixed width confidence intervals for the Bernoulli random variables. Before presenting our algorithms, we first review some existing literature that based the confidence interval construction of Bernoulli random variables.
 
-Wald confidence interval \cite[Section 1.3.3]{Agresti02} is a commonly used one based on maximum likelihood estimate, unfortunately, it performs poorly when the sample size $n$ is small or the true $p$ is close to 0 or 1. Agresti \cite[Section 1.4.2]{Agresti02} suggested constructing confidence intervals for binomial proportion by adding a pseudo-count of $z_{\alpha/2}/2$ successes and failures. Thus, the estimated mean will be $\tilde{p}_n =(n\hp_n+z_{\alpha/2}/2) / (n+z_{\alpha/2})$. This method is also called adjusted Wald interval or Wilson score interval, since it was first discussed by E. B. Wilson \cite{wilson27}. This method performs better than the Wald interval. However, it is an approximate result and carries no guarantee.
+Wald confidence interval \cite[Section 1.3.3]{Agresti02} is a commonly used one for Bernoulli random variables based on maximum likelihood estimate, unfortunately, it performs poorly when the sample size $n$ is small or the true $p$ is close to 0 or 1. Agresti \cite[Section 1.4.2]{Agresti02} suggested constructing confidence intervals for binomial proportion by adding a pseudo-count of $z_{\alpha/2}/2$ successes and failures. Thus, the estimated mean will be $\tilde{p}_n =(n\hp_n+z_{\alpha/2}/2) / (n+z_{\alpha/2})$. This method is also called adjusted Wald interval or Wilson score interval, since it was first discussed by E. B. Wilson \cite{wilson27}. This method performs better than the Wald interval, however, it is an approximate result and carries no guarantee.
 
-Clopper and Pearson \cite{CP34} suggested a tail method to calculate the exact confidence interval for a given sample size $n$ and confidence level $1-\alpha$. Sterne \cite{sterne54}, Crow \cite{crow56}, Blyth and Still \cite{BS83} and Blaker \cite{Blaker00} proposed different ways to improve the exact confidence interval, however, all of them were only tested on small sample sizes, $n$.  Moreover, these authors did not suggest how to determine $n$ that gives a confidence interval with fixed half-width $\varepsilon_a$. 
+Clopper and Pearson \cite{CP34} suggested a tail method to calculate the exact confidence interval for a given sample size $n$ and confidence level $1-\alpha$. Sterne \cite{sterne54}, Crow \cite{crow56}, Blyth and Still \cite{BS83} and Blaker \cite{Blaker00} proposed different ways to improve the exact confidence interval, however, all of them were only tested on small sample sizes, $n$.  Moreover, there is no clue how to determine $n$ with fixed half-width $\varepsilon_a$ is given. 
+
+
+In this chapter, will will present the ways to reliably construct a fixed width confidence interval for $p$ with a guaranteed confidence level. That is, given an absolute error tolerance, $\varepsilon_a$, or a relative error tolerance, $\varepsilon_r$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, needed to compute the sample mean, $\hp_n$, that satisfies the fixed width confidence interval condition $\Pr(\abs{p-\hp_n}\leq \varepsilon_a) \geq 1-\alpha$ or $\Pr(\abs{p-\hp_n}/p\leq \varepsilon_r) \geq 1-\alpha$.  
 
 \Section{Absolute error criterion} \label{sec:meanMCberg}
 
-Theorem \ref{hoeff} motivates the following algorithm for constructing fixed-width confidence intervals for an unknown $p$ in terms of IID samples of $Y\sim \Ber(p)$.
+Theorem \ref{hoeff} motivates the following algorithm for constructing a fixed width confidence interval for an unknown $p$ in terms of IID samples of $Y\sim \Ber(p)$.
 \begin{algorithm}[{\tt meanMCBer\_g} with absolute error criterion]\label{algabs}
-Given an absolute error tolerance $\varepsilon_a > 0$ and an uncertainty $\alpha \in (0,1)$ , generate
+Given an absolute error tolerance $\varepsilon_a > 0$ and an uncertainty level $\alpha \in (0,1)$, one generates
 \begin{equation}\label{hoeffn}
-n = n_{\Hoeff} := \left \lceil  \frac{\log(2/\alpha)}{2\varepsilon_a^2} \right \rceil
+n = N_{\Hoeff}(\varepsilon_a,\alpha):= \left \lceil  \frac{\log(2/\alpha)}{2\varepsilon_a^2} \right \rceil
 \end{equation}
 IID Bernoulli random samples of $Y \sim \Ber(p)$, and use them to compute sample mean:
 \begin{equation} \label{abserrp}
-\hat{p}_n = \sum_{i =1}^n Y_i.
+\hat{p}_n = \frac1n\sum_{i =1}^n Y_i.
 \end{equation}
 Return $\hp_n$ as the answer.
 \end{algorithm}
+The following theorem ensures the success of the algorithm.
 \begin{theorem}
-Algorithm \ref{algabs} returns an answer that satisfies 
+Algorithm \ref{algabs} returns an answer, $\hat{p}_n$, that satisfies 
 \begin{equation}\label{probabs}
-\Pr\left(|\hat{p}_n -p| \leq \varepsilon_a\right) \geq 1-\alpha.
+\Pr\left(\abs{\hat{p}_n -p} \leq \varepsilon_a\right) \geq 1-\alpha.
 \end{equation}
-at a computational cost of $n_{\Hoeff}$ samples.
+at a computational cost of $N_{\Hoeff}(\varepsilon_a,\alpha)$ samples.
 \end{theorem}
 \begin{proof}
-The formula for the sample size in \eqref{hoeffn} may be used to show that
+The definition of the sample size in \eqref{hoeffn} implies that
 \begin{equation*}
 n = \left \lceil \frac{\log(2/\alpha)}{2\varepsilon_a^2} \right \rceil \geq  \frac{\log(2/\alpha)}{2\varepsilon_a^2} \Rightarrow 
 1- 2e^{-2n\varepsilon_a^2} \geq 1-\alpha.
@@ -1649,34 +1660,32 @@ Applying Hoeffding's Inequality in Theorem \ref{hoeff} leads directly to \eqref{
 
 \Section{Relative error criterion}
 
-By applying Theorem \ref{hoeff}, we have the following inequality:
+Given the relative error tolerance, $\varepsilon_r$, we are looking into constructing the fixed width confidence interval for $p$ with the relative error criterion. By applying inequality \ref{ineq:Hoefftwoside} in Theorem \ref{hoeff}, we have
 \begin{align*}
 \Pr\left(\frac{|\hp_n-p|}{p} \leq \varepsilon_r\right) \geq 1-2\exp\left(-2np^2\varepsilon_r^2\right).
 \end{align*}
-In order to make the right hand side at least as large as $1-\alpha$. i.e.:
+In order to make the right hand side of the inequality at least $1-\alpha$, i.e.:
 $$1-2\exp\left(-2np^2\varepsilon_r^2\right) \geq 1-\alpha$$
 the sample size $n$ should satisfy the following condition: 
 \begin{align*}
-n \geq -\frac{\log (\alpha/2)}{2 p^2 \varepsilon_r^2}
+n \geq -\frac{\log (\alpha/2)}{2 p^2 \varepsilon_r^2}.
 \end{align*}
-Since $p$ is unknown, it needs the approximation of the lower bound in order to ensure $n$ is large enough to bound the relative error tolerance $\varepsilon_r$. By applying one side Hoeffding's Inequality in Theorem \ref{hoeff}, the following inequality holds:
+Since $p$ is unknown, the lower bound is needed to ensure $n$ is large enough to bound the relative error. By applying one side Hoeffding's Inequality \ref{ineq:HoeffonesideA} in Theorem \ref{hoeff}, the following inequality holds:
 \begin{align}\label{onesidehoeffn}
-P\left(p \geq \hp_n-\varepsilon \right) \geq 1- \exp(-2n\varepsilon^2)
+P\left(p \geq \hp_n-\varepsilon \right) \geq 1- \exp(-2n\varepsilon^2).
 \end{align}
-In order to make the right hand side at least as large as $1-\alpha$, we need:
-$$1- \exp(-2n\varepsilon^2) \geq 1-\alpha$$
-which is equivalent to: 
+When 
 \begin{align*}
-n \geq -\frac{\log(\alpha)} {2\varepsilon^2 }
+n \geq -\frac{\log(\alpha)} {2\varepsilon^2 },
  \end{align*}
-to ensure the probability that $p$  is at least as large as its lower bound $\hp_n-\varepsilon$ is greater than $1-\alpha$.
+$p$ has a conservative lower bound $\hp_n-\varepsilon$.
 
 Based on the above argument, a multi-step algorithm to estimate the mean of Bernoulli random variables to a prescribed relative error tolerance is described as follows:
 \begin{algorithm}[{\tt meanMCber\_g} with relative error criterion]\label{algrel}
 User specifies the two quantities:
 \begin{itemize}
-\item the error tolerance for relative error $\varepsilon_r > 0$, 
-\item uncertainty tolerance, $\alpha \in (0,1)$, 
+\item the relative error tolerance, $\varepsilon_r > 0$, 
+\item uncertainty level, $\alpha \in (0,1)$.
 \end{itemize}
 For $i = 1,2,\cdots$, do the following:
 \begin{enumerate}
@@ -1685,8 +1694,7 @@ Compute the sample average $\hat{p}_{n_i}$ using
 \begin{align}\label{relalgni}
 n_i = \left \lceil \frac{-4^i \log\left ( \alpha_i \right)}{2\varepsilon_r^2}\right \rceil
 \end{align}
- IID Bernoulli random samples that are independent of those used to compute
-$\hp_{n_1},\cdots,\hat{p}_{n_{i-1}}$, where $\alpha_i=1-(1-\alpha/2)^{2^{-i}}$.
+ IID Bernoulli random samples, where $\alpha_i=1-(1-\alpha/2)^{2^{-i}}$.
 \item \label{step2}
 \begin{enumerate}
 \item If $\hp_{n_i} \geq 3\varepsilon_r 2^{-i}$, set $\tau=i$ and compute 
