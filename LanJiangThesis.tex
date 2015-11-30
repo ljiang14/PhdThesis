@@ -743,30 +743,33 @@ In this section, we will show some numerical examples to integrate some test fun
 \caption{Execution times and errors for the product function \eqref{productfun} with $d$ random chosen between 2 and 20, and the absolute error tolerance $\varepsilon_a=10^{-3}$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid green line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times. \label{fig:cubMCabsgproductfun} }
 \end{figure}
 
-A product function are used here to perform a integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$, where the integrand chosen as
+A product function are used here to perform an integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$, where the integrand is chosen as
 \begin{equation}\label{productfun}
 f(\vx) = \prod_{i=1}^d(x_i^2+a_i),
 \end{equation}
-where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is uniformly random chosen between 2 and 20, $a_i$ is uniformly random chosen between 0 and $4/3$, for $i=1,2,\cdots,d$. Accuracy and time are recorded with 500 replications performed using algorithms {\tt cubMCabs\_g}, {\tt cubSobol\_g} \cite{HicJim16a} and {\tt cubLattice\_g} \cite{JimHic16a}. For all of these three algorithms, the absolute error tolerance is $10^{-3}$, the initial sample size is $2^{13}$, and the sample budget is $10^{10}$. 
+where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is IID uniform on $[2,20]$, $a_i$ is  IID uniform in $[0,4/3]$, for $i=1,2,\cdots,d$. Accuracy and time are recorded with 500 replications performed using algorithms {\tt cubMCabs\_g}, {\tt cubSobol\_g} \cite{HicJim16a} and {\tt cubLattice\_g} \cite{JimHic16a}. For all of these three algorithms, the absolute error tolerance is $10^{-3}$, the initial sample size is $2^{13}$, and the sample budget is $10^{10}$. With the uncertainty level $\alpha = 0.01$ and $\fudge = 1.2$, the kurtosis maximum is $\kmax = 4.84$ for {\tt cubMCabs\_g}.
 
 In the plots for {\tt cubMCabs\_g}, an asterisk is used to label those points satisfying $\kappa \le \kmax$, where $\kappa$ is defined in \eqref{kurtosis}. All such points fall within the prescribed error tolerance,
 which is even better than the guaranteed confidence of $99\%$.  Those points labeled with a dot, are those for which $\kappa > \kmax$, and so no guarantee holds. The points labeled with a diamond are those for which  {\tt cubMCabs\_g}  attempts to exceed the cost budget that we set, i.e., it wants to choose $n_\mu$ such that $n_{\sigma}+n_\mu > n_{\max}:=10^{10}$. In these cases $n_\mu$ is chosen as $\lfloor 10^{10} - n_\sigma \rfloor$, which often is still large enough to get an answer that satisfies the error tolerance. 
  
-For {\tt cubSobol\_g} there are 444 out of 500 samples that reach the desired accuracy, which is, the successful rate is $88.8\%$. Similarly, for {\tt cubLattice\_g}, there are 347 out of 500 samples that have the error less than the tolerance, i.e. the accuracy rate is $69.4\%$. These two quasi-Monte Carlo methods perform not as good as {\tt cubMCabs\_g} since this particular test function has a high effective dimension, which make the Fourier coefficient decays slow.
+For {\tt cubSobol\_g} there are 444 out of 500 samples that reach the desired accuracy, which is, the successful rate is $88.8\%$. Similarly, for {\tt cubLattice\_g}, there are 347 out of 500 samples that have the error less than the tolerance, i.e. the accuracy rate is $69.4\%$.
 
+% These two quasi-Monte Carlo thods perform not as good as {\tt cubMCabs\_g} since this particular test function has a high effective dimension, which make the Fourier coefficient decays slow.
 \Subsection{Integrating a single hump}\label{subsec:meanmcabssinglehump}
 
+%using this file load TestcubMCon-gaussian-uniform-N500d1abstol0.001-2015-11-27-18-31-04.mat
 \begin{figure}
 \centering
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{colorfigureofcubMCabsgusingGaussianTestFun/gaussianintegralErrTime-2015-11-28-01-26-58.eps} \\ {\tt integral}
+ \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{colorfigureofcubMCabsgusingGaussianTestFun/gaussianchebfunErrTime-2015-11-28-01-26-59.eps} \\ {\tt chebfun} \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{colorfigureofcubMCabsgusingGaussianTestFun/gaussiancubSobolErrTime-2015-11-28-01-26-57.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{colorfigureofcubMCabsgusingGaussianTestFun/gaussiancubLatticeErrTime-2015-11-28-01-26-58.eps} \\ {\tt cubLattice\_g} \end{minipage}
 \begin{minipage}{9cm} \centering \includegraphics[width=9cm]
-{gaussiand=1iidErrTime-2015-08-12-16-25-16.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubSobolErrTime-2015-08-12-16-25-17.eps} \\  {\tt cubSobol\_g}\end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=1cubLatticeErrTime-2015-08-12-16-25-17.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
-{gaussiand=1chebfunErrTime-2015-08-12-16-25-18.eps} \\ {\tt chebfun} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
-{gaussiand=1integralErrTime-2015-08-12-16-25-18.eps} \\ {\tt integral} \end{minipage}
-\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=1$ and error tolerance $\varepsilon_a=10^{-3}$. \label{fig:GaussianTestFun} }
+{colorfigureofcubMCabsgusingGaussianTestFun/gaussianiidErrTime-2015-11-28-01-26-57.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
+\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=1$ and absolute error tolerance $\varepsilon_a=10^{-3}$. \label{fig:GaussianTestFun} }
 \end{figure}
 Accuracy and timing results have been recorded for the integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
 \begin{equation} \label{GaussianTestFun}
@@ -776,112 +779,112 @@ Here $\vx$ is a $d$ dimensional vector, and $a_0, b_0, \ldots, b_d, c_1, \ldots,
 \begin{itemize} 
 \item $b_1, \ldots, b_d \in [0.1,10]$ with $\log(b_j)$ being IID\ uniform,
 \item $c_1, \ldots, c_d \in [10^{-6},1]$ with $\log(c_j)$ being IID\ uniform,
-\item $h_1, \ldots, h_d \in [0,1]$ with $h_j$ being i.i.d.\ uniform,
-\item $b_0$ chosen in terms of the $b_1, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\sigma^2 =\norm[2]{f-\mu}^2 \in [10^{-2}, 10^2]$, with $\log(\sigma)$ being i.i.d.\ uniform for each instance, and
+\item $h_1, \ldots, h_d \in [0,1]$ with $h_j$ being IID\ uniform,
+\item $b_0$ chosen in terms of the $b_1, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\sigma^2 =\norm[2]{f-\mu}^2 \in [10^{-2}, 10^2]$, with $\log(\sigma)$ being IID\ uniform for each instance, and
 \item $a_0$ chosen in terms of the $b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\mu=1$.
 \end{itemize}
 These ranges of parameters are chosen so that the algorithms being tested fail to meet the error tolerance a significant number of times.
 
 %Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the {\tt cubMCabs\_g} the points labeled * are those for which the Theorem \ref{thm:meanMCabsg} guarantees the error tolerance.
-These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt integral} \cite{Shampone08},  {\tt cubMCabs\_g}, {\tt chebfun}, {\tt cubLattice\_g}, and {\tt cubSobol\_g}. For all but {\tt chebfun}, the specified absolute error tolerance is $\epsilon=10^{-3}$. The algorithm {\tt chebfun} attempts to do all calculations to near machine precision.  The observed error and execution times are plotted in Figure \ref{fig:GaussianTestFun}.  
+These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt integral} \cite{Shampone08}, {\tt chebfun} \cite{Chebfun14}, {\tt cubSobol\_g}, {\tt cubLattice\_g}, and {\tt cubMCabs\_g}. For all but {\tt chebfun}, the specified absolute error tolerance is $\varepsilon_a=10^{-3}$. The algorithm {\tt chebfun} attempts to do all calculations to near machine precision. The initial sample size is set as $2^{13}$ for all of the three Monte Carlo algorithms. {\tt cubMCabs\_g} takes $\alpha=0.01$ and $\fudge = 1.2$, which corresponds to $\kmax =4.84$.The observed error and execution times are plotted in Figure \ref{fig:GaussianTestFun}.  
 
-Figure \ref{fig:GaussianTestFun} shows that {\tt integral} is quite fast, nearly always providing an answer in less than $0.01$ seconds.  Unfortunately, it successfully meets the error tolerance only about $18\%$ of the time.  The difficult cases are those where $c_1$ is quite small, and these algorithms miss the sharp peak.  The performance of {\tt chebfun} is similar to that of {\tt integral}. {\tt chebfun} plots there are a significant proportion of the data that do not appear because their errors are smaller than $10^{-5}$.
+Figure \ref{fig:GaussianTestFun} shows that {\tt integral} is quite fast, nearly always providing an answer in less than $0.01$ seconds.  Unfortunately, it successfully meets the error tolerance only about $55\%$ of the time, which is, only 275 out of 500 samples meet the error criterion. The performance of {\tt chebfun} is even worse than {\tt integral}, only 199 out of 500 samples meet the error tolerance, thus, the accuracy is $39.8\%$. For {\tt chebfun} plots, there are a significant proportion of the data that do not appear because their errors are smaller than $10^{-5}$.  The difficult cases are those where $c_1$ is quite small, and these algorithms miss the sharp peak.
 %
 
-In the plots for {\tt cubMCabs\_g}, an asterisk is used to label those points satisfying $\kappa \le \kmax$, where $\kappa$ is defined in \eqref{kurtosis}. All such points fall within the prescribed error tolerance,
-which is even better than the guaranteed confidence of $99\%$.  Those points labeled with a dot, are those for which $\kappa > \kmax$, and so no guarantee holds. The points labeled with a diamond are those for which  {\tt cubMCabs\_g}  attempts to exceed the cost budget that we set, i.e., it wants to choose $n_\mu$ such that $n_{\sigma}+n_\mu > n_{\max}:=10^9$. In these cases $n_\mu$ is chosen as $\lfloor 10^9 - n_\sigma \rfloor$, which often is still large enough to get an answer that satisfies the error tolerance. 
+The two quasi-Monte Carlo methods perform better than {\tt integral} and {\tt chebfun}. There are 402 out of 500 samples satisfy the error criterion for {\tt cubSobol\_g}, which provides a success rate of $80.4\%$. On the other hand, for {\tt cubLattice\_g}, 407 out of 500 samples attain desired accuracy, which gives a success rate $81.4\%$. 
 
- {\tt cubMCabs\_g}  performs somewhat more robustly than {\tt integral} and {\tt chebfun}, because it requires only a low degree of smoothness and takes a fairly large minimum sample.  {\tt cubMCabs\_g} is generally much slower than the other algorithms because it does not assume any smoothness of the integrand. The more important point is that  {\tt cubMCabs\_g}  has a guarantee, whereas to our knowledge, the other routines do not.
-%
-%From Figure \ref{fig:GaussianTestFun}, the Sobol' sampling algorithm is more reliable and takes less time than Algorithm \ref{twostagealgo}.  This is due primarily to the fact that in dimension one, Sobol' sampling is equivalent to stratified sampling, where the points are more evenly spread than IID sampling.
-%
+In the plots for {\tt cubMCabs\_g}, an asterisk is used to label those points satisfying $\kappa \le \kmax$, where $\kappa$ is defined in \eqref{kurtosis}. All such points fall within the prescribed error tolerance, i.e. the accuracy is $100\%$, which is even better than the guaranteed confidence of $99\%$.  Those points labeled with a dot, are those for which $\kappa > \kmax$, and so no guarantee holds. For {\tt cubMCabs\_g} the accuracy is $82.4\%$.
 
-Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{fig:GaussianTestFun} for the same test function \eqref{GaussianTestFun}, but now with $d=2, \ldots, 8$ chosen randomly and uniformly.  For this case the univariate integration algorithms are inapplicable, but the multidimensional routines can be used.  There are more cases where the {\tt cubMCabs\_g} tries to exceed the maximum sample size allowed, i.e., $(n_{\sigma}+n_\mu)d > N_{\max}:=10^9$, but the behavior seen for $d=1$ still generally applies.  
-
+ {\tt cubMCabs\_g} performs somewhat more robustly than all other algorithms, because it does not assume any smoothness of the integrand.  On the other hand, {\tt cubMCabs\_g} is generally much slower than the other algorithms. The more important point is that given the kurtosis of the random variable less than the kurtosis maximum, {\tt cubMCabs\_g} has a guarantee.
+ 
+ % mat file TestcubMCon-gaussian-uniform-N500d5abstol0.001-2015-11-28-07-20-19.mat
 \begin{figure}
 \centering
-\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{gaussiand=6iidErrTime-2015-08-12-00-37-05.eps} \\ {\tt cubMCabs\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=6cubSobolErrTime-2015-08-12-00-37-06.eps} \\ {\tt cubSobol\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiand=6cubLatticeErrTime-2015-08-12-00-37-06.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{colorfigureofcubMCabsgusingGaussianTestFun/gaussianiidErrTime-2015-11-29-16-31-35.eps} \\ {\tt cubMCabs\_g} \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{colorfigureofcubMCabsgusingGaussianTestFun/gaussiancubSobolErrTime-2015-11-29-16-31-35.eps} \\ {\tt cubSobol\_g} \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{colorfigureofcubMCabsgusingGaussianTestFun/gaussiancubLatticeErrTime-2015-11-29-16-31-36.eps} \\ {\tt cubLattice\_g} \end{minipage}
 \caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=2, \ldots, 8$ and $\varepsilon_a=10^{-3}$, with the rest of the parameters as in Figure \ref{fig:GaussianTestFun}.\label{fig:GaussianTestFunHD}}
 \end{figure}
 
-\Subsection{Integrating the Keister Test function}\label{subsec:keitertestfunmeanMCg}
-
-Keister \cite{Keister96} considered the following multidimensional integral that has applications in physics:
-\begin{equation}\label{KeisterTestFun}
-\int_{R^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx 
-\end{equation}
-This isotropic integral take the form
-\begin{align*}
- \int_{\reals^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx &= 2^{-d/2}\int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) e^{-\norm[2]{\vy}^2/2} \dif \vy \\
-&= \pi^{d/2} \int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) \frac{e^{-\norm[2]{\vy}^2/2}}{(2\pi)^{d/2}} \dif \vy\\
- &= \pi^{s/2} \int_{[0,1)^d} \cos \left ( \sqrt{\sum_{j=1}^d \frac{[\Phi^{-1}(y_i)]^2}{2}}\right )\dif \vy,
-\end{align*}
-where $\Phi$ denotes the standard Gaussian distribution function defined as below:
-$$\Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^x e^{-s^2/2}ds, x \in [-\infty, \infty].$$
-Let the integrand be 
-\begin{equation*}
-f(\vx) = \pi^{d/2} \cos \left( \sqrt{\frac{1}{2} \sum_{i=1}^d (\Phi^{-1} (x_i))^2}\right).
-\end{equation*}
-The integration problem can be written as
-\begin{equation*}
-\mu = \int_{[0,1]^d} f(\vx)\dif\vx.
-\end{equation*}
-By applying Monte Carlo methods, the integral can be estimated as follows:
-\begin{align}
-\hmu = \frac{\pi^{d/2}}{n}\sum_{i=1}^n \cos \left (\sqrt{\frac12 \sum_{j=1}^d (\Phi^{-1}(x_{i,j}))^2}\right),
-\end{align}
-where $\vx_i = (x_{i1},\cdots,x_{id}) \in \reals$ , $i=1,\cdots, n.$
-Keister \cite{Keister96} showed an exact formula for calculating the exact integral. By coding them into MATLAB, we compared the numerical results over three different algorithms with a specified absolute error tolerance.
-\begin{figure}
-\centering
-\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{KeisteriidErrTime-2015-09-13-00-24-11.eps} \\ {\tt cubMCabs\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubSobolErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubSobol\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubLatticeErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for Keister test function \eqref{KeisterTestFun} for dimension $d$ random chosen from $1, 2, \ldots, 8$ and absolute error tolerance $\varepsilon_a=10^{-2}$. The points labeled as a diamond are those tend to exceed the budget.Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times. \label{fig:keistertestfunabstol}}
-\end{figure}
-
-The 500 replications were done for numerical integration of the Keister test function \eqref{KeisterTestFun} with the dimension uniformly chosen between 1 and 8 over three guaranteed algorithms, i.e.: {\tt cubMCabs\_g}, {\tt cubSobol\_g} and {\tt cubLattice\_g}. The absolute error tolerance was set to be $10^{-2}$, the initial sample size is $2^{13}$ and the sample budget was set to be $10^{10}$.
-
-As we could see from Figure \ref{fig:keistertestfunabstol}, {\tt cubMCabs\_g} tends to use more time than both {\tt cubSobol\_g} and {\tt cubLattice\_g}. The one labeled with a diamond are those tends to exceed time budget, there are total 83 diamonds. The success rate for {\tt cubMCabs\_g} is $99.6\%$. If we excludes the 83 diamonds, the success rate is $100\%$ for {\tt cubMCabs\_g},which means all the errors are less than the given error tolerance $\varepsilon_a = 10^{-2}$. For {\tt cubSobol\_g} and {cubLattice\_g}, the success rates are $100\%$ and $88\%$ respectively.
+Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{fig:GaussianTestFun} for the same test function \eqref{GaussianTestFun}, but now with $d=2, \ldots, 8$ chosen randomly and uniformly.  For this case the univariate integration algorithms are inapplicable, but the multidimensional routines can be used. There are more cases where the {\tt cubMCabs\_g} tries to exceed the maximum sample size allowed, i.e., $(n_{\sigma}+n_\mu)d > N_{\max}:=10^{10}$, but the behavior seen for $d=1$ still generally applies.  
 
 
-\Subsection{Asian geometric mean call option pricing}\label{subsec:asiancallopt}
-The next example involves pricing an Asian geometric mean call option.  Suppose that the price of a stock $S$ at time $t$ follows a geometric Brownian motion with constant interest rate, $r$, and constant volatility, $v$.  
-One may express the stock price in terms of the initial condition, $S(0)$, as 
-\[
-S(t)=S(0) \exp[(r-v^2/2)t + v B(t)], \qquad t \ge 0,
-\]
-where $B(\cdot)$ is a standard Brownian motion.  
-The discounted payoff of the Asian geometric mean call option with an expiry of $T$ years, a strike price of $K$, and assuming a discretization at $d$ times is 
-\begin{equation} \label{payoff}
-Y=\max\biggl([\sqrt{S(0)}S(T/d) S(2T/d)\cdots S(T(d-1)/d) \sqrt{S(T)}]^{1/d} - K,0 \biggr)\me^{-rT}.
-\end{equation}
-The fair price of this option is $\mu=\e(Y)$. One of our chief reasons for choosing this option for numerical experiments is that its price can be computed analytically, while the numerical computation is non-trivial.
-
-In our numerical experiments, the values of the Brownian motion at different times required for evaluating the stock price, $B(T/d), B(2T/d), \ldots,  B(T)$, are computed via a Brownian bridge construction.  This means that for one instance of the Brownian motion we first compute $B(T)$, then $B(T/2)$, etc., using independent Gaussian random variables $X_1, \ldots, X_d$, suitably scaled. 
-
-%The Brownian bridge accounts for more of the low frequency motion of the stock price by the $X_j$ with smaller $j$, which allows the Sobol' sampling algorithm to do a better job.  
-
-The option price, $\mu=\e(Y)$, is approximated by algorithm {\tt cubMCabs\_g}, {\tt cubSobol\_g} and {\tt cubLattice\_g} using an absolute error tolerance of $\varepsilon_a=0.05$, initial sample size $n_\sigma=1024$ and compared to the analytic value of $\mu$.  The result of $500$ replications is given in Figure \ref{fig:GeoMeanAsianOptionabstol}.  Some of the parameters are set to be fixed values, namely,
-\[
-S(0)=K=100, \qquad T=1, \qquad r=0.03.
-\]
-The volatility, $v$, is drawn uniformly between $0.1$ and $0.7$.  The number of time steps, $d$, is random chosen to be uniform over $\{1, 2, 4, 8, 16, 32\}$.  The true value of $\mu$ for these parameters is between about $2.8$ and $14$.
-
-\begin{figure}
-\centering
-\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{geomeaniidErrTime-2015-09-13-15-39-00.eps} \\ {\tt cubMCabs\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{geomeancubSobolErrTime-2015-09-13-15-39-00.eps} \\ {\tt cubSobol\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{geomeancubLatticeErrTime-2015-09-13-15-39-01.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for the Asian geometric mean call option for $d=1, 2, 4, 8, 16, 32$ and $\varepsilon_a=0.05$.\label{fig:GeoMeanAsianOptionabstol}}
-\end{figure}
-
-For this example the true kurtosis of $Y$ is unknown.  
-All three algorithms compute the option price to the desired error tolerance with high reliability.  the IID sampling using {\tt cubMCabs\_g} costs more time than other two guaranteed algorithms.
-
-%and the ordinary Sobol' sampling algorithm it can be seen that some of the errors are barely under the error tolerance, meaning that the sample size is not chosen too conservatively.  For the heavy duty Sobol' algorithm, the high initial sample size seems to lead to smaller than expected errors and larger than necessary computation times.
+%\Subsection{Integrating the Keister Test function}\label{subsec:keitertestfunmeanMCg}
+%
+%Keister \cite{Keister96} considered the following multidimensional integral that has applications in physics:
+%\begin{equation}\label{KeisterTestFun}
+%\int_{R^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx 
+%\end{equation}
+%This isotropic integral take the form
+%\begin{align*}
+% \int_{\reals^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx &= 2^{-d/2}\int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) e^{-\norm[2]{\vy}^2/2} \dif \vy \\
+%&= \pi^{d/2} \int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) \frac{e^{-\norm[2]{\vy}^2/2}}{(2\pi)^{d/2}} \dif \vy\\
+% &= \pi^{s/2} \int_{[0,1)^d} \cos \left ( \sqrt{\sum_{j=1}^d \frac{[\Phi^{-1}(y_i)]^2}{2}}\right )\dif \vy,
+%\end{align*}
+%where $\Phi$ denotes the standard Gaussian distribution function defined as below:
+%$$\Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^x e^{-s^2/2}ds, x \in [-\infty, \infty].$$
+%Let the integrand be 
+%\begin{equation*}
+%f(\vx) = \pi^{d/2} \cos \left( \sqrt{\frac{1}{2} \sum_{i=1}^d (\Phi^{-1} (x_i))^2}\right).
+%\end{equation*}
+%The integration problem can be written as
+%\begin{equation*}
+%\mu = \int_{[0,1]^d} f(\vx)\dif\vx.
+%\end{equation*}
+%By applying Monte Carlo methods, the integral can be estimated as follows:
+%\begin{align}
+%\hmu = \frac{\pi^{d/2}}{n}\sum_{i=1}^n \cos \left (\sqrt{\frac12 \sum_{j=1}^d (\Phi^{-1}(x_{i,j}))^2}\right),
+%\end{align}
+%where $\vx_i = (x_{i1},\cdots,x_{id}) \in \reals$ , $i=1,\cdots, n.$
+%Keister \cite{Keister96} showed an exact formula for calculating the exact integral. By coding them into MATLAB, we compared the numerical results over three different algorithms with a specified absolute error tolerance.
+%\begin{figure}
+%\centering
+%\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{KeisteriidErrTime-2015-09-13-00-24-11.eps} \\ {\tt cubMCabs\_g} \end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubSobolErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubSobol\_g} \end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubLatticeErrTime-2015-09-13-00-24-12.eps} \\ {\tt cubLattice\_g} \end{minipage}
+%\caption{Execution times and errors for Keister test function \eqref{KeisterTestFun} for dimension $d$ random chosen from $1, 2, \ldots, 8$ and absolute error tolerance $\varepsilon_a=10^{-2}$. The points labeled as a diamond are those tend to exceed the budget.Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times. \label{fig:keistertestfunabstol}}
+%\end{figure}
+%
+%The 500 replications were done for numerical integration of the Keister test function \eqref{KeisterTestFun} with the dimension uniformly chosen between 1 and 8 over three guaranteed algorithms, i.e.: {\tt cubMCabs\_g}, {\tt cubSobol\_g} and {\tt cubLattice\_g}. The absolute error tolerance was set to be $10^{-2}$, the initial sample size is $2^{13}$ and the sample budget was set to be $10^{10}$.
+%
+%As we could see from Figure \ref{fig:keistertestfunabstol}, {\tt cubMCabs\_g} tends to use more time than both {\tt cubSobol\_g} and {\tt cubLattice\_g}. The one labeled with a diamond are those tends to exceed time budget, there are total 83 diamonds. The success rate for {\tt cubMCabs\_g} is $99.6\%$. If we excludes the 83 diamonds, the success rate is $100\%$ for {\tt cubMCabs\_g},which means all the errors are less than the given error tolerance $\varepsilon_a = 10^{-2}$. For {\tt cubSobol\_g} and {cubLattice\_g}, the success rates are $100\%$ and $88\%$ respectively.
+%
+%
+%\Subsection{Asian geometric mean call option pricing}\label{subsec:asiancallopt}
+%The next example involves pricing an Asian geometric mean call option.  Suppose that the price of a stock $S$ at time $t$ follows a geometric Brownian motion with constant interest rate, $r$, and constant volatility, $v$.  
+%One may express the stock price in terms of the initial condition, $S(0)$, as 
+%\[
+%S(t)=S(0) \exp[(r-v^2/2)t + v B(t)], \qquad t \ge 0,
+%\]
+%where $B(\cdot)$ is a standard Brownian motion.  
+%The discounted payoff of the Asian geometric mean call option with an expiry of $T$ years, a strike price of $K$, and assuming a discretization at $d$ times is 
+%\begin{equation} \label{payoff}
+%Y=\max\biggl([\sqrt{S(0)}S(T/d) S(2T/d)\cdots S(T(d-1)/d) \sqrt{S(T)}]^{1/d} - K,0 \biggr)\me^{-rT}.
+%\end{equation}
+%The fair price of this option is $\mu=\e(Y)$. One of our chief reasons for choosing this option for numerical experiments is that its price can be computed analytically, while the numerical computation is non-trivial.
+%
+%In our numerical experiments, the values of the Brownian motion at different times required for evaluating the stock price, $B(T/d), B(2T/d), \ldots,  B(T)$, are computed via a Brownian bridge construction.  This means that for one instance of the Brownian motion we first compute $B(T)$, then $B(T/2)$, etc., using independent Gaussian random variables $X_1, \ldots, X_d$, suitably scaled. 
+%
+%%The Brownian bridge accounts for more of the low frequency motion of the stock price by the $X_j$ with smaller $j$, which allows the Sobol' sampling algorithm to do a better job.  
+%
+%The option price, $\mu=\e(Y)$, is approximated by algorithm {\tt cubMCabs\_g}, {\tt cubSobol\_g} and {\tt cubLattice\_g} using an absolute error tolerance of $\varepsilon_a=0.05$, initial sample size $n_\sigma=1024$ and compared to the analytic value of $\mu$.  The result of $500$ replications is given in Figure \ref{fig:GeoMeanAsianOptionabstol}.  Some of the parameters are set to be fixed values, namely,
+%\[
+%S(0)=K=100, \qquad T=1, \qquad r=0.03.
+%\]
+%The volatility, $v$, is drawn uniformly between $0.1$ and $0.7$.  The number of time steps, $d$, is random chosen to be uniform over $\{1, 2, 4, 8, 16, 32\}$.  The true value of $\mu$ for these parameters is between about $2.8$ and $14$.
+%
+%\begin{figure}
+%\centering
+%\begin{minipage}{9cm} \centering \includegraphics[width=9cm]{geomeaniidErrTime-2015-09-13-15-39-00.eps} \\ {\tt cubMCabs\_g} \end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{geomeancubSobolErrTime-2015-09-13-15-39-00.eps} \\ {\tt cubSobol\_g} \end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{geomeancubLatticeErrTime-2015-09-13-15-39-01.eps} \\ {\tt cubLattice\_g} \end{minipage}
+%\caption{Execution times and errors for the Asian geometric mean call option for $d=1, 2, 4, 8, 16, 32$ and $\varepsilon_a=0.05$.\label{fig:GeoMeanAsianOptionabstol}}
+%\end{figure}
+%
+%For this example the true kurtosis of $Y$ is unknown.  
+%All three algorithms compute the option price to the desired error tolerance with high reliability.  the IID sampling using {\tt cubMCabs\_g} costs more time than other two guaranteed algorithms.
+%
+%%and the ordinary Sobol' sampling algorithm it can be seen that some of the errors are barely under the error tolerance, meaning that the sample size is not chosen too conservatively.  For the heavy duty Sobol' algorithm, the high initial sample size seems to lead to smaller than expected errors and larger than necessary computation times.
 
 \Chapter{Guaranteed Monte Carlo method with a generalized error tolerance} \label{chapter:meanMCg}
 
@@ -1371,56 +1374,87 @@ In this section, several integrands are used to test the timing and accuracy res
 {fig_productfun/productiidErrTime-2015-11-26-01-00-46.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{fig_productfun/productcubSobolErrTime-2015-11-26-01-00-47.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{fig_productfun/productcubLatticeErrTime-2015-11-26-01-00-48.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=2,3,\cdots,20$ and error tolerance $\max(10^{-3},10^{-3}\abs{I})$. \label{fig:productfunreltol} }
+\caption{Execution times and errors for the prodcut test function \eqref{productfun} for $d=2,3,\cdots,20$ and error tolerance $\max\left(10^{-3},10^{-3}\abs{I}\right)$. The horizontal axis denotes the error/tolerance. The points lies on the left of the red vertical line means the tolerance was met. The points labeled with a diamond are those for which{\tt cubMC\_g} attempts to exceed the cost budget. The solid green line denotes the empirical distribution function of the error, and the dot-dashed pink line denotes the empirical distribution function of the time.\label{fig:productfunreltol} }
 \end{figure}
 
-A numerical integration problem with integrand \eqref{productfun} and the generalized error tolerance $\max(10^{-3},10^{-3}\abs{I})$ is been tested. Time and accuracy are recorded in Figure \ref{fig:productfunreltol}. The initial sample size is $2^{13}$ and the sample budget is $10^{10}$ for all of the algorithms. As we can see, {\tt cubMC\_g} has an accuracy of $100\%$, which is higher than the nominal value of $99\%$. As been discussed before, {\tt cubMC\_g} uses a conservative way to construct the fixed width confidence interval for the numerical integration, which may take more time and cost more samples. It, however, gives a more reliable solution.  On the other hand, {\tt cubSobol\_g} has 455 out of 500 samples that reach the desired accuracy, whereas, {\tt cubLattice\_g} performs poorly with this test function, only 328 out of 500 samples have met the tolerance criterion, which means the accuracy is only $65.6\%$.
+A numerical integration problem with integrand \eqref{productfun} and the generalized error tolerance $\max\left(10^{-3},10^{-3}\abs{I}\right)$ is been tested. Time and accuracy are recorded in Figure \ref{fig:productfunreltol}. The initial sample size is $2^{13}$ and the sample budget is $10^{10}$ for all of the algorithms. As we can see, {\tt cubMC\_g} has an accuracy of $100\%$, which is higher than the nominal value of $99\%$. As been discussed before, {\tt cubMC\_g} uses a conservative way to construct the fixed width confidence interval for the numerical integration, which may take more time and cost more samples. It, however, gives a more reliable solution. On the other hand, {\tt cubSobol\_g} has 455 out of 500 samples that reach the desired accuracy, whereas, {\tt cubLattice\_g} performs poorly with this test function, only 328 out of 500 samples have met the tolerance criterion, which means the accuracy is only $65.6\%$.
 
-\Subsection{Integrating a single hump}
+%\Subsection{Integrating a single hump}
+%
+%In figure \ref{fig:GaussiankerTestFun}, accuracy and timing results have been recorded for the integration problem 
+%$\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
+%\begin{align}\label{GaussiankerTestFun}
+%f(x) = b_0\prod_{j=1}^d\left[ 1 +b_j \exp \left(-\frac{(x_j-h_j)^2}{c_j^2}\right) \right].
+%\end{align}
+%Here $\vx$ is a $d$ dimensional vector, and $ b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ are parameters. Figure \ref{fig:GaussiankerTestFun} shows the results of different algorithms being used to integrate 500 different instances of $f$.  For each instance of $f$, the parameters are chosen as follows:
+%\begin{itemize} 
+%\item $b_1, \ldots, b_d \in [0.1,10]$ with $\log(b_j)$ being IID uniform,
+%\item $c_1, \ldots, c_d \in [10^{-6},1]$ with $\log(c_j)$ being IID uniform,
+%\item $h_1, \ldots, h_d \in [0,1]$ with $h_j$ being IID uniform,
+%\item $b_0$ chosen in terms of the $b_1, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\sigma^2 =\norm[2]{f-\mu}^2 \in [10^{-2}, 10^2]$, with $\log(\sigma)$ being IID uniform for each instance.
+%\end{itemize}
+%These ranges of parameters are chosen so that the algorithms being tested fail to meet the error tolerance a significant number of times.
+%
+%\begin{figure}
+%\centering
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+%{gaussiankerd=1iidErrTime-2015-08-19-00-21-30.eps} \\ {\tt cubMC\_g}  \end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=1cubSobolErrTime-2015-08-19-00-21-31.eps} \\  {\tt cubSobol\_g}\end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=1cubLatticeErrTime-2015-08-19-00-21-31.eps} \\ {\tt cubLattice\_g} \end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=1integralErrTime-2015-08-19-00-21-32.eps} \\ {\tt integral } \end{minipage}
+%\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} with $d=1$ and error tolerance $\varepsilon_a=10^{-8}$ and $\varepsilon_r=10^{-3}$, and a variety of parameters giving a range of $\sigma$ and $\kappa$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the Algorithm {\tt cubMC\_g} the points labeled * are those for which the Theorem \ref{thm:meanMCg} guarantees the error tolerance.\label{fig:GaussiankerTestFun} }
+%\end{figure}
+%
+%These 500 random constructions of $f$ with $d=1$ are integrated using  {\tt cubMC\_g}, {\tt cubSobol\_g}, {\tt cubLattice\_g} and {\tt integral} in MATLAB with absolute tolerance $\varepsilon_a = 10^{-8}$ and $\varepsilon_r=10^{-3}$ and the tolerance function is $\tol(\varepsilon_a, \varepsilon_r) = \max \{ \varepsilon_a, \varepsilon_r \abs{\mu}\}$. 
+%
+%Figure \ref{fig:GaussiankerTestFun} shows that the {\tt integral} are quite fast, but the successful rate is only a little over $95\%$ which is less than our uncertainty rate $1\%$. The three algorithms in GAIL performs better than {\tt integral}, they all have almost $100\%$ success rate.
+%
+%In the plots for {\tt cubMC\_g} , an asterisk is used to label those points satisfying $\kappa \le \kmax$, where $\kappa$ is defined in \eqref{kurtosis} and $\kmax$ is defined in \eqref{def:kmax}. All such points fall within the prescribed error tolerance, which is even better than the guaranteed confidence of $99\%$.Those points labeled with a dot, are those for which $\kappa > \kmax$, and so no guarantee holds. The points labeled with a diamond are those for which  {\tt cubMC\_g}  attempts to exceed the cost budget, which is set to be $10^{9}$.
+%
+%\begin{figure}
+%\centering
+%\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
+%{gaussiankerd=3iidErrTime-2015-08-19-00-11-43.eps} \\ {\tt cubMC\_g}  \end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=3cubSobolErrTime-2015-08-19-00-11-44.eps} \\  {\tt cubSobol\_g}\end{minipage}
+%\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=3cubLatticeErrTime-2015-08-19-00-11-44.eps} \\ {\tt cubLattice\_g} \end{minipage}
+%\caption{Execution times and errors for the single hump test function \eqref{GaussiankerTestFun} for $d=2, \ldots, 8$, with the rest of the parameters as in Figure \ref{fig:GaussiankerTestFun}.\label{fig:GaussiankerHDTestFun} }
+%\end{figure}
+%
+%Figure \ref{fig:GaussiankerHDTestFun} repeats the simulation shown in Figure \ref{fig:GaussiankerTestFun} for the same test function \eqref{GaussiankerTestFun}, but now with $d=2, \ldots, 8$ chosen randomly and uniformly.  For this case the univariate integration algorithms are inapplicable, but the multidimensional routines can be used.  There are more cases where the  {\tt cubMC\_g}  tries to exceed the maximum sample size allowed, but the behavior seen for $d=1$ still generally applies.  
 
-In figure \ref{fig:GaussiankerTestFun}, accuracy and timing results have been recorded for the integration problem 
-$\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
-\begin{align}\label{GaussiankerTestFun}
-f(x) = b_0\prod_{j=1}^d\left[ 1 +b_j \exp \left(-\frac{(x_j-h_j)^2}{c_j^2}\right) \right].
-\end{align}
-Here $\vx$ is a $d$ dimensional vector, and $ b_0, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ are parameters. Figure \ref{fig:GaussiankerTestFun} shows the results of different algorithms being used to integrate 500 different instances of $f$.  For each instance of $f$, the parameters are chosen as follows:
-\begin{itemize} 
-\item $b_1, \ldots, b_d \in [0.1,10]$ with $\log(b_j)$ being IID uniform,
-\item $c_1, \ldots, c_d \in [10^{-6},1]$ with $\log(c_j)$ being IID uniform,
-\item $h_1, \ldots, h_d \in [0,1]$ with $h_j$ being IID uniform,
-\item $b_0$ chosen in terms of the $b_1, \ldots, b_d, c_1, \ldots, c_d, h_1, \ldots, h_d$ to make $\sigma^2 =\norm[2]{f-\mu}^2 \in [10^{-2}, 10^2]$, with $\log(\sigma)$ being IID uniform for each instance.
-\end{itemize}
-These ranges of parameters are chosen so that the algorithms being tested fail to meet the error tolerance a significant number of times.
-
-\begin{figure}
-\centering
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
-{gaussiankerd=1iidErrTime-2015-08-19-00-21-30.eps} \\ {\tt cubMC\_g}  \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=1cubSobolErrTime-2015-08-19-00-21-31.eps} \\  {\tt cubSobol\_g}\end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=1cubLatticeErrTime-2015-08-19-00-21-31.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=1integralErrTime-2015-08-19-00-21-32.eps} \\ {\tt integral } \end{minipage}
-\caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} with $d=1$ and error tolerance $\varepsilon_a=10^{-8}$ and $\varepsilon_r=10^{-3}$, and a variety of parameters giving a range of $\sigma$ and $\kappa$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the Algorithm {\tt cubMC\_g} the points labeled * are those for which the Theorem \ref{thm:meanMCg} guarantees the error tolerance.\label{fig:GaussiankerTestFun} }
-\end{figure}
-
-These 500 random constructions of $f$ with $d=1$ are integrated using  {\tt cubMC\_g}, {\tt cubSobol\_g}, {\tt cubLattice\_g} and {\tt integral} in MATLAB with absolute tolerance $\varepsilon_a = 10^{-8}$ and $\varepsilon_r=10^{-3}$ and the tolerance function is $\tol(\varepsilon_a, \varepsilon_r) = \max \{ \varepsilon_a, \varepsilon_r \abs{\mu}\}$. 
-
-Figure \ref{fig:GaussiankerTestFun} shows that the {\tt integral} are quite fast, but the successful rate is only a little over $95\%$ which is less than our uncertainty rate $1\%$. The three algorithms in GAIL performs better than {\tt integral}, they all have almost $100\%$ success rate.
-
-In the plots for {\tt cubMC\_g} , an asterisk is used to label those points satisfying $\kappa \le \kmax$, where $\kappa$ is defined in \eqref{kurtosis} and $\kmax$ is defined in \eqref{def:kmax}. All such points fall within the prescribed error tolerance, which is even better than the guaranteed confidence of $99\%$.Those points labeled with a dot, are those for which $\kappa > \kmax$, and so no guarantee holds. The points labeled with a diamond are those for which  {\tt cubMC\_g}  attempts to exceed the cost budget, which is set to be $10^{9}$.
-
+\Subsection{Integrating Keister's test function}
+% mat TestcubMCon-Keister-uniform-N500d18abstol0.001rel0.001-2015-08-24-21-47-53.mat
 \begin{figure}
 \centering
 \begin{minipage}{9cm} \centering \includegraphics[width=9cm]
-{gaussiankerd=3iidErrTime-2015-08-19-00-11-43.eps} \\ {\tt cubMC\_g}  \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=3cubSobolErrTime-2015-08-19-00-11-44.eps} \\  {\tt cubSobol\_g}\end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{gaussiankerd=3cubLatticeErrTime-2015-08-19-00-11-44.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for the single hump test function \eqref{GaussiankerTestFun} for $d=2, \ldots, 8$, with the rest of the parameters as in Figure \ref{fig:GaussiankerTestFun}.\label{fig:GaussiankerHDTestFun} }
+{PlotKeisterFun/gaussianiidErrTime-2015-11-29-01-06-32.eps} \\ {\tt meanMC\_g}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotKeisterFun/gaussiancubSobolErrTime-2015-11-29-01-06-33.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotKeisterFun/gaussiancubLatticeErrTime-2015-11-29-01-06-33.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\caption{Execution times and errors for the Keister test function \eqref{KeisterTestFun} with the dimension uniformly random chosen between 1 and 20. The tolerance is is $\max\left(10^{-3},10^{-3} \abs{I}\right)$. All other settings are same as in Figure \ref{fig:productfunreltol}. \label{fig:KeisterTestFun} }
 \end{figure}
+Keister \cite{Keister96} considered the following multidimensional integral that has applications in physics
+\begin{align} \label{KeisterTestFun}
+I= \int_{\reals^d} \cos (\norm[2]{\vx})e^{-\norm[2]{\vx}^2} \dif \vx &= 2^{-d/2}\int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) e^{-\norm[2]{\vy}^2/2} \dif \vy \nonumber \\
+&= \pi^{d/2} \int_{\reals^d} \cos(\norm[2]{\vy}/\sqrt{2}) \frac{e^{-\norm[2]{\vy}^2/2}}{(2\pi)^{d/2}} \dif \vy \nonumber \\
+ &= \pi^{s/2} \int_{[0,1)^d} \cos \left ( \sqrt{\sum_{j=1}^d \frac{[\Phi^{-1}(y_i)]^2}{2}}\right )\dif \vy,
+\end{align}
+where $\Phi$ denotes the standard Gaussian cumulative distribution function defined as below:
+$$\Phi(x) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^x e^{-s^2/2}ds, x \in [-\infty, \infty].$$
+Let the integrand be 
+\begin{equation*}
+f(\vx) = \pi^{d/2} \cos \left( \sqrt{\frac{1}{2} \sum_{i=1}^d (\Phi^{-1} (x_i))^2}\right).
+\end{equation*}
+The integration problem can be written as
+\begin{equation*}
+I = \int_{[0,1]^d} f(\vx)\dif\vx.
+\end{equation*}
+By applying the Monte Carlo method, the integral can be estimated as follows:
+\begin{align}
+\hIn = \frac{\pi^{d/2}}{n}\sum_{i=1}^n \cos \left (\sqrt{\frac12 \sum_{j=1}^d (\Phi^{-1}(x_{i,j}))^2}\right),
+\end{align}
+where $\vx_i = (x_{i1},\cdots,x_{id}) \in \reals$ , $i=1,\cdots, n.$
+Keister \cite{Keister96} showed an exact formula for calculating the exact integral. With the analytical solution been computed, we compared the numerical results over three different algorithms with a generalized error criterion. Timing and accuracy were recorded in Figure \ref{fig:KeisterTestFun}.
 
-Figure \ref{fig:GaussiankerHDTestFun} repeats the simulation shown in Figure \ref{fig:GaussiankerTestFun} for the same test function \eqref{GaussiankerTestFun}, but now with $d=2, \ldots, 8$ chosen randomly and uniformly.  For this case the univariate integration algorithms are inapplicable, but the multidimensional routines can be used.  There are more cases where the  {\tt cubMC\_g}  tries to exceed the maximum sample size allowed, but the behavior seen for $d=1$ still generally applies.  
-
-\Subsection{Integrating Keister's test function}
-Using the same Keister test function \eqref{KeisterTestFun} as shown in Subsection \ref{subsec:keitertestfunmeanMCg}, with a generalized error tolerance criterion. Timing and accuracy were recorded in Figure \ref{fig:KeisterTestFun}.
 %Keister  considered the following multidimensional integral that has applications in physics:
 %\begin{equation}\label{KeisterTestFun}
 %\int_{R^d} \cos (\norm{x}_2)e^{-\norm{x}_2^2} dx 
@@ -1450,42 +1484,43 @@ Using the same Keister test function \eqref{KeisterTestFun} as shown in Subsecti
 %\end{align}
 %where $\vx_i = (x_{i1},\cdots,x_{id}) \in \reals$ , $i=1,\cdots, n.$
 %As Keister [cite] showed an exact formula for calculating the exact integral, by coding them into MATLAB, we compared the numerical results over different algorithms with the generalized error tolerance criterion.
-500 replications was done for different dimensions uniformly random chosen from 1 to 20, with the integration interval $[0,1]^d$. The analytic solution was calculated using iterative method, hence, the true error was recorded. The absolute error tolerance was set to be $10^{-3}$ and the relative error tolerance was set to be $10^{-3}$. The initial sample size used to estimate the variance in {\tt cubMC\_g} was $2^{13}$ whereas the initial Sobol's and Lattice points taken in {\tt cubSobol\_g} and {\tt cubLattice\_g} was the same. The sample budget was set to be $10^{10}$. As we could see,  {\tt cubMC\_g} takes a significantly more time than {\tt cubSobol\_g} and {\tt cubLattice\_g}. The tolerance was met $98.6\%$ of the time, which is a bit less than our confidence level, $99\%$. The reason is that the points labels as a diamond are those attempts to exceed the sample budget $10^{10}$,  the guarantees are not hold for those points. If we exclude those 50 points label as a diamond and calculate the success rate again, it will be $100\%$ of the time. For {\tt cubSobol\_g} and {\tt cubLattice\_g}, the tolerance was met $98\%$ and $71\%$ of the time respectively. 
+500 replications are performed for dimension d IID uniform in $[1,20]$, with the integration interval $[0,1]^d$. The analytic solution, $I$, is calculated using iterative method, hence, the true error is recorded. The generalized error tolerance is $\max\left(10^{-3},10^{-3}\abs{I}\right)$. The initial sample size used to estimate the variance in {\tt cubMC\_g} is $2^{13}$ whereas the initial Sobol's and Lattice points taken in {\tt cubSobol\_g} and {\tt cubLattice\_g} are $2^{13}$ also. The sample budget is $10^{10}$. 
 
+As we could see,  {\tt cubMC\_g} takes a significantly more time than {\tt cubSobol\_g} and {\tt cubLattice\_g}. The errors that meet tolerance are $98.6\%$ of the time, which is a bit less than our confidence level, $99\%$. The reason is that the points labeled as a diamond are those attempt to exceed the sample budget $10^{10}$,  the guarantees do not hold for those points. If we exclude those 50 points labeled as a diamond and calculate the success rate again, it is $100\%$ of the time. Although we have not calculated the exact kurtosis, which has a very complicated form, nor we check if it is less than the kurtosis maximum, our numerical result using {\tt cubMC\_g} is still better than other two quasi-Monte Carlo methods in the sense of the error criterion. For {\tt cubSobol\_g}, the error meets tolerance $98\%$ of the time, whereas, for  {\tt cubLattice\_g}, the success rate is only $71\%$.  For this test function, we do not see the significant advantage of {\tt cubMC\_g}, the reason is that the test function is smooth and quasi-Monte Carlo methods perform well for smooth integrand. {\tt cubMC\_g} is more robust and does not assume any smoothness of the integrand. In this case {\tt cubMC\_g} does not take the advantage of the robustness and the mild assumption for the integrand, hence, it costs more time  than {\tt cubSobol\_g} and {\tt cubLattice\_g}.
+
+\Subsection{Integrating Multivariate Normal Probability with a deterministic covariance matrix}
 \begin{figure}
 \centering
 \begin{minipage}{9cm} \centering \includegraphics[width=9cm]
-{KeisteriidErrTime-2015-08-25-16-52-14.eps} \\ {\tt meanMC\_g}  \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubSobolErrTime-2015-08-25-16-52-15.eps} \\  {\tt cubSobol\_g}\end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{KeistercubLatticeErrTime-2015-08-25-16-52-15.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for the Keister test function \eqref{KeisterTestFun} with the dimension uniformly random chosen between 1 and 20. The absolute error tolerance was set to be $10^{-3}$ and the relative error tolerance was set to be $10^{-3}$.  The tolerance function is $\max\{\varepsilon_a,\varepsilon_r \abs{I}\}$. The horizonal axis denotes the err/tolerance, less than 1 mean the tolerance was met. the points lies on the left of the line means the tolerance was met. The points labeled with a diamond are those for which  {\tt cubMC\_g}  attempts to exceed the cost budget.The solid line denotes the empirical distribution function of the error, and the dot-dashed line denotes the empirical distribution function of the time.\label{fig:KeisterTestFun} }
+{PlotMVNPFun/MVNPiidErrTime-2015-11-29-01-36-25.eps} \\ {\tt cubMC\_g}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotMVNPFun/MVNPcubSobolErrTime-2015-11-29-01-36-25.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotMVNPFun/MVNPcubLatticeErrTime-2015-11-29-01-36-26.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\caption{Execution times and errors for Multivariate Normal Probability test function \eqref{MVNP} with the dimension $d$ IID uniform in $[2,8]$. The tolerance is is $\max\left(10^{-3},10^{-4} \abs{I}\right)$. All other settings are same as in Figure \ref{fig:productfunreltol}. \label{fig:MVNPTestFun1} }
 \end{figure}
-
-\Subsection{Integrating Multivariate Normal Probability with a deterministic covariance matrix}
-A function that has been used in may statistics applications it the numerical computation of Multivariate Normal Probability function 
+A function that has been used in many statistics applications is the numerical computation of Multivariate Normal Probability function 
 \begin{equation}\label{MVNP}
-F(\va,\vb) = \frac{1}{\sqrt{\abs{\Sigma}(2\pi)^d}}\int_{a_1}^{b_1}\cdots\int_{a_d}^{b_d} e^{-\frac{1}{2} \boldsymbol{\theta}'\Sigma^{-1}\boldsymbol{\theta} }\dif \boldsymbol{\theta},
+F(\va,\vb) = \frac{1}{\sqrt{\abs{\Sigma}(2\pi)^d}}\int_{a_1}^{b_1}\cdots\int_{a_d}^{b_d} e^{-\frac{1}{2} \boldsymbol{\theta}' \Sigma^{-1}\boldsymbol{\theta} }\dif \boldsymbol{\theta},
 \end{equation}
-￼where $\va$ and $\vb$ are $d$ dimensional vectors. $\boldsymbol{\theta} = (\theta_1,\cdots,\theta_d)^t$ and $\Sigma$ are given as $d \times d$ symmetric positive definite covariance matrix. Genz \cite{Genz92} points that, if for some $i$, $a_i$ is $-\infty$ and $b_i$ is $\infty$, an appropriate transformation allows the $i$th variable to be integrated explicitly and reduces the number of variables in the problem. So for each $i$, we assume as most one of $a_i$ and $b_i$ be infinite. 
+￼where $\va$ and $\vb$ are $d \times 1$ vectors, $\boldsymbol{\theta} = (\theta_1,\cdots,\theta_d)'$ and $\Sigma$ is given as $d \times d$ symmetric positive definite covariance matrix. Genz \cite{Genz92} points that if $a_i$ is $-\infty$ and $b_i$ is $\infty$ for some $i$, an appropriate transformation allows the $i$th variable to be integrated explicitly, which reduces the number of variables in the problem. Thus, for each $i$, we assume at most one of $a_i$ and $b_i$ be infinite. 
 
-An widely used way to compute $F$ is by Monte Carlo simulation. However, the infinite integration limits need to be handled either by some type of transformation to a finite region or by using some carefully selected cutoff values. Genz\cite{Genz92, GenzBretz02} proposed a transformation that used to transform the original $d$ dimensional integral into a new $d-1$ dimensional integral over a unit cube. The transformation was done by three steps:
+One way to compute $F$ is by Monte Carlo. However, the infinite integration limits need to be handled either by some type of transformation to a finite region or by using some carefully selected cutoff values. Genz \cite{Genz92, GenzBretz02} proposed a transformation that used to transform the original $d$ dimensional integral into a new $d-1$ dimensional integral over a unit cube. The transformation was done by three steps:
 \begin{enumerate}
-\item First, apply Chloesky decomposition to the covariance matrix $\Sigma$, i.e. $\Sigma = CC'$, where $C$ is a lower triangular $d \times d$ matrix. Let $\boldsymbol{\theta}=C \vy$, so that $\boldsymbol{\theta}'\Sigma^{-1}\boldsymbol{\theta} = \vy' C'(C')^{-1} C^{-1}C\vy =y'y$, and $d\boldsymbol{\theta}=\abs{C}d\vy = \abs{\Sigma}^{1/2} d\vy$.
+\item First, apply Cholesky decomposition to the covariance matrix $\Sigma$, i.e. $\Sigma = CC'$, where $C$ is a lower triangular $d \times d$ matrix. Let $\boldsymbol{\theta}=C \vy$, so that $\boldsymbol{\theta}'\Sigma^{-1}\boldsymbol{\theta} = \vy' C'(C')^{-1} C^{-1}C\vy =y'y$, and $\dif\boldsymbol{\theta}=\abs{C} \dif \vy = \abs{\Sigma}^{1/2} \dif \vy$.
 \item Second, let
 $$a_1'=a_1/c_{11}, \quad b_1'=b_1/c_{11}, \quad f_1=\Phi(a'), \quad  e_1 = \Phi(b'),$$
-where $\Phi$ is the standard univariate normal cumulative distribution function. 
+where $\Phi$ is the standard Gaussian cumulative distribution function. 
 Thus, for $i=1,2,\cdots,d$, recursively define
-$$y_{i}(w_1,\cdots,w_{i-1}) = \Phi^{-1} (d_i+w_i(e_i-f_i))$$
-$$a_i'(w_1,\cdots,w_{i-1}) = \frac{a_i-\sum_{j=1}^{i-1} c_{ij}y_j}{c_{ii}}$$
-$$b_i'(w_1,\cdots,w_{i-1}) = \frac{b_i-\sum_{j=1}^{i-1} c_{ij}y_j}{c_{ii}}$$
-$$f_i(w_1,\cdots,w_{i-1}) = \Phi(a_i')$$
-$$e_i(w_1,\cdots,w_{i-1}) = \Phi(b_i')$$
+$$y_{i}(w_1,\cdots,w_{i-1}) = \Phi^{-1} (d_i+w_i(e_i-f_i)),$$
+$$a_i'(w_1,\cdots,w_{i-1}) = \frac{a_i-\sum_{j=1}^{i-1} c_{ij}y_j}{c_{ii}},$$
+$$b_i'(w_1,\cdots,w_{i-1}) = \frac{b_i-\sum_{j=1}^{i-1} c_{ij}y_j}{c_{ii}},$$
+$$f_i(w_1,\cdots,w_{i-1}) = \Phi(a_i'),$$
+$$e_i(w_1,\cdots,w_{i-1}) = \Phi(b_i').$$
 \item Last, the multivariate normal probability in \eqref{MVNP} may be written as 
 \begin{equation}\label{MVNP2}
-F(\va,\vb) = (e_1-f_1)\int_0^1 (e_2-f_2) \cdots \int_0^1(e_d-f_d)d\vw.
+F(\va,\vb) = (e_1-f_1)\int_0^1 (e_2-f_2) \cdots \int_0^1(e_d-f_d)\dif \vw.
 \end{equation}
 \end{enumerate}
-The integral \eqref{MVNP2} could be evaluated using different technique, including Monte-Carlo, quasi-Monte Carlo and adaptive methods. Two test problems are shown in the next section to test the time and error when evaluating the integral with different algorithms.
+The integral \eqref{MVNP2} can be evaluated using different techniques, including Monte Carlo, quasi-Monte Carlo and adaptive methods. Two test problems are shown in the next section to test the time and error when evaluating the integral with different algorithms.
 
 Now, consider the parameters defined as follows 
 \begin{subequations} \label{MVNPexp1param}
@@ -1499,23 +1534,15 @@ b_j \text{ IID uniformly on } [0,\sqrt{d}],\\
 \sigma \text{ distributed uniformly on } [0,1].
 \end{gather}
 \end{subequations}
-As the off diagonal elements of the convariance matrix are all $\sigma$ and the lower limits of the integration are all $-\infty$, the analytic solution has the form,
+As the off diagonal elements of the covariance matrix are all $\sigma$ and the lower limits of the integration are all $-\infty$, the analytic solution has the form,
 \begin{align}\label{truesolMVNP}
 F(-\infty, \vb,\Sigma) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{\infty} e^{-\frac{t^2}{2}} \prod_{j=1}^d \left(\Phi\left(\left(b_j+\sqrt{\sigma}t\right)/\sqrt{1-\sigma}\right)\right)dt,
 \end{align}
 which could be evaluated by univariate quadrature techniques.
 
-Numerical experiments was done using 500 replications with dimension $d$ IID uniformly chosen from 2 to 8, all other parameters were chosen according to \eqref{MVNPexp1param}. The error tolerance was set to be $\max\left(\varepsilon_a,\varepsilon_r \abs{\mu}\right)$, where $\mu$ was computed by \eqref{truesolMVNP} using univariate quadrature function {\tt integral} in MATLAB. The absolute error tolerance was chosen to be $\varepsilon_a = 10^{-4}$ and the relative error tolerance was set as $\varepsilon_a = 10^{-3}$. The initial sample size for estimating the variance was set to be $2^10$, while the initial sample size using {\tt cubSobol\_g} and {\tt cubLattice\_g} were both set to be the same. Time and error were recorded and plotted in figure \ref{fig:MVNPTestFun1} while using three algorithms.
+Numerical experiments are performed using 500 replications with dimension $d$ IID uniformly chosen from 2 to 8, all other parameters are chosen according to \eqref{MVNPexp1param}. The error tolerance is $\max\left(10^{-3},10^{-4} \abs{\mu}\right)$, where $\mu$ is computed by \eqref{truesolMVNP} using univariate quadrature function {\tt integral} in MATLAB. The initial sample size for estimating the variance is $2^{10}$, while the initial sample size using {\tt cubSobol\_g} and {\tt cubLattice\_g} are $2^{10}$ also. Time and error are recorded and plotted in Figure \ref{fig:MVNPTestFun1} using these three algorithms.
 
-\begin{figure}
-\centering
-\begin{minipage}{9cm} \centering \includegraphics[width=9cm]
-{MVNPiidErrTime-2015-09-17-23-49-43.eps} \\ {\tt cubMC\_g}  \end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{MVNPcubSobolErrTime-2015-09-17-23-49-44.eps} \\  {\tt cubSobol\_g}\end{minipage}
-\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{MVNPcubLatticeErrTime-2015-09-17-23-49-45.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for Multivariate Normal Probability test function \eqref{MVNP} with the dimension uniformly random chosen between 2 and 8. The absolute and relative error tolerance were set to be $10^{-4}$ and $10^{-3}$ respectively. The horizonal axis denotes the err/tolerance, less than 1 mean the tolerance was met. the points lies on the left of the line means the tolerance was met. The points labeled with a diamond are those for which  {\tt cubMC\_g}  attempts to exceed the cost budget.The solid line denotes the empirical distribution function of the error, and the dot-dashed line denotes the empirical distribution function of the time.\label{fig:MVNPTestFun1} }
-\end{figure}
-As we could see from Figure \ref{fig:MVNPTestFun1}, {\tt cubMC\_g} used significantly more time than {\tt cubSobol\_g} and {\tt cubLattice\_g}, while $100\%$ of the points satisfies the error tolerance. For {\tt cubSobol\_g}, $100\%$ of the points satisfies the tolerance whereas $99.2\%$ of the points satisfies the error tolerance for {\tt cubLattice\_g}.
+As we could see from Figure \ref{fig:MVNPTestFun1}, {\tt cubMC\_g} used significantly more time than {\tt cubSobol\_g} and {\tt cubLattice\_g}, while $100\%$ of the points satisfy the error tolerance. For {\tt cubSobol\_g}, $100\%$ of the points satisfy the tolerance whereas $99.2\%$ of the points satisfy the error tolerance for {\tt cubLattice\_g}.
 
 %the parameters random chosen as follows:
 %\begin{itemize}
@@ -1540,11 +1567,16 @@ As we could see from Figure \ref{fig:MVNPTestFun1}, {\tt cubMC\_g} used signific
 %\end{subequations}
 %Time and error were recorded and plotted in figure [cite].
 \Subsection{Integrating Multivariate Normal Probability with a random covariance matrix}
-Another example with a random covariance matrix could be used to test the adaption of the algorithms. The way to construct the test function is described in the following steps. 
+\begin{figure}
+\centering
+ \includegraphics[width=9cm]{boxplotofMVNP-2015-09-17-15-58-17.eps} \\ {\tt cubMC\_g} 
+\caption{Box and whisker plot for execution time of integrating Multivariate Normal Probability function \eqref{MVNP} with lower triangular matrix $C$ \eqref{lowertrimatrixC} and other parameters \eqref{MVNPexp2param}. The horizonal axis denotes the different $\delta_t$ ranged from $0.01$ to $10$, the vertical axis denotes the computation time. \label{fig:MVNPadaptivitiy} }
+\end{figure}
+Another example with a random covariance matrix can be used to test the adaption of the algorithms. The way to construct the test function is described in the following steps. 
 
 First, generate a random lower triangular matrix $C$ and covariance matrix $\Sigma$:
 \begin{itemize}
-\item Construct the lower triangular matrix in the following form
+\item Construct the lower triangular matrix of the form
 \begin{equation}\label{lowertrimatrixC}
 C = \left (\begin{array}{ccccc}
 \sigma_1&0&0&\cdots&0\\
@@ -1554,47 +1586,36 @@ C = \left (\begin{array}{ccccc}
 0&0&0&\cdots&0\\
 x_{21}&0&0& \cdots &0 \\
 \cdots\\
-x_{d1}&x_{d2}&\cdots&x_{dd}&0 \end{array}\right)
+x_{d1}&x_{d2}&\cdots&x_{dd}&0 \end{array}\right), 
 \end{equation}
-where $\log_{10}\sigma_i$ is uniformly distributed in $U[1,3]$, $\delta_t$ is a shrinkage parameter, $x_{ij}$ is uniformly random generated in $U[-1,1]$.
+where $\log_{10}\sigma_i$ is IID uniform on $[1,3]$, $\delta_t$ is a shrinkage parameter, $x_{ij}$ is IID uniform on $[-1,1]$.
 \item The lower triangular matrix $C$ multiplies its transpose $C'$ will be the covariance matrix $\Sigma = CC'$.
 \end{itemize}
+
 Second, choose integration dimension and interval as follows:
 \begin{subequations} \label{MVNPexp2param}
 \begin{gather}
-d \text{ IID uniformly on } [2,8] \\
+d \text{ IID uniform on } [2,8] \\
 a_1=\cdots=a_d =-\infty,\\
-b_j \text{ IID uniformly on } [0,\sqrt{d}].
+b_j \text{ IID uniform on } \left[0,\sqrt{d} \right].
 \end{gather}
 \end{subequations}
-The computational time was recorded and plotted in Figure \ref{fig:MVNPadaptivitiy}. 500 replications was done with each of four different shrinkage factor $\delta_t =  0.01,0.1, 1, 10$. The absolute error tolerance $\varepsilon_a$  and relative error tolerance were both set to be $10^{-5}$, the tolerance function takes the form $\tol = \max \left(\varepsilon_a,\varepsilon_r \abs{\mu}\right)$. As we could see, when $\delta_t$ gets large, the algorithm uses relatively more time. This plots show the adaption of the algorithm {\tt cubMC\_g}, which, may adjust the sample size used or time budget needed according the difficulty of the problem.
 
-\begin{figure}
-\centering
- \includegraphics[width=9cm]{boxplotofMVNP-2015-09-17-15-58-17.eps} \\ {\tt cubMC\_g} 
-\caption{Box and whisker plot for execution time of integrating Multivariate Normal Probability function \eqref{MVNP} with
-lower triangular matrix $C$ \eqref{lowertrimatrixC} and other parameters \eqref{MVNPexp2param}. The horizonal axis denotes the different $\delta_t$ ranged from $0.01$ to $10$, the vertical axis denotes the computation time. \label{fig:MVNPadaptivitiy} }
-\end{figure}
+The computational time is recorded and plotted in Figure \ref{fig:MVNPadaptivitiy}. 500 replications are performed with each of four different shrinkage factor $\delta_t =  0.01,0.1, 1, 10$. The tolerance is $ \max \left(10^{-5}, 10^{-5}\abs{\mu}\right)$. As we could see, when $\delta_t$ gets large, the algorithm uses relatively more time. This plots show the adaption of the algorithm {\tt cubMC\_g}, which, may adjust the sample or time required according the difficulty of the problem.
+
 
 \Chapter{Guaranteed method for Bernoulli Random variables}\label{chapter:meanMCberg}
 
+The Bernoulli trial is one of the simplest, yet most important, random processes. It takes two outcomes, namely, success or failure with a constant probability. Many real world problems can be modeled in term of Bernoulli trials, i.e. estimating the probability of bankruptcy or a power failure.
 
+ A Bernoulli random variable, $Y$, takes two values, 0 and 1, with the probability $\Pr(Y=1) = p$. Sometimes the process governing $Y$ may have a complex form. This means that we may be able to generate IID $Y_i$, but not have a simple formula for computing $p$ analytically. 
+ %This distribution is denoted by $\Ber(p)$. 
 
-Here we construct a conservative fixed-width confidence interval for Bernoulli random variables, $Y$. The mean is the probability of success, i.e,  $p:= \e(Y)=\Pr(Y=1)$. This distribution is denoted by $\Ber(p)$.  Possible applications include the probability of bankruptcy or a power failure, where the process governing $Y$ may have a complex form.  This means that we may be able to to generate independent and identically distributed (IID) $Y_i$, but not have a simple formula for computing $p$ analytically. 
-
-This chapter presents an automatic simple Monte Carlo method for constructing a fixed-width (specified error tolerance) confidence interval for $p$ with a guaranteed confidence level. That is, given an absolute error tolerance, $\varepsilon_a$ or a relative error tolerance $\varepsilon_r$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, to compute a sample mean, $\hp_n$, that satisfies the condition $\Pr(\abs{p-\hp_n}\leq \varepsilon_a) \geq 1-\alpha$ or $\Pr(\abs{p-\hp_n}/p\leq \varepsilon_r) \geq 1-\alpha$.  Moreover, there is an explicit formula for the computational cost of the algorithm in terms of $\alpha$ and $\varepsilon_a$. A publicly available implementation of our algorithm, called {\tt meanMCber\_g}, is part of the next release of the Guaranteed Automatic Integration Library \cite{GAIL_2_1}.
-
-\Section{The background of estimating the mean of Bernoulli random variables}
-
-Before presenting our new ideas, we review some of the existing literature.  While the CLT is often used for constructing confidence intervals, it relies on unjustified approximations.  We would like to have confidence intervals backed by theorems.
-
-As mentioned above, In Chapter \ref{chapter:meanMCabsg} and \ref{chapter:meanMCg}, we present a reliable fixed-width confidence interval for evaluating the mean of an arbitrary random variable via Monte Carlo sampling based on the assumption that the kurtosis has a known upper bound. These algorithms uses the Cantelli's Inequality to get a reliable upper bound on the variance and applies the Berry-Esseen Inequality to determine the sample size needed to achieve desired confidence interval width and confidence level. For those algorithms, the distribution of the random variable is arbitrary. 
+In this chapter, will will present the ways to reliably construct the fixed width confidence interval for $p$ with a guaranteed confidence level. That is, given an absolute error tolerance, $\varepsilon_a$ or a relative error tolerance $\varepsilon_r$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, to compute a sample mean, $\hp_n$, that satisfies the condition $\Pr(\abs{p-\hp_n}\leq \varepsilon_a) \geq 1-\alpha$ or $\Pr(\abs{p-\hp_n}/p\leq \varepsilon_r) \geq 1-\alpha$.  
 
 Wald confidence interval \cite[Section 1.3.3]{Agresti02} is a commonly used one based on maximum likelihood estimate, unfortunately, it performs poorly when the sample size $n$ is small or the true $p$ is close to 0 or 1. Agresti \cite[Section 1.4.2]{Agresti02} suggested constructing confidence intervals for binomial proportion by adding a pseudo-count of $z_{\alpha/2}/2$ successes and failures. Thus, the estimated mean will be $\tilde{p}_n =(n\hp_n+z_{\alpha/2}/2) / (n+z_{\alpha/2})$. This method is also called adjusted Wald interval or Wilson score interval, since it was first discussed by E. B. Wilson \cite{wilson27}. This method performs better than the Wald interval. However, it is an approximate result and carries no guarantee.
 
 Clopper and Pearson \cite{CP34} suggested a tail method to calculate the exact confidence interval for a given sample size $n$ and confidence level $1-\alpha$. Sterne \cite{sterne54}, Crow \cite{crow56}, Blyth and Still \cite{BS83} and Blaker \cite{Blaker00} proposed different ways to improve the exact confidence interval, however, all of them were only tested on small sample sizes, $n$.  Moreover, these authors did not suggest how to determine $n$ that gives a confidence interval with fixed half-width $\varepsilon_a$. 
-
-The outline of this chapter follows. Section \ref{sec:meanMCberg} described two algorithms that estimate the mean of Bernoulli random variables to some specified absolute error tolerance $\varepsilon_a$ and relative error tolerance $\varepsilon_r$ with a guaranteed confidence level. The proof and the success and cost of the algorithms are also provided. Numerical examples and cost comparison are provided in Section \ref{sec:meanMCbergexample}. 
 
 \Section{Absolute error criterion} \label{sec:meanMCberg}
 
@@ -1878,8 +1899,8 @@ GAIL Version 2.1 \cite{GAIL_2_1} includes the following eight algorithms:
 \item {\tt funappx\_g}: 1-D function approximation on a bounded interval with local adaption.
 \item {\tt funmin\_g}: global univariate function minimization on a bounded interval.
 \item {\tt integral\_g}: 1-D numerical integration on a bounded interval based on Trapezoidal rule.
-\item {\tt cubLattice\_g}: Numerical integration via Quasi-Monte Carlo method using rank-1 Lattices.
-\item {\tt cubSobol\_ g}: Numerical integration via Quasi-Monte Carlo method using Sobol’ points.
+\item {\tt cubLattice\_g}: Numerical integration via quasi-Monte Carlo method using rank-1 Lattices.
+\item {\tt cubSobol\_ g}: Numerical integration via quasi-Monte Carlo method using Sobol’ points.
 \item {\tt meanMCabs\_g}: Monte Carlo method for estimating mean of a random variable with an absolute error tolerance.
 \item {\tt meanMC\_g}: Monte Carlo method for estimating mean of a random variable with a generalized error tolerance.
 \item {\tt cubMCabs\_g}: Monte Carlo method for numerical integration with an absolute error tolerance.
@@ -1925,7 +1946,7 @@ Sometime, one may be interested in estimating the probability. Given a Bernoulli
 
 We believe that the guaranteed adaptive algorithms are of great interests to the recent practitioners and researchers, as we have suggested a few ways to solve the problems like numerical integration using 1-D trapezoid rule {\tt integral\_g} , unitvariate function approximation {\tt funappx\_g} and {\tt funappxglobal\_g}, Monte Carlo methods for evaluating the mean of a random variable {\tt meanMCabs\_g} and {\tt meanMC\_g}, numerical integration via Monte Carlo {\tt cubMCabs\_g} and {\tt cubMC\_g}, probability estimation using Bernoulli random variables {\tt meanMCber\_g}. These works have been published in \cite{CDHHZ13} and \cite{HJLO12}. Also, we believe these the algorithms followed by theoretical research should be carefully implemented, documented and published. Thus, we have developed our MATLAB toolbox: Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1}. The work in this article has became part of this toolbox. Some possible future work that could be done will be explained in the following paragraphs.
 
-As {\tt cubMC\_g} does Monte Carlo method for numerical integration, some variance reduction techniques could be applied to make the simulation more efficient. Such techniques includes control variate, importance sampling and Quasi Monte Carlo(QMC) methods. As one of our colleagues has been working on guaranteed adaptive quasi Monte Carlo method using Sobol' points \cite{Sobol67} and Lattice points, two algorithms {\tt cubSobol\_g} and {\tt cubLattice\_g} are the ones in GAIL. The other two variance reduction techniques may be the possible future work.
+As {\tt cubMC\_g} does Monte Carlo method for numerical integration, some variance reduction techniques could be applied to make the simulation more efficient. Such techniques includes control variate, importance sampling and quasi-Monte Carlo(qMC) methods. As one of our colleagues has been working on guaranteed adaptive quasi-Monte Carlo method using Sobol' points \cite{Sobol67} and Lattice points, two algorithms {\tt cubSobol\_g} and {\tt cubLattice\_g} are the ones in GAIL. The other two variance reduction techniques may be the possible future work.
 
 For the algorithms {\tt meanMCabs\_g} and {\tt meanMC\_g}, the cost upper bound has been derived, the lower bound derivation is another possible research area. More practical real work examples could be implemented to test our guaranteed Monte Carlo methods in GAIL.
 
