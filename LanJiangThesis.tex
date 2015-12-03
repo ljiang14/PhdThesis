@@ -1660,7 +1660,7 @@ Applying Hoeffding's Inequality in Theorem \ref{hoeff} leads directly to \eqref{
 
 \Section{Relative error criterion}
 
-Given the relative error tolerance, $\varepsilon_r$, we are looking into constructing the fixed width confidence interval for $p$ with the relative error criterion. By applying inequality \ref{ineq:Hoefftwoside} in Theorem \ref{hoeff}, we have
+Given the relative error tolerance, $\varepsilon_r$, we are looking into constructing the fixed width confidence interval for $p$ with the relative error criterion. By applying inequality \eqref{ineq:Hoefftwoside} in Theorem \ref{hoeff}, we have
 \begin{align*}
 \Pr\left(\frac{|\hp_n-p|}{p} \leq \varepsilon_r\right) \geq 1-2\exp\left(-2np^2\varepsilon_r^2\right).
 \end{align*}
@@ -1670,17 +1670,15 @@ the sample size $n$ should satisfy the following condition:
 \begin{align*}
 n \geq -\frac{\log (\alpha/2)}{2 p^2 \varepsilon_r^2}.
 \end{align*}
-Since $p$ is unknown, the lower bound is needed to ensure $n$ is large enough to bound the relative error. By applying one side Hoeffding's Inequality \ref{ineq:HoeffonesideA} in Theorem \ref{hoeff}, the following inequality holds:
+Since $p$ is unknown, the lower bound is needed to ensure $n$ is large enough to bound the relative error. By applying one side Hoeffding's Inequality \eqref{ineq:HoeffonesideA} in Theorem \ref{hoeff}, the following inequality holds:
 \begin{align}\label{onesidehoeffn}
-P\left(p \geq \hp_n-\varepsilon \right) \geq 1- \exp(-2n\varepsilon^2).
+\Pr\left(p \geq \hp_n-\varepsilon \right) \geq 1- \exp(-2n\varepsilon^2).
 \end{align}
-When 
-\begin{align*}
-n \geq -\frac{\log(\alpha)} {2\varepsilon^2 },
- \end{align*}
-$p$ has a conservative lower bound $\hp_n-\varepsilon$.
+If the sample size 
+$$n \geq -\frac{\log(\alpha)} {2\varepsilon^2 },$$
+$p$ has a conservative lower bound $$\Pr(p \geq \hp_n-\varepsilon)\geq1-\alpha.$$
 
-Based on the above argument, a multi-step algorithm to estimate the mean of Bernoulli random variables to a prescribed relative error tolerance is described as follows:
+Based on the argument above, an algorithm that estimates the means of Bernoulli random variables to a prescribed relative error tolerance is developed. The basic idea is to find a reliable lower bound of $p$ at first, then estimate the $p$ to the prescribed relative error tolerance.
 \begin{algorithm}[{\tt meanMCber\_g} with relative error criterion]\label{algrel}
 User specifies the two quantities:
 \begin{itemize}
@@ -1697,7 +1695,10 @@ n_i = \left \lceil \frac{-4^i \log\left ( \alpha_i \right)}{2\varepsilon_r^2}\ri
  IID Bernoulli random samples, where $\alpha_i=1-(1-\alpha/2)^{2^{-i}}$.
 \item \label{step2}
 \begin{enumerate}
-\item If $\hp_{n_i} \geq 3\varepsilon_r 2^{-i}$, set $\tau=i$ and compute 
+\item If 
+\begin{equation}\label{stoppingcriterionBerRel}
+p_{n_i} \geq 3\varepsilon_r 2^{-i},
+\end{equation} set $\tau=i$ and compute 
 \begin{align}\label{def:hpl}
 \hp_L= \hp_{n_\tau} - \varepsilon_r 2^{-\tau},
 \end{align}
@@ -1711,44 +1712,44 @@ n= \left \lceil \frac{\log (4/\alpha)}{2(\hp_L\varepsilon_{r})^2} \right \rceil
 \end{align}
   IID Bernoulli random samples that are independent of those used to compute $\hp_{n_1}, \cdots, \hp_{n_\tau}$. Terminate the algorithm.
   \end{enumerate}
-If the algorithm terminates, then the relative error criterion is satisfied. The success of the algorithm is guaranteed in the following theorem.
 \end{algorithm}
+If the algorithm terminates, then the relative error criterion is satisfied. The success of the algorithm is guaranteed in the following theorem.
 \begin{theorem}
-Let $Y$ be a Bernoulli random variable with mean $p$, it follows that Algorithm \ref{algrel} using sample size \eqref{reln} yields an estimate $\hp_n$ satisfies the fixed width confidence interval condition:
+Let $Y$ be a Bernoulli random variable with mean $p$, it follows that Algorithm \ref{algrel} using sample size \eqref{reln} yields an estimate $\hp_n$ that satisfies the fixed width confidence interval condition:
 \begin{align}\label{probrel}
-\Pr\left(\frac{|\hp -p|}{p} \leq \varepsilon_r \right) \geq 1-\alpha.
+\Pr\left(\frac{\abs{\hp -p}}{p} \leq \varepsilon_r \right) \geq 1-\alpha.
 \end{align}
 \end{theorem}
 \begin{proof}
-Since for each step of iteration, the sample size is given in \eqref{relalgni}, and will satisfy:
+At each step of iteration, the sample size is given in \eqref{relalgni}, i.e.
 \begin{align*}
-n_i = \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil \geq -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 }.
+n_i \geq -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 },
  \end{align*}
  which is equivalent to:
 \begin{align}\label{nibound}
-1- \exp(-2n_i4^{-i}\varepsilon_r^2) \geq 1-\alpha_i.
+1- \exp\left(-2n_i4^{-i}\varepsilon_r^2\right) \geq 1-\alpha_i.
 \end{align}
- Thus, by applying one side Hoeffding's Inequality \eqref{onesidehoeffn}, the following inequality holds:
- \begin{align*} 
-\Pr\left(p \geq \hp_{n_i}-2^{-i}\varepsilon_r  \right) \geq 1- \exp(-2n_i4^{-i}\varepsilon_r^2).
- \end{align*} 
-Also, applying \eqref{nibound} yields:
+ Thus, by applying inequality \eqref{onesidehoeffn}, the following inequality holds:
+ \begin{align} \label{pnibound}
+\Pr\left(p \geq \hp_{n_i}-2^{-i}\varepsilon_r  \right) \geq 1- \exp\left(-2n_i4^{-i}\varepsilon_r^2\right).
+ \end{align} 
+Combining \eqref{nibound} and \eqref{pnibound} we get
  \begin{align} \label{lbpni}
  \Pr\left(p \geq \hp_{n_i}-2^{-i}\varepsilon_r \right) \geq 1-\alpha_i.
  \end{align}
-Similarly, taking the sample size $n$ in \eqref{reln} yields:
+Similarly, the definition of sample size in \eqref{reln} leads to the following inequality:
 \begin{align}\label{nbound}
-1-2\exp(-2  (\hp_L\varepsilon_{r})^2) \geq 1-\alpha/2
+1-2\exp\left(-2 (\hp_L\varepsilon_{r})^2\right) \geq 1-\alpha/2.
 \end{align}
- Using two side Hoeffding's Inequality in Theorem \ref{hoeff}, we will get
-\begin{align}
- \Pr \left( \left|{\hp_n - p}\right| \leq \hp_L \varepsilon_r \right ) \geq  1-2\exp(-2  (\hp_L\varepsilon_{r})^2).
+Applying \eqref{ineq:Hoefftwoside} in Theorem \ref{hoeff} yields:
+\begin{align}\label{pnbound}
+ \Pr\left( \left|{\hp_n - p}\right| \leq \hp_L \varepsilon_r \right ) \geq  1-2\exp\left(-2  (\hp_L\varepsilon_{r})^2\right).
  \end{align}
- Applying \eqref{nbound} yields:
+Combining \eqref{nbound} and \eqref{pnbound} yields:
  \begin{align}\label{lbpn}
-  \Pr \left( \left|{\hp_n - p}\right| \leq \hp_L \varepsilon_r \right ) \geq 1-\alpha/2.
+  \Pr \left(\abs{\hp_n - p} \leq \hp_L \varepsilon_r \right ) \geq 1-\alpha/2.
  \end{align}
- Thus, to bound the relative error tolerance,
+ Thus, 
 \begin{align}
  \Pr \left ( \frac{\abs{\hp - p}}{p} \leq \varepsilon_r\right ) & \geq \Pr \left ( \abs{\hp_n - p} \leq \hp_L\varepsilon_r \ \ \& \ \   \hp_L \leq p \right ) \label{addpl}\\&
  \geq \Pr \left( \abs{\hp_n - p} \leq \hp_L \varepsilon_r \ \  \& \ \  \hp_{n_i} - 2^{-i}\varepsilon_r \leq p\  \forall i   \right) \label{makeforall}\\&
@@ -1759,55 +1760,55 @@ Similarly, taking the sample size $n$ in \eqref{reln} yields:
 The inequality \eqref{addpl} is true by adding a middle term, \eqref{makeforall} is true by enlarge the set, \eqref{usecombineq} is true by using the inequality $\Pr(A+B)\geq\Pr(A)+\Pr(B)-1$ and the property of independence, \eqref{useabove} is true by using the inequality \eqref{lbpni} and \eqref{lbpn}, \eqref{constructalphai} is true by the way to construct $\alpha_i$ in Algorithm \ref{algrel}.
 \end{proof}
 
-\begin{theorem} \label{costupperboundrel}
-The cost of Algorithm \ref{algrel} has a probabilistic bound above by $$N_{\text{tot}}(\varepsilon_r,\alpha,p) \leq N_{\text{up}}(\varepsilon_r,\alpha,p).$$
-\end{theorem}
-\begin{proof}
-The total cost of Algorithm \ref{algrel} is combined by two parts:
-%$$\min\left \{ N: \Pr(\sum_{i=1}^\tau n_i+n \leq N) \geq 1-\beta \right\}.$$ 
+Next, we want to prove the computational cost of Algorithm \ref{algrel} has an upper bound. As shown in  Algorithm \ref{algrel}, the total cost is combined by two parts:
 \begin{itemize}
 \item For step \ref{step1} and \ref{step2}, the cost is $n_i = \left \lceil -4^i \log\left ( \alpha_i \right)/(2\varepsilon_r^2) \right \rceil$, for $i = 1 \cdots \tau$.
 \item For step \ref{step3}, the cost is $n= \left \lceil -\log (\alpha/4)/(2  (\hp_L \varepsilon_{r})^2)\right \rceil $. 
 \end{itemize}
-Thus, the total cost could be written as: 
+Thus, the total cost can be written as: 
 \begin{align}\label{totcostn}
-\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil
+n_{\tot}=\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil.
 \end{align}
-Since the stopping time $\tau$ and the lower bound $\hp_L$ are both random variables, which makes total cost in \eqref{totcostn} a random variable, thus, the cost of Algorithm \ref{algrel} may be best defined probabilistically, i.e.:
-$$N_{\text{tot}}(\varepsilon_r, \alpha,p,\beta)= \min\left \{N: \Pr\left (\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil \leq N\right) \geq 1-\beta \right \}.$$
-where $\varepsilon_i$, $\alpha_i$ and $\varepsilon_r$ are deterministic, the random parts are $\tau$ and $\hp_{L}$. In order to get the upper bound on the cost, we need to get the upper bound on the stopping time $\tau$ and the lower bound on $\hp_L$.
+There are two random parts in $n_{\tot}$, the stopping time $\tau$ and the lower bound of $p$, $\hp_L$. In order to find its upper bound, we need the upper bound of $\tau$ and lower bound of $\hp_L$. Next, define the upper bound on the stopping time as
+\begin{equation}\label{taubarBerRel}
+\bar{\tau}: = \min \{i:  p-\varepsilon_r2^{-i} \geq 3\varepsilon_r 2^{-i}, i \in \naturals \} =\max(1,\left \lceil \log_2 (4\varepsilon_r/p)\right \rceil),
+\end{equation}
+and the upper bound on cost as:
+\begin{align}
+n_{\up} = \sum_{i=1}^{\bar{\tau}} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\varepsilon_r \varepsilon_{r})^2} \right \rceil.
+\end{align}
+Thus, we have the following theorem.
 
-As the stopping criterion is: $$\tau = \min\left\{i: \hp_{n_i}\geq 3\varepsilon_r 2^{-i}, i \in N\right \}$$
-%which is equivalent to: $$\tau = \min\{i: i\geq \log_2(3\varepsilon_r/\hp_{n_i}),i \in N \}$$ 
-where $\hp_{n_i}$ is the only random variable. In order to get an upper bound on $\tau$, we need to get the lower bound on $\hp_{n_i}$.
-Define the upper bound on the stopping time as:
-$$\bar{\tau}: = \min \{i:  p-\varepsilon_r2^{-i} \geq 3\varepsilon_r 2^{-i}, i \in N\} =\left \lceil \log_2 (4\varepsilon_r/p)\right \rceil$$
-% \min\left \{i:i\geq \log_2 (4\varepsilon_r/p), i \in N\right \} $$
-Also, define the uncertainty $\beta$ as:
-$$\beta := \alpha_{\bar{\tau}}=1-(1-\alpha/2)^{2^{-\left \lceil \log_2 (4\varepsilon_r/p)\right \rceil}}$$
-Thus 
-\begin{align}
-\Pr\left (\tau \leq \bar{\tau}\right) &= \Pr \left (\cup_{i=1}^{\bar{\tau}}\left \{\hp_{n_i}\geq 3\varepsilon_r 2^{-i} \right \} \right) \\&
-\geq \Pr\left( \hp_{n_{\bar{\tau}}} \geq 3\varepsilon_r 2^{-\bar{\tau}}\right) \\&
-\geq  \Pr \left( \hp_{n_{\bar{\tau}}} \geq p-\varepsilon_r 2^{-\bar{\tau}} , p-\varepsilon_r 2^{-\bar{\tau}}  \geq 3 \varepsilon_r 2^{-\bar{\tau}}\right)\\&
-= \Pr \left( \hp_{n_{\bar{\tau}}} \geq p-\varepsilon_r 2^{-\bar{\tau}}\right) \\& =1-\alpha_{\bar{\tau}} \\& = 1-\beta
-\end{align}
-Moreover, define the lower bound on $\hp_L$ as: $\check{p}_L = 2\varepsilon_r2^{-\bar{\tau}}$, and we have:
-\begin{align}
-\Pr\left(\hp_L  \geq  \check{p}_L  | \tau \leq \bar{\tau}\right)& = \Pr\left(\hp_{n_\tau} - \varepsilon_r 2^{-\tau}\geq 2\varepsilon_r2^{-\bar{\tau}}| \tau \leq \bar{\tau}\right)\\&\geq \Pr\left(\hp_{n_{\tau}}\geq 3\varepsilon_r2^{-{\bar{\tau}}}| \tau \leq \bar{\tau}\right) \\& \geq 
-\Pr\left(\hp_{n_{\tau}}\geq 3\varepsilon_r2^{-{\tau}}, 3\varepsilon_r2^{-{\tau}} \geq 3\varepsilon_r2^{-{\bar{\tau}}} | \tau \leq \bar{\tau}\right)\\&
-=1
-\end{align}
-Thus, $$Pr\left(\hp_L \geq \check{p}_L | \tau \leq \bar{\tau}\right)=1$$
-Define the upper bound on the cost as:  
-$$N_{\text{up}}:= \sum_{i=1}^{\bar{\tau}} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\check{p}_L \varepsilon_{r})^2} \right \rceil$$. Thus, we could conclude that
-\begin{align}
-&\Pr\left (\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil \leq N_{\text{up}}\right)\\ & \geq \Pr \left(\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil \leq \sum_{i=1}^{\bar{\tau}} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil , \left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil \leq \left \lceil -\frac{\log (\alpha/4)}{2  (\check{p}_L \varepsilon_{r})^2} \right \rceil\right)\\&
-\geq \Pr \left ( \tau \leq \bar{\tau}, \check{p}_L \leq \hp_L \right ) \\&
- = \Pr \left ( \check{p}_L \leq \hp_L | \tau \leq \bar{\tau}\right )\Pr \left( \tau \leq \bar{\tau}\right) \\&
- = \Pr \left( \tau \leq \bar{\tau}\right) = 1-\beta
-\end{align}
-By the argument above, the total cost $N_{\text{tot}}(\varepsilon_r,\alpha,p,\beta)$ will be bounded above by $N_{\text{up}}(\varepsilon_r, p,\alpha)$.
+\begin{theorem} \label{costupperboundrel}
+The cost of Algorithm \ref{algrel}, $n_{\tot}$,  has a probabilistic bound, $n_{\up}$, that satisfying the following inequality
+\begin{equation}
+\Pr(n_{\tot}<n_{\up}) \geq 1-\beta.
+\end{equation}
+\end{theorem}
+\begin{proof}
+As the stopping criterion is: 
+\begin{align*}
+\tau &= \min\left\{i: \hp_{n_i}\geq 3\varepsilon_r 2^{-i}, i \in \naturals \right \},
+\end{align*}
+by the definition of $\bar{\tau}$ in \eqref{taubarBerRel}, we have:
+\begin{align*}
+\Pr (\tau \leq \bar{\tau}) &\geq \Pr (\hp_{n_i} \geq  p-\varepsilon_r2^{-i}, i \in \naturals )\\&
+\geq \prod_{i=1}^\infty(1-\alpha_i) = 1-\alpha/2.
+\end{align*}
+Moreover, since the stopping time $\tau \geq 1$ and by the stopping criterion defined in \eqref{stoppingcriterionBerRel}, $\hp_L$ has a lower bound, $\varepsilon_r$:
+\begin{align*}
+\Pr\left(\hp_L  \geq  \varepsilon_r \right)& = \Pr\left(\hp_{n_\tau} \geq \varepsilon_r 2^{-\tau}+\varepsilon_r  \right) \geq \Pr\left(\hp_{n_{\tau}}\geq 3\varepsilon_r2^{-{\bar{\tau}}}\right) =1
+\end{align*}
+\begin{align*}
+\Pr(n_{\tot} \leq n_{\up})  \geq \Pr(\tau \leq \bar{\tau}, \hp_L \geq \varepsilon_r) =  \Pr(\tau \leq \bar{\tau}) =1-\alpha/2.
+\end{align*}
+%\begin{align}
+%&\Pr\left (\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil \leq N_{\text{up}}\right)\\ & \geq \Pr \left(\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil \leq \sum_{i=1}^{\bar{\tau}} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil , \left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil \leq \left \lceil -\frac{\log (\alpha/4)}{2  (\check{p}_L \varepsilon_{r})^2} \right \rceil\right)\\&
+%\geq \Pr \left ( \tau \leq \bar{\tau}, \check{p}_L \leq \hp_L \right ) \\&
+% = \Pr \left ( \check{p}_L \leq \hp_L | \tau \leq \bar{\tau}\right )\Pr \left( \tau \leq \bar{\tau}\right) \\&
+% = \Pr \left( \tau \leq \bar{\tau}\right) = 1-\beta
+%\end{align}
+%By the argument above, the total cost $N_{\text{tot}}(\varepsilon_r,\alpha,p,\beta)$ will be bounded above by $N_{\text{up}}(\varepsilon_r, p,\alpha)$.
 \end{proof}
 
 \Section{Numerical example of {\tt meanMCber\_g}}\label{sec:meanMCbergexample}
