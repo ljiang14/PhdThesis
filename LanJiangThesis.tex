@@ -1624,6 +1624,7 @@ Wald confidence interval \cite[Section 1.3.3]{Agresti02} is a commonly used one 
 
 Clopper and Pearson \cite{CP34} suggested a tail method to calculate the exact confidence interval for a given sample size $n$ and confidence level $1-\alpha$. Sterne \cite{sterne54}, Crow \cite{crow56}, Blyth and Still \cite{BS83} and Blaker \cite{Blaker00} proposed different ways to improve the exact confidence interval, however, all of them were only tested on small sample sizes, $n$.  Moreover, there is no clue how to determine $n$ with fixed half-width $\varepsilon_a$ is given. 
 
+Hoeffding's Inequality in Theorem \ref{hoeff} provides a way to confidently estimate the probability $p$ given the random variable is a Bernoulli one. We will use this inequality to construct the fixed width confidence interval for estimating Bernoulli random variables in the following sections.
 
 In this chapter, will will present the ways to reliably construct a fixed width confidence interval for $p$ with a guaranteed confidence level. That is, given an absolute error tolerance, $\varepsilon_a$, or a relative error tolerance, $\varepsilon_r$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, needed to compute the sample mean, $\hp_n$, that satisfies the fixed width confidence interval condition $\Pr(\abs{p-\hp_n}\leq \varepsilon_a) \geq 1-\alpha$ or $\Pr(\abs{p-\hp_n}/p\leq \varepsilon_r) \geq 1-\alpha$.  
 
@@ -1692,7 +1693,10 @@ Compute the sample average $\hat{p}_{n_i}$ using
 \begin{align}\label{relalgni}
 n_i = \left \lceil \frac{-4^i \log\left ( \alpha_i \right)}{2\varepsilon_r^2}\right \rceil
 \end{align}
- IID Bernoulli random samples, where $\alpha_i=1-(1-\alpha/2)^{2^{-i}}$.
+ IID Bernoulli random samples, where 
+ \begin{equation}\label{alphaiBerRel}
+ \alpha_i =1-(1-\alpha/2)^{2^{-i}}.
+ \end{equation}
 \item \label{step2}
 \begin{enumerate}
 \item If 
@@ -1749,15 +1753,16 @@ Combining \eqref{nbound} and \eqref{pnbound} yields:
  \begin{align}\label{lbpn}
   \Pr \left(\abs{\hp_n - p} \leq \hp_L \varepsilon_r \right ) \geq 1-\alpha/2.
  \end{align}
- Thus, 
+Suppose the Algorithm \ref{algrel} terminates at time $\tau$, in which step, the relative error criterion 
 \begin{align}
  \Pr \left ( \frac{\abs{\hp - p}}{p} \leq \varepsilon_r\right ) & \geq \Pr \left ( \abs{\hp_n - p} \leq \hp_L\varepsilon_r \ \ \& \ \   \hp_L \leq p \right ) \label{addpl}\\&
- \geq \Pr \left( \abs{\hp_n - p} \leq \hp_L \varepsilon_r \ \  \& \ \  \hp_{n_i} - 2^{-i}\varepsilon_r \leq p\  \forall i   \right) \label{makeforall}\\&
-  = \Pr\left ( \abs{\hp_n - p} \leq \hp_L \varepsilon_r \right)+ \prod_{i = 1}^\infty \Pr \left(\hp_{n_i} - 2^{-i}\varepsilon_r  \leq p \right)-1\label{usecombineq} \\&
-\geq (1-\alpha/2)+\prod_{i=1}^\infty(1-\alpha_i)-1 \label{useabove} \\&
+ \geq \Pr \left( \abs{\hp_n - p} \leq \hp_L \varepsilon_r \ \  \& \ \  \hp_{n_i} - 2^{-i}\varepsilon_r \leq p\  \forall i  \leq \tau \right) \label{makeforall}\\&
+  = \Pr\left ( \abs{\hp_n - p} \leq \hp_L \varepsilon_r \right)+ \prod_{i = 1}^\tau \Pr \left(\hp_{n_i} - 2^{-i}\varepsilon_r  \leq p \right)-1\label{usecombineq} \\&
+\geq (1-\alpha/2)+\prod_{i=1}^\tau(1-\alpha_i)-1 \label{useabove} \\&
+\geq (1-\alpha/2)+\prod_{i=1}^\infty (1-\alpha_i)-1  \\&
  = 1-\alpha \label{constructalphai}.
 \end{align}
-The inequality \eqref{addpl} is true by adding a middle term, \eqref{makeforall} is true by enlarge the set, \eqref{usecombineq} is true by using the inequality $\Pr(A+B)\geq\Pr(A)+\Pr(B)-1$ and the property of independence, \eqref{useabove} is true by using the inequality \eqref{lbpni} and \eqref{lbpn}, \eqref{constructalphai} is true by the way to construct $\alpha_i$ in Algorithm \ref{algrel}.
+The inequality \eqref{addpl} is true by adding an extra condition of a middle term  $\hp_L$, which makes the probability smaller. \eqref{makeforall} is true by enlarge the set, letting all the previous steps satisfying the lower bound condition. \eqref{usecombineq} is true by using the inequality $\Pr(A+B)\geq\Pr(A)+\Pr(B)-1$ and the property of independence. \eqref{useabove} is true by applying the inequality \eqref{lbpni} and \eqref{lbpn}. The final results is obtained by the way we construct $\alpha_i$ in\eqref{alphaiBerRel}.
 \end{proof}
 
 Next, we want to prove the computational cost of Algorithm \ref{algrel} has an upper bound. As shown in  Algorithm \ref{algrel}, the total cost is combined by two parts:
@@ -1767,22 +1772,22 @@ Next, we want to prove the computational cost of Algorithm \ref{algrel} has an u
 \end{itemize}
 Thus, the total cost can be written as: 
 \begin{align}\label{totcostn}
-n_{\tot}=\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil.
+n_{\tot}=\sum_{i=1}^{\tau} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\hp_L \varepsilon_{r})^2} \right \rceil,
 \end{align}
-There are two random parts in $n_{\tot}$, the stopping time $\tau$ and the lower bound of $p$, $\hp_L$. In order to find its upper bound, we need the upper bound of $\tau$ and lower bound of $\hp_L$. Next, define the upper bound on the stopping time as
+where $\hp_L$ is defined in \eqref{def:hpl}. There are two random parts in $n_{\tot}$, the stopping time $\tau$ and $\hp_L$. In order to find the upper bound on cost, we need the upper bound on $\tau$ and lower bound on $\hp_L$. Next, define the upper bound on the stopping time as
 \begin{equation}\label{taubarBerRel}
 \bar{\tau}: = \min \{i:  p-\varepsilon_r2^{-i} \geq 3\varepsilon_r 2^{-i}, i \in \naturals \} =\max(1,\left \lceil \log_2 (4\varepsilon_r/p)\right \rceil),
 \end{equation}
 and the upper bound on cost as:
 \begin{align}
-n_{\up} = \sum_{i=1}^{\bar{\tau}} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  (\varepsilon_r \varepsilon_{r})^2} \right \rceil.
+n_{\up} = \sum_{i=1}^{\bar{\tau}} \left \lceil -\frac{4^i \log(\alpha_i)} {2\varepsilon_r^2 } \right\rceil+\left \lceil -\frac{\log (\alpha/4)}{2  \varepsilon_r^4} \right \rceil.
 \end{align}
 Thus, we have the following theorem.
 
 \begin{theorem} \label{costupperboundrel}
 The cost of Algorithm \ref{algrel}, $n_{\tot}$,  has a probabilistic bound, $n_{\up}$, that satisfying the following inequality
 \begin{equation}
-\Pr(n_{\tot}<n_{\up}) \geq 1-\beta.
+\Pr\left(n_{\tot}<n_{\up}\right) \geq 1-\alpha/2.
 \end{equation}
 \end{theorem}
 \begin{proof}
@@ -1790,15 +1795,16 @@ As the stopping criterion is:
 \begin{align*}
 \tau &= \min\left\{i: \hp_{n_i}\geq 3\varepsilon_r 2^{-i}, i \in \naturals \right \},
 \end{align*}
-by the definition of $\bar{\tau}$ in \eqref{taubarBerRel}, we have:
-\begin{align*}
-\Pr (\tau \leq \bar{\tau}) &\geq \Pr (\hp_{n_i} \geq  p-\varepsilon_r2^{-i}, i \in \naturals )\\&
+by the definition of $\bar{\tau}$ in \eqref{taubarBerRel}, and applying one side Hoeffding's Inequality, we have
+\begin{align} \label{tauboundBerRel}
+\Pr (\tau \leq \bar{\tau}) \geq \Pr (\hp_{n_i} \geq  p-\varepsilon_r2^{-i}, i \leq \tau )
 \geq \prod_{i=1}^\infty(1-\alpha_i) = 1-\alpha/2.
-\end{align*}
+\end{align}
 Moreover, since the stopping time $\tau \geq 1$ and by the stopping criterion defined in \eqref{stoppingcriterionBerRel}, $\hp_L$ has a lower bound, $\varepsilon_r$:
-\begin{align*}
+\begin{align}\label{hpUpperbound}
 \Pr\left(\hp_L  \geq  \varepsilon_r \right)& = \Pr\left(\hp_{n_\tau} \geq \varepsilon_r 2^{-\tau}+\varepsilon_r  \right) \geq \Pr\left(\hp_{n_{\tau}}\geq 3\varepsilon_r2^{-{\bar{\tau}}}\right) =1
-\end{align*}
+\end{align}
+Combining \eqref{taubarBerRel} and \eqref{hpUpperbound}, the bound is obtained,
 \begin{align*}
 \Pr(n_{\tot} \leq n_{\up})  \geq \Pr(\tau \leq \bar{\tau}, \hp_L \geq \varepsilon_r) =  \Pr(\tau \leq \bar{\tau}) =1-\alpha/2.
 \end{align*}
@@ -1811,14 +1817,14 @@ Moreover, since the stopping time $\tau \geq 1$ and by the stopping criterion de
 %By the argument above, the total cost $N_{\text{tot}}(\varepsilon_r,\alpha,p,\beta)$ will be bounded above by $N_{\text{up}}(\varepsilon_r, p,\alpha)$.
 \end{proof}
 
-\Section{Numerical example of {\tt meanMCber\_g}}\label{sec:meanMCbergexample}
+\Section{Numerical example for {\tt meanMCber\_g}}\label{sec:meanMCbergexample}
 
-Algorithm \ref{algabs} and \ref{algrel} has been implemented in MATLAB, under the name {\tt meanMCber\_g}. It is part of Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1}.
+Algorithm \ref{algabs} has been implemented in MATLAB, under the name {\tt meanMCber\_g} which is one the guatanteed algorithms in Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1}.
 
-\Subsection{Demonstration for $Y\sim \Ber(p)$ for Various $p$ and $\varepsilon$}
+\Subsection{Numerical example for {\tt meanMCBer\_g} with absolute error tolerance}
 To demonstrate its performance the algorithm {\tt meanMCber\_g} was run for $500$ replications, each with a different $p$ and $\varepsilon_a$, and with a fixed confidence level $1-\alpha=95\%$. The logarithms of $p$ and $\varepsilon_a$ were chosen independently and uniformly, namely 
 \[
-\log_{10} p \sim \mathcal{U}[-3,-1], \qquad \log_{10} \varepsilon_a \sim \mathcal{U}[-5,-2].
+\log_{10} p \sim U[-3,-1], \qquad \log_{10} \varepsilon_a \sim U[-5,-2].
 \]
 For each replication, the inputs $\varepsilon_a$ and $\alpha=5\%$ were provided to {\tt meanMCber\_g}, along with a $\Ber(p)$ random number generator, and the answer $\hp_n$ was returned.  
 
@@ -1826,45 +1832,43 @@ Figure \ref{fig:abserrex} shows the ratio of the true error to the absolute erro
 
   \begin{figure}[htbp]
     \centering
-    \includegraphics[width=9cm]{abs.eps} % requires the graphicx package
-    \caption{Ratio of the actual absolute error to the error tolerance from {\tt meanMCber\_g} versus $p$, for different random samples of $\Ber(p)$ random variables.}
+    \includegraphics[width=9cm]{PlotBer/abs.eps} % requires the graphicx package
+    \caption{Ratio of the actual absolute error to the absolute error tolerance from {\tt meanMCber\_g} versus $p$, for different random samples of $\Ber(p)$ random variables.}
     \label{fig:abserrex}
  \end{figure}
 
- 
 While it is encouraging to see that {\tt meanMCber\_g} provides the correct answer in all cases, it is concerning that {\tt meanMCber\_g} is rather conservative for small $p$.  This is due to the fact that the error of $\hp_n$ using $n$ samples is expected to be proportional to $\sqrt{\var(Y)/n}=\sqrt{p(1-p)/n}$.  Even though the error is small for small $p$, our algorithm does not take advantage of that fact.  To do so will require at least a loose lower bound on $p$ at the same time that the algorithm is trying to determine the sample size needed to estimate $p$ carefully.
 
-\Subsection{Test on the relative error criterion}
-Another numerical experiment was done with the following parameters:
-\begin{itemize}
-\item $p$ are given and $\log_{10} p \sim U [-3,-1]$
-\item $\varepsilon_r$ are given and random chosen with the distribution $\log_{10} \varepsilon_r \sim U[-2,-1]$
-\end{itemize}
+\Subsection{Numerical example for {\tt meanMCBer\_g} with absolute error tolerance}
+Using the sample parameters as in the previous example, we test the {\tt meanMCBer\_g} with the relative error tolerance, $\varepsilon_r$, which is random chosen with the distribution $\log_{10} \varepsilon_r \sim U[-2,-1]$. The plot is given in Figure \ref{fig:relerrex}.
   \begin{figure}[htbp]
     \centering
-    \includegraphics[width=9cm]{rel.eps} % requires the graphicx package
-    \caption{The true relative error/relative error tolerance for different p}
+    \includegraphics[width=9cm]{PlotBer/rel.eps} % requires the graphicx package
+    \caption{Ratio of the actual relative error to the relative error tolerance from {\tt meanMCber\_g} versus $p$, for different random samples of $\Ber(p)$ random variables.}
     \label{fig:relerrex}
  \end{figure}
-  Similarly, 500 replications were done with random chosen relative error tolerance $\varepsilon_r$ and Bernoulli random variables with random chosen true mean, $p$. In the figure it show that, when $p$ is small, it is more likely to have the sample budget exceeded, as it will be more difficult to estimate the mean with a smaller $p$ than with a larger $p$ with a given relative error tolerance. In more details, we want the condition \eqref{probrel} to be satisfied, there is a denominator which is between $0$ and $1$,  when it gets smaller, we will need a larger sample size to meet this condition.
+Similar to the Figure \ref{fig:abserrex}, $100\%$ of the points satisfy the relative error criterion although the confidence level is only $95\%$. Our algorithm is conservative and tends to use more samples. When $p$ gets smaller, more points exceed the sample budget. The reason is that our algorithm determines the sample size based on the lower bound estimation of $p$, when $p$ is small, this information makes algorithm require more samples, hence, it is more likely to get over budget.
+
+%it is more likely to have the sample budget exceeded, as it will be more difficult to estimate the mean with a smaller $p$ than with a larger $p$ with a given relative error tolerance. In more details, we want the condition \eqref{probrel} to be satisfied, there is a denominator which is between $0$ and $1$,  when it gets smaller, we will need a larger sample size to meet this condition.
 
 \Subsection{CLT \& Hoeffding's Inequality Confidence Interval Cost Comparison}
 By using Hoeffding's Inequality to construct guaranteed fixed-width confidence interval, we definitely incur additional cost compared to an approximate CLT confidence interval.  The ratio of this cost is 
 \begin{equation}
-\frac{n_{\Hoeff}}{n_{\CLT}} = \frac{\left \lceil \log(2/\alpha)/{2\varepsilon^2} \right \rceil}{\left \lceil{ \Phi^{-1}(1-\alpha/2)}/{4 \varepsilon^2}\right\rceil} \approx  \frac{2\log(2/\alpha)}{\Phi^{-1}(1-\alpha/2)}.
+\frac{N_{\Hoeff}}{N_{\CLT}} = \frac{\left \lceil \log(2/\alpha)/{2\varepsilon_a^2} \right \rceil}{\left \lceil{ \Phi^{-1}(1-\alpha/2)}/{4 \varepsilon_a^2}\right\rceil} \approx  \frac{2\log(2/\alpha)}{\Phi^{-1}(1-\alpha/2)}.
 \end{equation}
 This ratio essentially depends on the uncertainty level $\alpha$ and is plotted in Figure \ref{fig:ratiovsalpha}. For $\alpha$ between $0.01\%$ to $10\%$ this ratio is between 3.64 to 5.09, which we believe is a reasonable price to pay for the added certainty of {\tt meanMCber\_g}.
 
   \begin{figure}[htbp]
     \centering
-    \includegraphics[width=8cm]{plotHoeffCLTr.eps} % requires the graphicx package
+    \includegraphics[width=8cm]{PlotBer/plotHoeffCLTr.eps} % requires the graphicx package
     \caption{The computational cost ratio of using Hoeffding's Inequality and the CLT to construct a fixed-width confidence interval.}
     \label{fig:ratiovsalpha}
  \end{figure}
  
+ 
  \Chapter{Guaranteed Automatic Integration Library}\label{chapter:gail}
  
-Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1} is a MATLAB toolbox created and developed by a group of researchers including Sou-Cheng T. Choi, Yuhan Ding, Fred J. Hickernell, Lan Jiang, Ll\'{u}ıs Antoni Ji\'{m}enez Rugama, Xin Tong, Yizhi Zhang and Xuan Zhou. It is a suite of algorithms including automatic and adaptive univariate function approximation ({\tt funappx\_g}), function minimization using linear splines ({\tt funmin\_g}), one-dimensional numerical integration using trapezoidal rule ({\tt integral\_g}) and mean estimation and numerical integration using Monte Carlo methods ({\tt meanMC\_g},{\tt cubMC\_g} and {\tt meanMCBer\_g}). This purpose is to create a reliable and robust open source MATLAB package, following the philosophy of reproducible research (RR) championed by Claerbout \cite{Claerbout10} and Donoho\cite{BuckheitDonoho95} and developing supportable scientific software (SSS) that promote reliable reproducible research (RRR). In the next section, we will describe the structure of GAIL and the way we develop it.
+Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1} is a MATLAB toolbox created and developed by a group of researchers including Sou-Cheng T. Choi, Yuhan Ding, Fred J. Hickernell, Lan Jiang, Ll\'{u}ıs Antoni Ji\'{m}enez Rugama, Xin Tong, Yizhi Zhang and Xuan Zhou. It is a suite of algorithms including automatic and adaptive univariate function approximation ({\tt funappx\_g}), function minimization using linear splines ({\tt funmin\_g}), one-dimensional numerical integration using trapezoidal rule ({\tt integral\_g}) and mean estimation and numerical integration using Monte Carlo methods ({\tt meanMC\_g},{\tt cubMC\_g} and {\tt meanMCBer\_g}). This purpose is to create a reliable and robust open source MATLAB package, following the philosophy of reproducible research championed by Claerbout \cite{Claerbout10} and Donoho\cite{BuckheitDonoho95} and developing supportable scientific software that promote reliable reproducible research. In the next section, we will describe the structure of GAIL and the procedures by which we have been developing it.
 
 \begin{sidewaysfigure}[hb]
 \centering
@@ -1875,15 +1879,15 @@ Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1} is a MATLAB tool
 
 \Section{Introduction to GAIL}
 
-Figure \ref{GAILTree} shows the structure and hierarchy of the toolbox GAIL. It contains several levels of directories.
+Figure \ref{GAILTree} shows the structure and hierarchy of GAIL. It contains several levels of directories.
 \begin{itemize}
-\item Documentations: includes the scripts that generate the html supporting and explaining the algorithms.
-\item Papers: includes the published papers related to GAIL.
-\item Algorithms: the core part of GAIL, which included the ten algorithms shown in Figure \ref{GAILTree}.
-\item Tests: includes doctest and unittest for all the algorithms.
-\item Workouts: several examples are tested here.
-\item Output Files: the output files generated from workouts and papers.
-\item Third Party: the useful third party tools are added including doctest package and chebfun package.
+\item Documentations: It includes the scripts that generate the HTMLs that support and explain the algorithms.
+\item Papers: It includes the published papers related to GAIL.
+\item Algorithms: It is the core part of GAIL, which contains all the algorithms shown in Figure \ref{GAILTree}.
+\item Tests: It includes doctest and unittest for all the algorithms.
+\item Workouts: The practical examples and test functions used to test GAIL.
+\item Output Files: The output files generated from workouts and papers.
+\item Third Party: The useful third party tools including doctest package and chebfun package.
 \end{itemize}
 
  \Subsection{Downloads}
@@ -1895,32 +1899,31 @@ Alternatively, you can get a local copy of the GAIL repository with this command
 \begin{lstlisting}
 git clone https://github.com/GailGithub/GAIL_Dev.git
 \end{lstlisting}
-
 You will need to install MATLAB 7 or a later version.
 
 
 \Subsection{Documentation}
-Detailed documentation is available at GAIL Matlab/Documentation directory.
+Detailed documentations are available at GAIL\_ Matlab/Documentation directory.
 
 \Subsection{Algorithms}
 GAIL Version 2.1 \cite{GAIL_2_1} includes the following eight algorithms:
 \begin{itemize}
 \item {\tt funappx\_g}: 1-D function approximation on a bounded interval with local adaption.
-\item {\tt funmin\_g}: global univariate function minimization on a bounded interval.
+\item {\tt funmin\_g}: Global univariate function minimization on a bounded interval.
 \item {\tt integral\_g}: 1-D numerical integration on a bounded interval based on Trapezoidal rule.
 \item {\tt cubLattice\_g}: Numerical integration via quasi-Monte Carlo method using rank-1 Lattices.
 \item {\tt cubSobol\_ g}: Numerical integration via quasi-Monte Carlo method using Sobol’ points.
-\item {\tt meanMCabs\_g}: Monte Carlo method for estimating mean of a random variable with an absolute error tolerance.
-\item {\tt meanMC\_g}: Monte Carlo method for estimating mean of a random variable with a generalized error tolerance.
-\item {\tt cubMCabs\_g}: Monte Carlo method for numerical integration with an absolute error tolerance.
-\item {\tt cubMC\_g}: Monte Carlo method for numerical integration with a generalized error tolerance.
-\item  {\tt meanMCBer\_g}: Monte Carlo method to estimate the mean of a Bernoulli random variable.
+%\item {\tt meanMCabs\_g}: Monte Carlo method for estimating mean of a random variable with an absolute error tolerance.
+\item {\tt meanMC\_g}: Monte Carlo method for estimating the mean of a random variable with a generalized error tolerance.
+%\item {\tt cubMCabs\_g}: Monte Carlo method for numerical integration with an absolute error tolerance.
+\item {\tt cubMC\_g}: Monte Carlo method for the numerical integration with a generalized error tolerance.
+\item  {\tt meanMCBer\_g}: Monte Carlo method for estimating the mean of a Bernoulli random variable.
 \end{itemize}
 
 \Subsection{Installation Instruction}
 \begin{enumerate}
-\item Unzip the contents of the zip file to a directory and maintain the existing directory and subdirectory structure. (Please note: If you install into the toolbox sub-directory of the MATLAB program hierarchy, you will need to click the button "Update toolbox path cache" from the File/Preferences... dialog in MATLAB.)
-\item In MATLAB, add the GAIL directory to your path. This can be done by running GAIL Install.m. Alternatively, this can be done by selecting “File/Set Path...” from the main or Command window menus, or with the command pathtool. We recommend that you select the “Save” button on this dialog so that GAIL is on the path automatically in future MATLAB sessions.
+\item Unzip the contents of the zip file to a directory and maintain the existing directory and sub-directory structure. (Please note: If you install into the toolbox sub-directory of the MATLAB program hierarchy, you will need to click the button "Update toolbox path cache" from the File/Preferences... dialog in MATLAB.)
+\item In MATLAB, add the GAIL directory to your path. This can be done by running {\tt GAIL{\_}Install.m}. Alternatively, this can be done by selecting "File/Set Path..." from the main or Command window menus, or with the command path tool. We recommend that you select the "Save" button on this dialog so that GAIL is on the path automatically in future MATLAB sessions.
 \item To check if you have installed GAIL successfully, type {\tt help meanMC\_g} to see if its documentation shows up.
 \end{enumerate}
 
@@ -1940,26 +1943,56 @@ Two tests are provided here, doctest and unittest, for each of the algorithms.
 \end{itemize}
 
 
-\Chapter{Conclusion}\label{chapter:comclusion}
+\Chapter{Discussion and Future work}\label{chapter:comclusion}
 
-In this thesis, we studied several algorithms that estimate the mean of a random variable, perform numerical integration via Monte-Carlo sampling and estimate the probability. All these algorithms carry guarantee that the estimators satisfy fixed width confidence interval conditions.
+Practitioners often construct CLT-based confidence intervals with the true variance estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success.  The algorithms presented in this thesis is similar to the approach just described, but it carries guarantees. 
 
-With the given knowledge of bounded kurtosis condition in \eqref{def:boundedkurtosis}, We first introduced two algorithms, {\tt meanMCabs\_g} in Algorithm \ref{alg:meanMCabsg} and {\tt cubMCabs\_g} in Algorithm \ref{alg:cubMCabsg}, which estimate the mean of a random variable and estimate the integral to some prescribed absolute error tolerance $\varepsilon_a$. A probabilistic upper bound on the cost are calculated in Section \ref{sec:meanMCabsgcost}. Several numerical examples are performed including integrating a single hump \eqref{GaussianTestFun} and the Keister test function \eqref{KeisterTestFun}, estimating the Asian geometric mean call option in Subsection \ref{subsec:asiancallopt}. Time and accuracy are recorded and plotted to compare these two algorithms with other algorithms including {\tt integral} in MATLAB, {\tt Chebfun} \cite{Chebfun14}, {\tt cubSobol\_g} and {\tt cubLattice\_g} in GAIL \cite{GAIL_2_1}, which are shown Figure \ref{fig:GaussianTestFun}, \ref{fig:GaussianTestFunHD}, \ref{fig:keistertestfunabstol} and \ref{fig:GeoMeanAsianOptionabstol}.
+%In certain cases our procedure multiplies the computational cost by a large factor such as $2$ or $10$ or even $100$ compared to what one might spend based on the CLT with a known value of $\sigma$ (see Figure \ref{Costfig}).  While this seems inefficient, one should remember that the total elapsed time may still be well below several seconds.  Furthermore, one typically does not know $\sigma$ in advance, and our adaptive algorithm estimates $\sigma$ and then an appropriate sample size $n_\mu$ from the data.  Our algorithmic cost will be low when the unknown $\sigma$ is small and large when $\sigma$ is large.
 
-If one want our answer correct to some specified relative error tolerance $\varepsilon_r$, or some hybrid error criterion defined in Definition \ref{def:tolfun}, another two algorithms are provided. They are iteratively estimating the mean or the integral until a stopping criterion is reached. In details, {\tt meanMC\_g} in Algorithm \ref{alg:meanMCg} is used to estimate the mean of a random variable $Y$ to some generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r)$ with a high confidence level; {\tt cubMC\_g} in Algorithm \ref{alg:cubMCg} uses the same idea to do numerical integration and it carries the guarantee that the estimator $\tilde{I}$ satisfies the fixed width confidence interval condition \eqref{cubMCgCI}. Computational cost upper bound is derived in Section \ref{sec:meanmcgcost}. Several numerical examples are given in Section \ref{sec:cubmcgnumericalexample} with a single hump integrand \eqref{GaussiankerTestFun}, the Keister test function \eqref{KeisterTestFun} and Multivariate Normal Probability function \eqref{MVNP}. Time and accuracy results are recorded and plotted with the comparison with several different algorithms.
+Like any algorithm with guarantees, our algorithm does need to make assumptions about the random variable $Y$.  We assume a known bound on the kurtosis of $Y$, either specified directly or implied by the user's choice of the sample size for estimating the variance, $n_\sigma$, and the variance inflation factor, $\fudge^2$.  This is a philosophical choice.  We prefer not to construct an algorithm that assumes a bound on the variance of 
+$Y$, because such an algorithm would not be guaranteed for $cY$ with $\abs{c}$ large enough.  If our algorithm works for $Y$, it will also work for $cY$, no matter how large $\abs{c}$ is. 
 
-Sometime, one may be interested in estimating the probability. Given a Bernoulli random variable, which only have value 1 and 0, with the distribution $\Pr(Y =1) = p$, one may want to estimate this value $p$ to some specified absolute error tolerance $\varepsilon_a$ or relative error tolerance $\varepsilon_r$. In Chapter \ref{chapter:meanMCberg}, we suggest a way to estimate $p$ to a prescribed absolute error tolerance in Algorithm \ref{algabs} and to a relative error tolerance $\varepsilon_r$ in Algorithm \ref{algrel}. Computational cost and numerical examples followed.
+In practice the user may not know a priori if $\kappa \le \kmax$ since it is even more difficult to estimate $\kappa$ from a sample than it is to estimate $\sigma^2$.  Thus, the choice of $\kmax$ relies on the user's best judgment.  Here are a few thoughts that might help.  One might try a sample of typical problems for which one knows the answers and use these problems to suggest an appropriate $\kmax$.  Alternatively, one may think of $\kmax$ not as a parameter to be prescribed, but as a reflection of the robustness of one's Monte Carlo algorithm having chosen $\alpha_\sigma$, $n_\sigma$ and $\fudge$. Briefly, one should not skimp on $n_\sigma$, but choose $n_\sigma$ to be several thousand times $\kmax$ and employ a $\fudge$ that is relatively close to unity. 
+
+% Another way to look at the Theorem \ref{mainadaptthm} is that, like a pathologist, it tells you what went wrong if the algorithms fails: the kurtosis of the random variable must have been too large.
+%In any case, as one can see in Figure \ref{Costfig}, in the limit of vanishing $\varepsilon/\sigma$, i.e., $N_{\text{CLT}} \to \infty$, the choice of $\tkappa_{\max}$ makes a negligible contribution to the total cost of the algorithm.  The main determinant of computational cost is $\varepsilon/\sigma$.
+%
+%\cite{BahSav56} prove in Corollary 2 that it is \emph{impossible} to construct exact confidence intervals for the mean of random variable whose distribution lies in a set satisfying a few assumptions. One of these assumptions is that the set of distributions is convex.  This assumption is violated by our assumption of bounded kurtosis in Theorem \ref{mainadaptthm}. Thus, we are able to construct guaranteed confidence intervals.
+%
+%Our algorithm is adaptive because $n_\mu$ is determined from the sample variance.  Information-based complexity theory tells us that adaptive information does not help for the integration problem for symmetric, convex sets of integrands, $f$, in the worst case and probabilistic settings \cite[Chapter 4, Theorem 5.2.1; Chapter 8, Corollary 5.3.1]{TraWasWoz88}.  Here, in Corollary \ref{integcor} the cone, $\cc_{\kmax}$, although symmetric, is not a convex set, so it is possible for adaption to help.
+
+There are a couple of areas that suggest themselves for further investigation. For the algorithms {\tt meanMC\_g}, the cost upper bound has been derived, however, it is loose. An tighter upper bound may be derived. Also, the lower bound derivation is another possible research area. 
+
+While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error tolerance. One would expect the number of samples required then to be proportional to $\var(Y)/(p \varepsilon_r)^2 \sim 1/(p \varepsilon_r^2)$ as $p\varepsilon_r \to 0$.  Our attempts so far at using Hoeffding's inequality results in an algorithm with computational cost proportional to $1/(p \varepsilon_r)^2$ as $p\varepsilon_r \to 0$.  Although, the algorithm for estimating the parameter $p$ to some specified relative error tolerance is successful, the computational cost is extravagant for small $p$. The literature mentioned in the the beginning of Chapter \ref{chapter:meanMCberg} may provide a clue to an algorithm with optimal cost.  If this problem can be solved, then a natural extension would be to construct confidence intervals that satisfy either an absolute or relative error criterion, i.e., confidence intervals of the form $\Pr(\abs{p-\hp}/p\leq \max(\varepsilon_a, \varepsilon_r p)) \geq 1-\alpha$.
+%
+%One is relative error, i.e., a fixed width confidence interval of the form 
+%\[
+%\Pr[\abs{\mu-\hmu} \le \varepsilon \abs{\mu}] \ge 1-\alpha.
+%\]
+%Here the challenge is that the right hand side of the first inequality includes the unknown mean.
+%
+%Another area for further work is to provide guarantees for automatic quasi-Monte Carlo algorithms. Here the challenge is finding reliable formulas for error estimation.  Typical error bounds involve a semi-norm of the integrand that is harder to compute than the original integral.  For randomized quasi-Monte Carlo an estimate of the variance of the sample mean using $n$ samples does not tell you much about the variance of the sample mean using a different number of samples.
+%
+%
+%In this thesis, we studied several algorithms that estimate the mean of a random variable, perform numerical integration via Monte Carlo sampling and estimate the probability. All these algorithms carry guarantees that the estimators satisfy fixed width confidence interval conditions.
+%
+%With the given knowledge of bounded kurtosis condition in \eqref{def:boundedkurtosis}, we first introduced two algorithms, {\tt meanMCabs\_g} in Algorithm \ref{alg:meanMCabsg} and {\tt cubMCabs\_g} in Algorithm \ref{alg:cubMCabsg}, which estimate the mean of a random variable and perform numerical integration to some prescribed absolute error tolerance $\varepsilon_a$. A probabilistic upper bound on the cost is calculated in Section \ref{sec:meanMCabsgcost}. A couple numerical examples are performed including integrating a product function \eqref{productfun} and a single hump \eqref{GaussianTestFun}. Time and accuracy are recorded and plotted to compare these two algorithms with other algorithms including {\tt integral} in MATLAB, {\tt Chebfun} \cite{Chebfun14}, {\tt cubSobol\_g} and {\tt cubLattice\_g} in GAIL \cite{GAIL_2_1}, which are shown Figure \ref{fig:GaussianTestFun}, \ref{fig:GaussianTestFunHD}, \ref{fig:keistertestfunabstol} and \ref{fig:GeoMeanAsianOptionabstol}.
+%
+%If one want our answer correct to some specified relative error tolerance $\varepsilon_r$, or some hybrid error criterion defined in Definition \ref{def:tolfun}, another two algorithms are provided. They are iteratively estimating the mean or the integral until a stopping criterion is reached. In details, {\tt meanMC\_g} in Algorithm \ref{alg:meanMCg} is used to estimate the mean of a random variable $Y$ to some generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r)$ with a high confidence level; {\tt cubMC\_g} in Algorithm \ref{alg:cubMCg} uses the same idea to do numerical integration and it carries the guarantee that the estimator $\tilde{I}$ satisfies the fixed width confidence interval condition \eqref{cubMCgCI}. Computational cost upper bound is derived in Section \ref{sec:meanmcgcost}. Several numerical examples are given in Section \ref{sec:cubmcgnumericalexample} with a single hump integrand \eqref{GaussiankerTestFun}, the Keister test function \eqref{KeisterTestFun} and Multivariate Normal Probability function \eqref{MVNP}. Time and accuracy results are recorded and plotted with the comparison with several different algorithms.
+%
+%Sometime, one may be interested in estimating the probability. Given a Bernoulli random variable, which only have value 1 and 0, with the distribution $\Pr(Y =1) = p$, one may want to estimate this value $p$ to some specified absolute error tolerance $\varepsilon_a$ or relative error tolerance $\varepsilon_r$. In Chapter \ref{chapter:meanMCberg}, we suggest a way to estimate $p$ to a prescribed absolute error tolerance in Algorithm \ref{algabs} and to a relative error tolerance $\varepsilon_r$ in Algorithm \ref{algrel}. Computational cost and numerical examples followed.
 
 
-\Chapter{Future work}\label{chapter: future work}
+%\Chapter{Future work}\label{chapter: future work}
+%
+%We believe that the guaranteed adaptive algorithms are of great interests to recent practitioners and researchers, as we have suggested a few ways to solve the problems like numerical integration using 1-D trapezoid rule {\tt integral\_g} , unitvariate function approximation {\tt funappx\_g} and {\tt funappxglobal\_g}, Monte Carlo methods for evaluating the mean of a random variable {\tt meanMCabs\_g} and {\tt meanMC\_g}, numerical integration via Monte Carlo {\tt cubMCabs\_g} and {\tt cubMC\_g}, probability estimation using Bernoulli random variables {\tt meanMCber\_g}. These works have been published in \cite{CDHHZ13} and \cite{HJLO12}. Also, we believe these the algorithms followed by theoretical research should be carefully implemented, documented and published. Thus, we have developed our MATLAB toolbox: Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1}. The work in this article has became part of this toolbox. Some possible future work that could be done will be explained in the following paragraphs.
+%
+%As {\tt cubMC\_g} does Monte Carlo method for numerical integration, some variance reduction techniques could be applied to make the simulation more efficient. Such techniques includes control variate, importance sampling and quasi-Monte Carlo(qMC) methods. As one of our colleagues has been working on guaranteed adaptive quasi-Monte Carlo method using Sobol' points \cite{Sobol67} and Lattice points, two algorithms {\tt cubSobol\_g} and {\tt cubLattice\_g} are part of GAIL. The other two variance reduction techniques may be the possible future work.
+%
+%For the algorithms {\tt meanMCabs\_g} and {\tt meanMC\_g}, the cost upper bound has been derived, the lower bound derivation is another possible research area. 
+%
+%While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error tolerance. One would expect the number of samples required then to be proportional to $\var(Y)/(p \varepsilon_r)^2 \sim 1/(p \varepsilon_r^2)$ as $p\varepsilon_r \to 0$.  Our attempts so far at using Hoeffding's inequality results in an algorithm with computational cost proportional to $1/(p \varepsilon_r)^2$ as $p\varepsilon_r \to 0$.  Although, the algorithm for estimating the parameter $p$ to some specified relative error tolerance is successful, the computational cost is extravagant for small $p$. The literature mentioned in the the beginning of Chapter \ref{chapter:meanMCberg} may provide a clue to an algorithm with optimal cost.  If this problem can be solved, then a natural extension would be to construct confidence intervals that satisfy either an absolute or relative error criterion, i.e., confidence intervals of the form $\Pr(\abs{p-\hp}/p\leq \max(\varepsilon_a, \varepsilon_r p)) \geq 1-\alpha$.
 
-We believe that the guaranteed adaptive algorithms are of great interests to the recent practitioners and researchers, as we have suggested a few ways to solve the problems like numerical integration using 1-D trapezoid rule {\tt integral\_g} , unitvariate function approximation {\tt funappx\_g} and {\tt funappxglobal\_g}, Monte Carlo methods for evaluating the mean of a random variable {\tt meanMCabs\_g} and {\tt meanMC\_g}, numerical integration via Monte Carlo {\tt cubMCabs\_g} and {\tt cubMC\_g}, probability estimation using Bernoulli random variables {\tt meanMCber\_g}. These works have been published in \cite{CDHHZ13} and \cite{HJLO12}. Also, we believe these the algorithms followed by theoretical research should be carefully implemented, documented and published. Thus, we have developed our MATLAB toolbox: Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1}. The work in this article has became part of this toolbox. Some possible future work that could be done will be explained in the following paragraphs.
-
-As {\tt cubMC\_g} does Monte Carlo method for numerical integration, some variance reduction techniques could be applied to make the simulation more efficient. Such techniques includes control variate, importance sampling and quasi-Monte Carlo(qMC) methods. As one of our colleagues has been working on guaranteed adaptive quasi-Monte Carlo method using Sobol' points \cite{Sobol67} and Lattice points, two algorithms {\tt cubSobol\_g} and {\tt cubLattice\_g} are the ones in GAIL. The other two variance reduction techniques may be the possible future work.
-
-For the algorithms {\tt meanMCabs\_g} and {\tt meanMC\_g}, the cost upper bound has been derived, the lower bound derivation is another possible research area. More practical real work examples could be implemented to test our guaranteed Monte Carlo methods in GAIL.
-
-The Algorithm \ref{algabs} and \ref{algrel} will do the calculation in order to meet either absolute error tolerance or relative error tolerance, another area for further research is to set the tolerance as: $\text{tol} = \max(\varepsilon_a, \varepsilon_r p)$, which may be called as a generalized error tolerance or a hybrid error tolerance. In this way, user will provide both of the tolerance and the algorithm will determine which one will be met first. As the upper bound of the algorithm \ref{algrel} is given in theorem \ref{costupperboundrel}, the lower bound of the cost is also an area for further research. 
 
 %\appendix
 %
