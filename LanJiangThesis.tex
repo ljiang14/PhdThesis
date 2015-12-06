@@ -203,19 +203,36 @@ J. Hickernell who not only served as my supervisor but also encouraged and chall
 %%% Abstract %%%
 \begin{abstract}% abstract environment, this is optional
 
-Monte Carlo is a versatile computational method that may be used to approximate the means, $\mu$, of random variables, $Y$, whose distributions are not known explicitly. This thesis investigates how to reliably construct fixed width confidence intervals for $\mu$ with some prescribed absolute error tolerance $\varepsilon_a$, relative error tolerance $\varepsilon_r$ or some generalized error criterion. To facilitate this, it is assumed that the kurtosis, $\kappa$, of the random variable, $Y$, does not exceed a user specified bound $\kmax$. The key idea is to confidently estimate the variance of $Y$ by applying Cantelli's Inequality. A Berry-Esseen Inequality makes it possible to determine the sample size required to construct such a confidence interval. When relative error is involved, this requires an iterative process.  This idea for computing $\mu = \e(Y)$ can be used to develop a numerical integration by writing the integral as $\mu = \e (f(\vx)) = \int_{\reals^d}f(\vx)\rho(\vx)\dif\vx$, where $\vx$ is a $d$ dimensional random vector with probability density function $\rho$. A similar idea is used to develop an algorithm for computing $p = \e(Y)$ where $Y$ is a Bernoulli random variable. All of the algorithms have been implemented in the Guaranteed Automatic Integration Library (GAIL).
+Monte Carlo is a versatile computational method that may be used to approximate the means, $\mu$, of random variables, $Y$, whose distributions are not known explicitly. This thesis investigates how to reliably construct fixed width confidence intervals for $\mu$ with some prescribed absolute error tolerance, $\varepsilon_a$, relative error tolerance, $\varepsilon_r$ or some generalized error criterion. To facilitate this, it is assumed that the kurtosis, $\kappa$, of the random variable, $Y$, does not exceed a user specified bound $\kmax$. The key idea is to confidently estimate the variance of $Y$ by applying Cantelli's Inequality. A Berry-Esseen Inequality makes it possible to determine the sample size required to construct such a confidence interval. When relative error is involved, this requires an iterative process.  This idea for computing $\mu = \e(Y)$ can be used to develop a numerical integration by writing the integral as $\mu = \e (f(\vx)) = \int_{\reals^d}f(\vx)\rho(\vx)\dif\vx$, where $\vx$ is a $d$ dimensional random vector with probability density function $\rho$. A similar idea is used to develop an algorithm for computing $p = \e(Y)$ where $Y$ is a Bernoulli random variable. All of the algorithms have been implemented in the Guaranteed Automatic Integration Library (GAIL).
 
 \end{abstract}
 \textpages     % Settings of text-pages are done with \textpages command
 % Chapters are created with \Chapter{title} command
 \Chapter{INTRODUCTION}\label{introduction}
 
-Monte Carlo is a widely used simulation method that can be applied to evaluate means of random variables, perform numerical integration, estimate default probabilities, understand and control complex stochastic systems, price financial derivatives and solve other real world problems.
+\Section{Monte Carlo simulation}
+
+Monte Carlo is a widely used simulation method that can be applied to evaluate means of random variables, perform numerical integration, estimate probabilities, understand and control complex stochastic systems, price financial derivatives and solve other real world problems.
 
  In the case of estimating the mean, $\mu$, of a random variable, $Y$, i.e.: $\mu = \e(Y)$, one generates $n$ independent and identically distributed (IID) $Y_i$ from the distribution of $Y$ and take the sample average, 
-$$\hmu_n :=\frac1n\sum_{i=1}^nY_i.$$ The Strong Law of Large Numbers ensures that the sample mean, $\hmu_n$, converges to the true mean, $\mu$, almost surely, i.e.: $\lim_{n \to \infty} \hmu_n =\mu \text{ a.s.}$ \cite[Theorem 20.1]{JP04}.
+$$\hmu_n :=\frac1n\sum_{i=1}^nY_i.$$ The Strong Law of Large Numbers ensures that the sample mean converges to the true mean almost surely, i.e.: $\lim_{n \to \infty} \hmu_n =\mu \text{ a.s.}$ \cite[Theorem 20.1]{JP04}. 
 
-In this thesis, we investigate the ways to estimate the mean, $\mu$, of a random variable, $Y$, that satisfies the fixed width confidence interval condition with some prescribed absolute error tolerance $\varepsilon_a$,  
+An important special case of computing $\mu=\e(Y)$ is when $Y = f(\vX)$ for some function $f:\reals^d \to \reals$ and some random vector $\vX$ with probability density function $\rho: \reals^d \to [0,\infty)$. One may then interpret the mean of $Y$ as the multidimensional integral
+\begin{align*}
+I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\vX)\rho(\vX)\dif \vX.
+\end{align*}
+The Monte Carlo method becomes a method for numerical integration.
+
+If the random variable $Y$ is a Bernoulli one, which takes only two values, 0 and 1, with  $\Pr(Y=1) =p$. The case for computing the mean becomes estimating the probability $p = \e(Y)$. 
+
+\Section{Guaranteed confidence interval}
+
+The Central Limit Theorem (CLT) stated in Theorem \ref{clt} provides a way to construct an \emph{approximate} confidence interval for $\mu$ in terms of the sample mean assuming a known variance,
+\[
+\Pr(\abs{\hmu_{n}-\mu} \le \varepsilon) \approx 1- \alpha. \qquad \]
+Unfortunately, this is an asymptotic result. The proposed procedure attains the desired coverage level in the limit as $\varepsilon\to 0$ but does not provide coverage guarantees for fixed $\varepsilon>0$.  We want such fixed $\varepsilon$ guarantees. 
+
+In this thesis, we investigate the ways to estimate the mean of a random variable that satisfies the fixed width confidence interval condition with some prescribed absolute error tolerance $\varepsilon_a$,  
 \begin{align}\label{absCI}
 \Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha,
 \end{align}
@@ -223,22 +240,56 @@ or relative error tolerance $\varepsilon_r$,
 \begin{align}\label{relCI}
 \Pr\left(\abs{\mu-\hmu_n}\leq \varepsilon_r\right) \geq 1-\alpha,
 \end{align}
-or some generalized error criterion, $\tol(\varepsilon_a,\varepsilon_r \abs{\mu})$, which is defined in Definition \ref{def:tolfun},
+or some generalized error criterion, $\tol(\varepsilon_a,\varepsilon_r \abs{\mu})$, 
 \begin{align}\label{hybridCI}
 \Pr\left(\abs{\mu-\tmu_n}\leq \tol\left(\varepsilon_a, \varepsilon_r\abs{\mu}\right)\right) \geq 1-\alpha.
 \end{align}
-assuming a bounded kurtosis of the random variable $Y$,
+Our assumption is a bounded kurtosis of the random variable $Y$,
 \begin{equation} \label{def:boundedkurtosis}
-\kappa = \frac{\e[(Y-\mu)^4]}{\sigma^4} \le \kappa_{\max}.
+\kappa = \frac{\e[(Y-\mu)^4]}{\sigma^4} \le \kappa_{\max},
 \end{equation}
 where $\kmax$ is some bound defined in Definition \ref{def:kmax}. 
 
+\Section{Automatic algorithms}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{7cm}\centering 
+\includegraphics[width=7cm]{chebintbw-2015-08-04-15-30-28.eps} \\ {\tt chebfun}  \end{minipage}% requires the graphicx package
+\begin{minipage}{7cm}\centering 
+\includegraphics[width=7cm]{integralbw-2015-08-12-16-01-57.eps} \\{\tt integral}
+\end{minipage}
+\caption{Plots of the fooling functions $f$ with $\mu = \int_0^1f(x)\dif x=1$, for which the corresponding algorithms return values of $\hmu=0$.}\label{fig:foolingfun}
+ \end{figure}
+ 
+Automatic algorithms commonly determine the computational cost required to approximate the solutions that differ from the true solutions by no more than a given error tolerance, $\varepsilon$. In this way, one requires a user specified error tolerance $\varepsilon$ and a black box that generate the random variables. Several commonly used software packages have adaptive, automatic algorithms for integrating functions of a single variable. Unfortunately, they do not provide any guarantees. On the other hand, most existing guaranteed automatic algorithms are not adaptive, they do not determine the computational cost needed based on random variables sampled. Some examples of the adaptive automatic algorithms are
+\begin{itemize}
+\item {\tt integral} \cite{Shampone08} in MATLAB, which uses the adaptive Gauss-Kronrod quadrature based on {\tt quadva};
+\item {\tt chebfun} toolbox \cite{Chebfun14} for MATLAB, which approximates integrals by integrating interrogatory Chebyshev polynomial approximations to the integrands.
+\end{itemize}
+For these two automatic algorithms, one can easily probe where they sample the integrand, feed the algorithms with zero values and then construct fooling functions for which the automatic algorithms will return zero values for the integral. Figure \ref{fig:foolingfun} displays these fooling functions for problem $\int_0^1f(x)\dif x$ for these two algorithms. Each of of these algorithms is given the error tolerance $10^{-14}$, unfortunately, the true absolute error is 1. We are not criticizing that these algorithms can easily be fooled, instead, we concerns that there is no theory to tell us when the algorithms are fooled or the problem with the integrand.
+
+Consider a random variable $Y$ with the density function 
+\begin{align}\label{pdfy}
+\rho(y) = \frac{1}{2\sqrt{2\pi}}\left(\exp\left(-\frac{x^2}{2}\right)+\exp\left(-\frac{(x-200)^2}{2}\right)\right).
+\end{align}
+It is a mixture of two Gaussian distributions. Figure \ref{fig:gaussianmix} shows the probability density function. It is obvious that the data are clustered around two values, 0 and 200. This distribution is a heavy-tailed one. We are interested in calculating the random variable $Y$ with the distribution \eqref{phfy}, the problem can be written as:
+$$\e(Y) = \int_{-\infty}^\infty y\rho(y)dy.$$
+Using CLT and our guaranteed adaptive algorithm presented in this thesis,  
+The absolute error tolerance and the uncertainty level are both $0.01$, 100 samples are used to estimate the variance. The CLT meets the error tolerance 70\% of the time, while the guaranteed adaptive algorithm meets the tolerance 98\% of the time. 
+
+Why CLT fails?
+The first reason is that the insufficient samples are used to estimate the variance, we do not have a conservative variance estimation to handle this heavy-tailed distribution. The other reason is, CLT uses an approximate error bound, not the guaranteed error bound.
+
+
+
+
 \Section{Background}\label{sec:background}
 
-The Central Limit Theorem (CLT) stated in Theorem \ref{clt} provides a way to construct an approximate confidence interval for the $\mu$ in terms of the sample mean assuming a known variance $\var(Y)$. However, this is an asymptotic result, which is, the proposed procedure attains the desired coverage level in the limit as $\varepsilon\to 0$ but does not provide coverage guarantees for fixed $\varepsilon>0$.  We want such fixed $\varepsilon$ guarantees. The existing theory of fixed width confidence interval may make distributional assumptions that are too strong. Stein \cite{stein45} proposed a similar two stage procedure, however, his result requires normally distributed data and has no relative error criterion involved. In Monte Carlo applications one typically does not have much information about the underlying distribution. The form of the distribution for $Y$ is generally not known, $\var(Y)$ is generally not  known, and $Y$ is not necessarily bounded. We are aiming to derive fixed width confidence intervals that do not require such assumptions.  
+The existing theory of fixed width confidence interval may make distributional assumptions that are too strong. Stein \cite{stein45} proposed a similar two stage procedure, however, his result requires normally distributed data and has no relative error criterion involved. In Monte Carlo applications one typically does not have much information about the underlying distribution. The form of the distribution for $Y$ is generally not known, $\var(Y)$ is generally not  known, and $Y$ is not necessarily bounded. We are aiming to derive fixed width confidence intervals that do not require such assumptions.  
 
 The width of a confidence interval tends to become smaller as the number $n$ of sampled
-function values increases. In special circumstances, we can choose $n$ to get a confidence interval of at most the desired length and at least the desired coverage level, $1-\alpha$. For instance, if the variance, $\sigma^2=\var(Y)$, is known then an approach based on Chebyshev's Inequality is available, though the actual coverage will usually be much higher than the nominal level, meaning that much narrower intervals would have sufficed. Known variance in addition to a Gaussian distribution for $Y$ supports a fixed width confidence interval construction that is not too conservative. The CLT provides a confidence interval that is asymptotically correct, but our aim is for something that is definitely correct for finite sample sizes. Finally, conservative fixed width confidence intervals for means can be constructed for bounded random variables, by appealing to exponential inequalities such as Hoeffding's or Chernoff's Inequality, we will discuss the way to estimate the mean of Bernoulli random variables by such inequalities.
+function values increases. In special circumstances, we can choose $n$ to get a confidence interval of at most the desired length and at least the desired coverage level, $1-\alpha$. For instance, if the variance, $\sigma^2=\var(Y)$, is known, then an approach based on Chebyshev's Inequality in Theorem \ref{ChebyThm} is available, though the actual coverage will usually be much higher than the nominal level, meaning that much narrower intervals would have sufficed. Known variance in addition to a Gaussian distribution for $Y$ supports a fixed width confidence interval construction that is not too conservative \cite{stein45}. The CLT provides a confidence interval that is asymptotically correct, but our aim is for something that is definitely correct for finite sample sizes. Finally, conservative fixed width confidence intervals for means can be constructed for bounded random variables, by appealing to exponential inequalities such as Hoeffding's or Chernoff's Inequality in Theorem \ref{hoeff}, we will discuss the way to estimate the mean of Bernoulli random variables by such inequalities.
 
 If the relevant variance or bound is unknown, then approaches based on sequential statistics \cite{Siegmund85} may be available.  In sequential methods one keeps increasing $n$ until the interval is narrow enough. Sequential confidence intervals require us to take account of the stopping rule when computing the confidence level. Unfortunately, all existing sequential methods are lacking in some aspects. 
 
@@ -247,24 +298,8 @@ Serfling and Wackerly \cite{SerflingaWackerlyb76} consider sequential confidence
 Chow and Robbins\cite{ChowRobbins65} develop a sequential sampling fixed width confidence interval procedure for the mean, but its guarantees are only asymptotic (as $\varepsilon \to 0$). \cite{MukhDatta96} give a procedure similar to Chow and Robbins's, and it has similar drawbacks.
 
 Bayesian methods can support a fixed width interval containing $\mu$ with $1-\alpha$ posterior probability, and
-Bayesian methods famously do not require one to account for stopping rules. They do however require strong distributional assumptions.
+Bayesian methods famously do not require one to account for stopping rules. They do, however, require strong distributional assumptions.
 
-\Section{Numerical integration}\label{sec:numericalintegration}
-
-An important special case of computing $\mu=\e(Y)$ is when $Y = f(\vX)$ for some function $f:\reals^d \to \reals$ and some random vector $\vX$ with probability density function $\rho: \reals^d \to [0,\infty)$. One may then interpret the mean of $Y$ as the multidimensional integral
-\begin{align*}
-I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\vX)\rho(\vX)\dif \vX.
-\end{align*}
-By appealing Monte Carlo technique, one need to generate a bunch of random variables $\vX_i \in \reals^d$ from the distribution of $\vX$, namely, $\rho$, and calculate the function values by $Y_i = f(\vX_i)$. Thus, the true solution could be approximated as $$\hIn = \hmu_n(f) = \frac1n\sum_{i=1}^n f(\vX_i).$$
-Note that given the problem of evaluating $I = \int_{\reals^d}g(\vx)\dif\vx$, one must choose a probability density function $\rho$ for which one can easily generate random vectors $\vx$, then set $f = g/\rho$. The quantities $\sigma^2$ and $\kappa$ defined above can be written in terms of weighted $\mathcal{L}_p$ norms of $f$:
-\begin{align*}
-\norm[4]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
-\end{align*}
-For a given $g$, the choice of $\rho$ is not unique, and making an optimal choice belongs to the realm of the importance sampling. The assumption of bounded kurtosis in \eqref{def:boundedkurtosis} required by Algorithm \ref{alg:meanMCabsg} corresponds to an assumption that integrand $f$ lies in the cone of functions \cite{CDHHZ13}
-\begin{align*}
-C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[4]{f-\mu(f)}\right\}.
-\end{align*}
-This is in contrast to a ball of functions, which wound be the case if one was satisfying a bounded variance condition.
 
 %An important case pf computing $\mu = \e(Y)$ arises in the situation where $Y=f(\vX)$ for some function 
 %Suppose we want to evaluate the multidimensional integral with integrand $f:\reals^d \to \reals$ with respect to some probability density function $\rho: \reals^d \to [0,\infty)$.
@@ -694,9 +729,9 @@ Hence the proof is complete.
 \Section{Numerical integration via Monte Carlo sampling}\label{sec:numericalintegrationviaMC}
 
 An important special case of computing $I =\e(Y)$ is when $Y = f(\vx)$ for some function $f:\reals^d \to \reals$ and some random vector $\vx$ with probability density function $\rho: \reals^d \to [0,\infty)$. One may then interpret the mean of $Y$ as the multidimensional integral
-\begin{align*}
+\begin{align}\label{integralI}
 I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\boldsymbol{x})\rho(\vx)\dif \vx.
-\end{align*}
+\end{align}
 Note that given the problem of evaluating $I = \int_{\reals^d}g(\vx)\dif\vx$, one must choose a probability density function $\rho$ for which one can easily generate random vectors $\vx$, then set $f = g/\rho$. The quantities $\sigma^2$ and $\kappa$ defined above can be written in terms of weighted $\mathcal{L}_p$ norms of $f$:
 \begin{align*}
 \norm[4]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
@@ -706,8 +741,7 @@ For a given $g$, the choice of $\rho$ is not unique, and making an optimal choic
 C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[4]{f-\mu(f)}\right\}.
 \end{align*}
 This is in contrast to a ball of functions, which wound be the case if one was satisfying a bounded variance condition.
-Below, we will present our Algorithm {\tt cubMCabs\_g} which estimate the integral
-$$I = \int_{\reals^d} f(\vx)\rho(\vx)\dif\vx, \quad \text{where}\quad \vx \in \reals^d \quad \text{and}\quad  \vx \sim \rho(\vx)$$
+Below, we will present our Algorithm {\tt cubMCabs\_g} which estimate the integral \eqref{integralI}
 as $\hat{I}$ in order to satisfy the fixed width confidence interval condition
 \begin{align}\label{cubMCabsgCI}
 \Pr \left(\abs{\hat{I}-I} \leq \varepsilon_a \right) \geq 1-\alpha.
@@ -1323,10 +1357,11 @@ Note that, this bound may be loose, a tighter bound derivation remains as a futu
 
 \Section{The Algorithm {\tt cubMC\_g }}\label{sec:cubmcgalg}
 
-Another algorithm that does numerical integration via Monte Carlo sampling with a generalized error tolerance will be present here. The integrand and parameters are same as in Section \ref{sec:numericalintegrationviaMC}, but with a generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r\abs{\mu})$ as given in Definition \ref{def:tolfun}. The algorithm take inputs: the integrand $f$, the integration hyperbox $[a_i,b_i]^d$, and the probability density function $\rho$, the absolute error tolerance $\varepsilon_a$ and relative error tolerance $\varepsilon_r$, the generalized error tolerance function $\tol(\varepsilon_a,\varepsilon_r)$, the uncertainty level $\alpha$ and do the iteration until the estimator $\tilde{I}$ satisfies the fixed width confidence interval condition
+An algorithm that performs numerical integration via Monte Carlo sampling with a generalized error tolerance will be present here. The integrand and parameters are same as in Section \ref{sec:numericalintegrationviaMC}, but with a generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r\abs{\mu})$ as given in Definition \ref{def:tolfun}. The algorithm take inputs: the integrand $f$, the integration hyperbox $(\va, \vb)$, and the probability density function $\rho$, the absolute error tolerance $\varepsilon_a$ and relative error tolerance $\varepsilon_r$, the generalized error tolerance function $\tol(\varepsilon_a,\varepsilon_r\abs{\mu})$, the uncertainty level $\alpha$ and do the iteration until the estimator $\tilde{I}$ satisfies the fixed width confidence interval condition
 \begin{align}\label{cubMCgCI}
-\Pr \left(\abs{I-\tilde{I}} \leq \tol(\varepsilon_a, \varepsilon_r\abs{I})\right) \geq 1-\alpha.
+\Pr \left(\abs{I-\tilde{I}} \leq \tol\left(\varepsilon_a, \varepsilon_r\abs{I}\right)\right) \geq 1-\alpha.
 \end{align}
+
 The detailed algorithm is explained in Algorithm \ref{alg:cubMCg}.
 \begin{algorithm}\label{alg:cubMCg} 
 User provide several inputs:
@@ -1502,7 +1537,7 @@ As we could see,  {\tt cubMC\_g} takes a significantly more time than {\tt cubSo
 {PlotMVNPFun/MVNPiidErrTime-2015-11-29-01-36-25.eps} \\ {\tt cubMC\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotMVNPFun/MVNPcubSobolErrTime-2015-11-29-01-36-25.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotMVNPFun/MVNPcubLatticeErrTime-2015-11-29-01-36-26.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for Multivariate Normal Probability test function \eqref{MVNP} with the dimension $d$ IID uniform in $[2,8]$. The tolerance is is $\max\left(10^{-3},10^{-4} \abs{I}\right)$. All other settings are same as in Figure \ref{fig:productfunreltol}. \label{fig:MVNPTestFun1} }
+\caption{Execution times and errors for Multivariate Normal Probability test function \eqref{MVNP} with the dimension $d$ IID uniform in $[2,8]$. The tolerance is $\max\left(10^{-3},10^{-4} \abs{I}\right)$. All other settings are same as in Figure \ref{fig:productfunreltol}. \label{fig:MVNPTestFun1} }
 \end{figure}
 A function that has been used in many statistics applications is the numerical computation of Multivariate Normal Probability function 
 \begin{equation}\label{MVNP}
