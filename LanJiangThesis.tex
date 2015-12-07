@@ -146,7 +146,7 @@
 %\newcommand{\scp}[2]{\langle #1, #2 \rangle}
 %
 %\newcommand{\vx}{\boldsymbol{x}}
-\DeclareMathOperator{\Yrand}{Yrand}
+
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
@@ -536,7 +536,7 @@ This inequality explains that if the modified kurtosis $\kappa$ is bounded by $\
 \end{proof}
 
 \begin{lemma}\label{upperboundhsigma}
-Define the upper bound on $\hsigma^2$ as:
+Under same assumptions as in Lemma \ref{lowerboundhsigma}, define the upper bound on $\hsigma^2$ as:
 \begin{align}\label{sigup}
 \hsigma_{\up}^2 (\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma^2.
 \end{align}
@@ -1478,7 +1478,7 @@ A numerical integration problem with integrand \eqref{productfun} and the genera
 {PlotKeisterFun/gaussianiidErrTime-2015-11-29-01-06-32.eps} \\ {\tt meanMC\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotKeisterFun/gaussiancubSobolErrTime-2015-11-29-01-06-33.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{PlotKeisterFun/gaussiancubLatticeErrTime-2015-11-29-01-06-33.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for the Keister test function \eqref{KeisterTestFun} with the dimension uniformly random chosen between 1 and 20. The tolerance is is $\max\left(10^{-3},10^{-3} \abs{I}\right)$. All other settings are same as in Figure \ref{fig:productfunreltol}. \label{fig:KeisterTestFun} }
+\caption{Execution times and errors for the Keister test function \eqref{KeisterTestFun} with the dimension uniformly random chosen between 1 and 20. The tolerance is $\max\left(10^{-3},10^{-3} \abs{I}\right)$. All other settings are same as in Figure \ref{fig:productfunreltol}. \label{fig:KeisterTestFun} }
 \end{figure}
 Keister \cite{Keister96} considered the following multidimensional integral that has applications in physics
 \begin{align} \label{KeisterTestFun}
