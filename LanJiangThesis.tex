@@ -1022,7 +1022,7 @@ N_{\CB}^{-1}(n;\alpha,M) := \min\left(N_{\Cheb}^{-1}(n,\alpha),N_{\BE}^{-1}(n,\a
 \end{gather}
 where $\Phi$ is the standard Gaussian cumulative distribution function and $\delta_n$ is defined in \eqref{deltaBEconstant}. It then follows by Chebyshev's Inequality and the Berry-Esseen Inequality that 
 \begin{equation*}
-\Pr[\abs{\hmu_n -\mu}<\hvareps] \geq 1-\alpha, \quad \text{provided } \kappa\leq\kmax, \text{ where }\hvareps=\sigma/N_{\text{CB}}^{-1}\left(n,\alpha,\kappa_{\max}^{3/4}\right), 
+\Pr[\abs{\hmu_n -\mu}<\hvareps] \geq 1-\alpha, \quad \text{provided } \kappa\leq\kmax, \text{ where }\hvareps=\sigma/N_{\CB}^{-1}\left(n,\alpha,\kappa_{\max}^{3/4}\right), 
 \end{equation*} 
 and $\sigma$ is the standard deviation of the random variable $Y$ defined in \eqref{truevar}.  
 
@@ -1319,8 +1319,8 @@ This completes the proof.
 
 \begin{theorem}\label{cost:meanMCg}
 The cost of Algorithm \ref{alg:meanMCg} is defined as $$n_{\tot}= n_{\sigma}+\sum_{t=1}^\tau n_t,$$ 
-where $\tau$ is the stopping time, $n_\sigma$ is the sample size used to calculate the sample variance $s_{n_\sigma}^2$, and $n_t$ is the sample size used to estimate $\hmu_t$ in each iteration. It has a probabilistic upper bound  $$n_{\up}=n_\sigma+ n_1+\sum_{t=2}^{\bar{\tau}(\beta)} N_{\CB}\left(10^{t-1}N_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right),\alpha_i,\kmax^{3/4}\right),$$
-where $N_{\CB}$ is defined in \eqref{NCBmeanMCabsg}.
+where $\tau$ is the stopping time, $n_\sigma$ is the sample size used to calculate the sample variance $s_{n_\sigma}^2$, and $n_t$ is the sample size used to estimate $\hmu_t$ in each iteration. It has a probabilistic upper bound  $$n_{\up}(\beta)=n_\sigma+ n_1+\sum_{t=2}^{\bar{\tau}(\beta)} N_{\CB}\left(10^{t-1}N_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right),\alpha_t,\kmax^{3/4}\right),$$
+where $N_{\CB}$, $N_{\CB}^{-1}$  and $\bar{\tau}(\beta)$ are defined in \eqref{NCBmeanMCabsg}, \eqref{NCBinv} and \eqref{taubardef},
 that satisfied the probability inequality:
 \begin{equation}
 \Pr \left(n_{\tot}\leq n_{\up} (\beta)\right) \geq 1-\beta

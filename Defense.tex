@@ -97,9 +97,9 @@ Our goal is to obtain a \alert{guaranteed} confidence interval
 \begin{equation} \label{absCI}
 \alert{\Pr[\abs{\mu - \hmu} \le \varepsilon_a] \ge 1-\alpha,}
 \end{equation}
-\begin{equation} \label{genCI}
+\begin{equation*} %\label{genCI}
 \alert{\Pr[\abs{\mu - \hmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge 1-\alpha.}
-\end{equation}
+\end{equation*}
 \pause
 Our assumption is that the modified kurtosis of the random variable $Y$ is less than some constant.
 \alert{$$\kappa \leq \kmax:=\kmax(n_\sigma,\alpha_\sigma,\fudge),$$}
@@ -129,7 +129,7 @@ $n_\sigma$ is the sample size used to estimate variance $\sigma^2$, $\alpha_\sig
 %\end{align*}
 %}
 
-\subsection{Chebyshev's Inequality}
+\subsection{Useful Inequalities}
 \frame{\frametitle{Chebyshev's Inequality}
 %Chebyshev's inequality may be used to construct a fixed-width confidence interval for $\mu$.  It makes relatively mild assumptions on the distribution of the random variable.
 \begin{theorem}[Chebyshev's Inequality {\cite[6.1.c]{LB10}}]
@@ -143,7 +143,6 @@ Let $Y_1, \ldots, Y_n$ be IID with mean $\mu$ and variance $\sigma^2$. Choosing 
  \end{align*}
  }
  
- \subsection{Cantelli's Inequality}
 \frame{\frametitle{Cantelli's inequality}
 \begin{theorem}[Cantelli's inequality {\cite[6.1.e]{LB10}}]
 If $Y$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for any $a \geq 0$, it follows that: 
@@ -154,7 +153,7 @@ If $Y$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for an
 Cantelli's Inequality may be used to get a reliable upper bound on variance $\sigma^2$ of a random variable $Y$, which will be discussed in the later section.
 }
 
-\subsection{The Berry-Esseen Inequality}
+
 \frame{\frametitle{The Berry-Esseen Inequality}
 \begin{theorem}[The Berry-Esseen Inequality] \label{BEThm}
 Let $Y_1,\cdots,Y_n$ be IID with mean $\mu$, variance $\sigma^2 >0$, and third moment $M_3 = \e\abs{Y_i-\mu}^3/\sigma^3 < \infty$. Let $\hmu_n = \sum_{i=1}^nY_i/n$. Then
@@ -192,9 +191,9 @@ User input a random number generator \alert{$\Yrand$} and the absolute error tol
 %\renewcommand{\labelenumi}{\alph{enumi})}
 \item compute the sample variance, $s^2_{n_{\sigma}}$ and conservative upper bound on variance $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$.
 \item Compute the uncertainty level for the second stage $\alpha_\mu = (\alpha-\alpha_\sigma)/(1-\alpha_{\sigma})$ and the sample size for the mean estimation,
-\begin{align*}
-n_\mu &=N_{\CB} \left(\hsigma/\varepsilon_a,\alpha, \kmax^{3/4}\right) \\ &:=\min \left\{N_{\Cheb}\left(\hsigma/\varepsilon_a,\alpha_\mu \right),N_{\BE}\left(\hsigma/\varepsilon_a,\alpha_\mu, \kmax^{3/4}\right)\right\}.
-\end{align*} Calculate the mean,
+\begin{align}
+n_\mu &=N_{\CB} \left(\hsigma/\varepsilon_a,\alpha_\mu, \kmax^{3/4}\right) \nonumber \\ &:=\min \left\{N_{\Cheb}\left(\hsigma/\varepsilon_a,\alpha_\mu \right),N_{\BE}\left(\hsigma/\varepsilon_a,\alpha_\mu, \kmax^{3/4}\right)\right\}.\label{NCBdef}
+\end{align} Calculate the mean,
 \begin{align}\label{def:meanmcabsghmu}
 \hmu = \frac{1}{n_\mu}\sum_{i = n_\sigma+1}^{n_\sigma+n_\mu}Y_i.
 \end{align}
@@ -302,7 +301,7 @@ If error bound $\abs{\hmu-\mu}\leq \heps$ holds, and $\heps$ satisfies the follo
 %where $\sigma$ is the standard deviation of the random variable $Y$.
 %}
 
-\frame{\frametitle{Some notations}
+\frame[allowframebreaks]{\frametitle{Some notations}
 Given the uncertainty $\alpha \in (0,1)$, let $\alpha_{\sigma}, \alpha_1,  \alpha_2, \ldots$ be an infinite sequence of positive numbers all less than one, such that 
 \begin{equation} \label{alphaseq}
 (1-\alpha_{\sigma})\left [(1-(\alpha_1+\alpha_2+\cdots)\right] = 1-\alpha.
@@ -311,33 +310,52 @@ For example, one might choose $\alpha_{\sigma}$ and
 \begin{equation*} \label{alphaseqex}
 \alpha_{i} = \frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-i}, \ i\in \naturals, \quad \text{where} \  a \in (1,\infty).
 \end{equation*}
+\bigskip
+
+For any fixed $n \in \reals$, $\alpha \in (0,1)$, and $M>0$, define the inverse of the functions $N_{\Cheb}(\cdot,\alpha)$, $N_{\BE}(\cdot,\alpha,M)$, and $N_{\CB}(\cdot,\alpha,M)$ 
+%\begin{subequations} \label{probadapterrcritBE}
+\begin{gather*}\label{NCinv*}
+N_{\Cheb}^{-1}(n;\alpha) := \sqrt{n \alpha}, \\
+\label{NBinv*}
+N_{\BE}^{-1}(n;\alpha,M) := \min \left \{ b>0 : \Phi\left(-\sqrt{n}/b  \right)+\delta_n(\sqrt{n}/b,M)
+\le \frac{\alpha}{2} \right \}, \\
+\label{NCBinv}
+N_{\CB}^{-1}(n;\alpha,M) := \min\left(N_{\Cheb}^{-1}(n,\alpha),N_{\BE}^{-1}(n,\alpha,M)\right),
+\end{gather*}
+ It then follows by Chebyshev's Inequality and the Berry-Esseen Inequality that 
+\begin{equation*}
+\Pr[\abs{\hmu_n -\mu}<\hvareps] \geq 1-\alpha, \quad \text{provided } \kappa\leq\kmax,
+\end{equation*} 
+where $\hvareps=\sigma/N_{\CB}^{-1}\left(n,\alpha,\kappa_{\max}^{3/4}\right).$
 }
 \subsection{The Algorithm {\tt meanMC\_g}}
-\frame{\frametitle{The algorithm {\tt meanMC\_g}}
+\frame[allowframebreaks]{\frametitle{The algorithm {\tt meanMC\_g}}
 User provide us several inputs:
 \begin{itemize}
-\item a random number generator $Y$,
+\item a random number generator $\Yrand$,
 \item the absolute error tolerance $\varepsilon_a \geq 0$,
 \item the relative error tolerance $0 \leq \varepsilon_r <1$ ( we require $\varepsilon_a+\varepsilon_r >0$),
 \end{itemize}
 With the parameters $\alpha$, $\alpha_\sigma$, $\alpha_t$, $n_\sigma$, $n_1$, $\fudge$ and $\theta$, we first calculate $\kmax=\kappa_{\max}(n_\sigma,\alpha_\sigma,\fudge)$ as defined in \eqref{def:kmax}, then do the following:
-%\renewcommand{\labelenumi}{\alph{enumi})}
-\\
-Compute the sample variance, $s^2_{n_{\sigma}}$ and  $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. Calculate the width of the initial confidence interval for the mean estimation,
+\begin{enumerate}
+\item Compute the sample variance, $s^2_{n_{\sigma}}$ and  $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. Calculate the width of the initial confidence interval for the mean estimation,
 \begin{align*}
 \heps_1=\hsigma /N_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right).
 \end{align*}
-}
-\frame{\frametitle{The algorithm {\tt meanMC\_g}}
-For $t = 1,2,\cdots$, do the following:
-\begin{enumerate}
-\item  \label{deltamu}Compute $\hmu_t$ and $\Delta_{+}(\hmu_t,\heps_t)$ using sample size $n_t$ and tolerance $\heps_t$, where $\Delta_{+}$ is defined in \eqref{deltadef}.
-\item If \alert{$\Delta_{+}(\hmu_t,\heps_t) \geq  \heps_t$}, set stopping time $\tau = t$ and Let $\tmu = \hmu_{\tau}+\Delta_{-}(\hmu_\tau,\heps_\tau)$. Terminate the algorithm.
+\item  \label{deltamu}For $t = 1,2,\cdots$, Compute $\hmu_t$ and $\Delta_{+}(\hmu_t,\heps_t)$ using sample size $n_t$ and tolerance $\heps_t$, where $\Delta_{+}$ is defined in \eqref{deltadef}.
+\item If \alert{$\underbrace{\Delta_{+}(\hmu_t,\heps_t) \geq  \heps_t}_{\text{Stopping criterion}}$}, set stopping time $\tau = t$ and Let $\tmu = \hmu_{\tau}+\Delta_{-}(\hmu_\tau,\heps_\tau)$. Terminate the algorithm.
 \item Else, define the next tolerance, $$\heps_{t+1} = \max \left(\heps_t/10, \min\left(\heps_t/2, \max(\varepsilon_a,\theta\varepsilon_r\abs{\hmu_t})\right) \right)$$ and compute the next sample size, $$n_{t+1} = N_{\CB}\left(\hsigma/\hvareps_{t+1},\alpha_{t+1},\kappa_{\max}^{3/4}\right).$$ Increase $t$ by one and go back to step \ref{deltamu}. 
 \end{enumerate}
+
+\begin{theorem}\label{thm:meanMCg}
+Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2$ and modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that {\tt meanMC\_g} terminated in a finite time step almost surely. If the algorithm terminates, then the general error criterion
+$$\alert{\Pr[\abs{\mu - \hmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge 1-\alpha}$$
+is satisfied.
+\end{theorem}
+
 }
 
-\frame{\frametitle{Lemma needed to prove the theorem}
+\frame[allowframebreaks]{\frametitle{Lemma needed to prove the theorem}
 
 \begin{itemize}
 %\item If $\heps$ is a random number, $\Pr(\abs{\hmu_n-\mu}> \heps_t|\hsigma \geq \sigma)<\alpha_t$
@@ -350,12 +368,7 @@ where \begin{align}
 \item The stopping time $\tau$ is finite almost surely, i.e.:
 $$\Pr(\tau < \infty) = 1.$$
 \end{itemize}
-}
 
-
-
-
-\frame{\frametitle{Lemma needed to prove the theorem}
 \begin{lemma}\label{thm:fixedwidthrandomeps}
 Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. Suppose that the width of the confidence interval, $\heps$, is a random number. It follows that {\tt meanMCabs\_g} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the following condition
 \begin{align}\label{eq:fixedwidthrandomeps}
@@ -366,10 +379,6 @@ Here, the samples of $Y$ used to calculate $\hmu$ are independent of $\heps$, al
 }
 
 \frame[allowframebreaks]{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
-\begin{theorem}\label{thm:meanMCg}
-Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that {\tt meanMC\_g} terminated in a finite time step almost surely. If the algorithm terminates, then the general error criterion, \eqref{genCI}, is satisfied.
-\end{theorem}
-
 Proof:
  the {\tt meanMC\_g}, several quantities are random, the random variable $Y$, the stopping time $\tau$, the sample size $n_i$,  the confidence interval width $\heps_i$ in each iteration, for $i = 1,2,\cdots, \tau$. 
 As $\tau$ is the first time that the stopping criterion $\Delta_{+, \tau} \geq \heps_\tau$ firstly reached. Thus, we know the following events are equivalent
@@ -416,6 +425,19 @@ Hence, the probability could be written as
 \end{align*}
 }
 
+\frame{\frametitle{The cost of {\tt meanMC\_g}}
+
+\begin{theorem}\label{cost:meanMCg}
+The cost of {\tt meanMC\_g} defined as $$n_{\tot}= n_{\sigma}+\sum_{t=1}^\tau n_t,$$ is bounded by  $$n_{\up}=n_\sigma+ n_1+\sum_{t=2}^{\bar{\tau}(\beta)} N_{\CB}\left(10^{t-1}N_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right),\alpha_i,\kmax^{3/4}\right),$$ that satisfy the inequality
+\begin{equation}
+\Pr \left(n_{\tot}\leq n_{\up} (\beta)\right) \geq 1-\beta.
+\end{equation}
+\end{theorem}
+
+
+
+
+}
 \subsection{Numerical Examples of {\tt meanMC\_g}}
 
 \frame{\frametitle{Integrating Keister test function}
@@ -431,7 +453,18 @@ By applying Monte Carlo methods, the integral could be estimated as follows:
 \end{align*}
 where $\vy_i = (y_{i1},\cdots,y_{id}) \in \reals$ , $i=1,\cdots, n.$
 }
+\frame{\frametitle{Integrating the product function}
+$$\mu = \int_{[0,1]^d}\prod_{i=1}^d(x_i^2+a_i) \dif x$$
 
+\begin{figure}
+\centering
+\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]
+{fig_productfun/productiidErrTime-2015-11-26-01-00-46.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
+\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{fig_productfun/productcubSobolErrTime-2015-11-26-01-00-47.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{fig_productfun/productcubLatticeErrTime-2015-11-26-01-00-48.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\caption{$d=2,3,\cdots,20$, $\tol = \max\left(10^{-3},10^{-3}\abs{I}\right)$.}
+\end{figure}
+}
 \frame{\frametitle{Integrating Keister test function}
 \begin{figure}
 \centering
