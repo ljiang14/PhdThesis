@@ -53,9 +53,9 @@ $$
 \end{theorem}
 This theorem implies an \alert{approximate} confidence interval, called a CLT confidence interval, of the form
 \[
-\Pr(\abs{\hmu_{N_{\CLT}}-\mu} \le \varepsilon_a) \alert{\approx} 1- \alpha \qquad \text{ for  } \alert{N_{\CLT}(\sigma/\varepsilon_a,\alpha) := \left \lceil z_{\alpha/2}^2(\sigma/\varepsilon_a)^2 \right \rceil},
+\Pr(\abs{\hmu_{N_{\CLT}}-\mu} \le \varepsilon_a) \alert{\approx} 99\% \qquad \text{ for  } \alert{N_{\CLT}(\sigma/\varepsilon_a,\alpha) := \left \lceil (2.58\sigma/\varepsilon_a)^2 \right \rceil}.
 \]
-where $z_{\alpha/2}= \Phi^{-1}(1-\alpha/2)$.  When $\sigma^2$ is unknown, it may be substituted by the sample variance times an inflation factor
+When $\sigma^2$ is unknown, it may be substituted by the sample variance times an inflation factor
 \begin{align*}
 \sigma^2\approx \hsigma^2:=\alert{\fudge^2}s^2_{n_\sigma} = \alert{\fudge^2}\frac1{{n_\sigma}-1}\sum_{i=1}^{n_\sigma}(Y_i-\hat\mu_{n_\sigma})^2.
 \end{align*}
@@ -74,7 +74,7 @@ $$\rho(y) = \frac{1}{\sqrt{2\pi}}\left(0.99\exp\left(-\frac{x^2}{2}\right)+0.01\
 \item The mean is
 $\e(Y) = \int_{-\infty}^\infty y\rho(y)dy.$\\
 \item The kurtosis is $\kappa \approx 98$ (heavy tailed). \\
-\item Using CLT with $\alpha=1\%$, $\varepsilon_a = 0.01$, $n_\sigma = 100$, the accuracy is \alert{$65.6\%$}.
+\item Using CLT with $\varepsilon_a = 0.01$, $n_\sigma = 100$, the accuracy is \alert{$65.6\%$}.
 \end{itemize}
 \end{minipage}
 \pause
@@ -98,11 +98,11 @@ Our goal is to obtain a \alert{guaranteed} confidence interval
 \alert{\Pr[\abs{\mu - \hmu} \le \varepsilon_a] \ge 1-\alpha,}
 \end{equation}
 \begin{equation*} %\label{genCI}
-\alert{\Pr[\abs{\mu - \hmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge 1-\alpha.}
+\alert{\Pr[\abs{\mu - \tmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge  1-\alpha.}
 \end{equation*}
 \pause
 Our assumption is that the modified kurtosis of the random variable $Y$ is less than some constant.
-\alert{$$\kappa \leq \kmax:=\kmax(n_\sigma,\alpha_\sigma,\fudge),$$}
+\alert{$$\kappa=\frac{\e\left[(Y-\mu)^4\right]}{\sigma^4}\leq \kmax,$$}
 where 
 \begin{equation}
 \label{def:kmax}
@@ -143,16 +143,6 @@ Let $Y_1, \ldots, Y_n$ be IID with mean $\mu$ and variance $\sigma^2$. Choosing 
  \end{align*}
  }
  
-\frame{\frametitle{Cantelli's inequality}
-\begin{theorem}[Cantelli's inequality {\cite[6.1.e]{LB10}}]
-If $Y$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for any $a \geq 0$, it follows that: 
-\begin{align*}
-\Pr(Y-\mu \ge a) \le  \frac{\sigma^2}{a^2+\sigma^2}.
-\end{align*}
-\end{theorem}
-Cantelli's Inequality may be used to get a reliable upper bound on variance $\sigma^2$ of a random variable $Y$, which will be discussed in the later section.
-}
-
 
 \frame{\frametitle{The Berry-Esseen Inequality}
 \begin{theorem}[The Berry-Esseen Inequality] \label{BEThm}
@@ -182,6 +172,19 @@ when
 %N_{\CB} \left(\sigma/\varepsilon_a,\alpha, \kmax^{3/4}\right) := \min \left \{ N_{\Cheb}\left(\sigma/\varepsilon_a,\alpha\right),N_{\BE}\left(\sigma/\varepsilon_a,\alpha, \kmax^{3/4}\right)\right \}.
 %\end{align*}
 }
+
+\frame{\frametitle{Cantelli's inequality}
+\begin{theorem}[Cantelli's inequality {\cite[6.1.e]{LB10}}]
+If $Y$ is a random variable with mean $\mu$, and variance $\sigma^2$ then for any $a \geq 0$, it follows that: 
+\begin{align*}
+\Pr(Y-\mu \ge a) \le  \frac{\sigma^2}{a^2+\sigma^2}.
+\end{align*}
+\end{theorem}
+Cantelli's Inequality may be used to get a reliable upper bound on variance $\sigma^2$ of a random variable $Y$.
+
+If the kurtosis of the random variable $Y$ satisfies the condition $$\kappa \leq \kmax =\kmax (n_\sigma,\alpha_\sigma, \fudge),$$ then, $$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
+}
+
 
 \section{Absolute Error Criterion}
 \subsection{The Algorithm {\tt meanMCabs\_g}}
@@ -217,7 +220,20 @@ The two stage Monte Carlo algorithm {\tt meanMCabs\_g} for fixed width confidenc
 where $\hsigma_{\up}^2 (\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma^2.$
 \end{theorem}
 }
+\frame{\frametitle{Numerical Integration}
+If $Y = f(\vX)$ for some function $f:\reals^d \to \reals$ and some random vector $\vX$ with probability density function $\rho: \reals^d \to [0,\infty)$, one may then interpret the mean of $Y$ as the multidimensional integral
+\begin{align*}
+I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\vX)\rho(\vX)\dif \vX.
+\end{align*}
 
+The Monte Carlo method becomes a method for numerical integration.
+\\
+{\tt cubMCabs\_g} accepts the integrand $f$, interval $(\va,\vb)$ and density $\rho$ as inputs and estimate the integral $\hat{I}$ which satisfies the inequality
+\begin{align*}
+\Pr \left(\abs{\hat{I}-I} \leq \varepsilon_a \right) \geq 1-\alpha.
+\end{align*}
+
+}
 \subsection{Numerical Examples of {\tt meanMCabs\_g}}
 
 \frame{\frametitle{Integrating a product function}
@@ -237,7 +253,7 @@ f(\vx) = \prod_{i=1}^d(x_i^2+a_i),
 \end{figure}
 }
 
-\frame{\frametitle{Integrating a single hump}
+\frame{\frametitle{Integrating a single hump \cite[Section 4.2]{HJLO12}}
 Accuracy and timing results have been recorded for the integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$ for a single hump test integrand
 \begin{equation*} \label{GaussianTestFun}
 f(\vx)=a_0 + b_0\prod_{j=1}^d\left[ 1 +b_j \exp \left(-\frac{(x_j-h_j)^2}{c_j^2}\right) \right].
@@ -267,7 +283,12 @@ Here $\vx$ is a $d$ dimensional vector, and $a_0, b_0, \ldots, b_d, c_1, \ldots,
 }
 
 
-\section{Relative Error Criterion}
+\section{Generalized Error Criterion}
+\frame{\frametitle{Generalized Error Criterion}
+How about estimating $\mu$ with a generalized error criterion?
+$$\Pr[\abs{\mu - \tmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge  1-\alpha$$
+
+}
 \subsection{Notations and a Proposition}
 \frame{\frametitle{Proposition \label{meanMCgProp}}
 Given an absolute error tolerance, $\varepsilon_a\geq 0$, a relative error tolerance, $0 \leq \varepsilon_r\le 1$, and some $\hmu$ and $\heps\geq 0$. Define $\Delta_\pm$ by
@@ -277,9 +298,9 @@ and the approximation $\tmu$ by
 \begin{align}
 \tmu = \hmu + \Delta_{-}. \label{appxsol}
 \end{align}
-If error bound $\abs{\hmu-\mu}\leq \heps$ holds, and $\heps$ satisfies the following condition,
+If error bound $\alert{\abs{\mu-\hmu}\leq \heps}$ holds, and $\heps$ satisfies the following condition,
 \begin{align*}
-\heps\leq \Delta_{+}(\hmu,\heps),\label{deltacondition}
+\alert{\heps\leq \Delta_{+}(\hmu,\heps),}\label{deltacondition}
 \end{align*}
  then the generalized error criterion for $\tmu$, 
  \begin{equation*} 
@@ -303,12 +324,12 @@ If error bound $\abs{\hmu-\mu}\leq \heps$ holds, and $\heps$ satisfies the follo
 
 \frame[allowframebreaks]{\frametitle{Some notations}
 Given the uncertainty $\alpha \in (0,1)$, let $\alpha_{\sigma}, \alpha_1,  \alpha_2, \ldots$ be an infinite sequence of positive numbers all less than one, such that 
-\begin{equation} \label{alphaseq}
+\begin{equation*} \label{alphaseq}
 (1-\alpha_{\sigma})\left [(1-(\alpha_1+\alpha_2+\cdots)\right] = 1-\alpha.
-\end{equation}
+\end{equation*}
 For example, one might choose $\alpha_{\sigma}$ and 
 \begin{equation*} \label{alphaseqex}
-\alpha_{i} = \frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-i}, \ i\in \naturals, \quad \text{where} \  a \in (1,\infty).
+\alpha_{t} = \frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-t}, \ i\in \naturals, \quad \text{where} \  a \in (1,\infty).
 \end{equation*}
 \bigskip
 
@@ -349,13 +370,13 @@ With the parameters $\alpha$, $\alpha_\sigma$, $\alpha_t$, $n_\sigma$, $n_1$, $\
 
 \begin{theorem}\label{thm:meanMCg}
 Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2$ and modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that {\tt meanMC\_g} terminated in a finite time step almost surely. If the algorithm terminates, then the general error criterion
-$$\alert{\Pr[\abs{\mu - \hmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge 1-\alpha}$$
+$$\alert{\Pr[\abs{\mu - \tmu} \le \max(\varepsilon_a, \varepsilon_r \abs{\mu})] \ge 1-\alpha}$$
 is satisfied.
 \end{theorem}
 
 }
 
-\frame[allowframebreaks]{\frametitle{Lemma needed to prove the theorem}
+\frame[allowframebreaks]{\frametitle{Sketch of the proof}
 
 \begin{itemize}
 %\item If $\heps$ is a random number, $\Pr(\abs{\hmu_n-\mu}> \heps_t|\hsigma \geq \sigma)<\alpha_t$
@@ -367,63 +388,19 @@ where \begin{align}
 \end{align}
 \item The stopping time $\tau$ is finite almost surely, i.e.:
 $$\Pr(\tau < \infty) = 1.$$
-\end{itemize}
 
-\begin{lemma}\label{thm:fixedwidthrandomeps}
-Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. Suppose that the width of the confidence interval, $\heps$, is a random number. It follows that {\tt meanMCabs\_g} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the following condition
+\item If $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$ and $\heps_t$ is random. {\tt meanMC\_g} at step $t$ yields an estimate $\hmu_t$ satisfies the following condition
 \begin{align}\label{eq:fixedwidthrandomeps}
-\Pr\left( \abs{\mu-\hmu} > \heps |\hsigma \geq \sigma \right) <\alpha_\mu.
+\Pr\left( \abs{\mu-\hmu_t} > \heps_t |\hsigma \geq \sigma \right) <\alpha_t.
 \end{align}
-Here, the samples of $Y$ used to calculate $\hmu$ are independent of $\heps$, although the number of samples, $n_\mu$, depends on $\heps$.
-\end{lemma}
-}
+Here, the samples of $Y$ used to calculate $\hmu_t$ are independent of $\heps_t$, although the number of samples, $n_t$, depends on $\heps_t$.
 
-\frame[allowframebreaks]{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
-Proof:
- the {\tt meanMC\_g}, several quantities are random, the random variable $Y$, the stopping time $\tau$, the sample size $n_i$,  the confidence interval width $\heps_i$ in each iteration, for $i = 1,2,\cdots, \tau$. 
-As $\tau$ is the first time that the stopping criterion $\Delta_{+, \tau} \geq \heps_\tau$ firstly reached. Thus, we know the following events are equivalent
-\begin{align}\label{STrelationshop}
-\{\tau = t\} \Leftrightarrow \{\Delta_{+,t} \geq \heps_t\} \& \{\Delta_{+,i} \leq \heps_t, \text{for }  i = 1,2,\cdots, t-1 \}.
-\end{align}
-Now let's consider the worst case. Expend the definition of $\hmu_t$ and $\heps_t$ for all $t = \tau+1, \tau+2, \cdots$ by defining $\heps_t = \heps_\tau$ for $t >\tau$. And let $\hmu_t$ been defined according to step 3 in {\tt meanMC\_g}. Suppose at stopping time $\tau$, the desired error tolerance is not obtained, the probability of this event happens is
-\begin{align}\label{439}
-&\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right)\nonumber\\
-&=\sum_{t=1}^\infty\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t \right) .
-\end{align}
-
-By Proposition \ref{meanMCgProp}, we know
-\begin{align*}
- &\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t  \right)\\
-&\leq
-\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t \right).
-\end{align*}
-The definition of stopping time in \eqref{STrelationshop} implied that $\tau = t$ is incompatible with $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then the inequality is equal to
-\begin{align*}
-\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t\right)= \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right).
-\end{align*}
-Adding extra condition of $\hsigma$ we have:
-\begin{align*}
-& \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right) \\
- &=  \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t , \hsigma\geq\sigma\right) + \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t,\hsigma<\sigma \right) \\
- & \leq \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right)
-\end{align*}
-By Lemma \ref{thm:fixedwidthrandomeps}, the inequality has the form
-\begin{align}\label{440}
-&\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right) \nonumber\\
-&<\alpha_t \Pr(\hsigma \geq \sigma) +\Pr \left(  \tau = t,\hsigma<\sigma \right).
-\end{align}
-Thus, by \eqref{439} and \eqref{440}
-\begin{align*}
-\Pr \left( \abs{\mu-\tmu} > \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) 
-&\leq \Pr(\hsigma \geq \sigma) \sum_{t=1}^\infty \alpha_t+\Pr(\hsigma<\sigma)\\
-&=1-\Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right)
-\end{align*}
-
-Hence, the probability could be written as
-\begin{align*}
+\item \begin{align*}
 \Pr \left( \abs{\mu-\tmu} \leq \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) &\geq \Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right) \\&\geq \left(1-\sum_{t=1}^\infty \alpha_t\right) (1-\alpha_\sigma) \\&= 1-\alpha
 \end{align*}
+\end{itemize}
 }
+
 
 \frame{\frametitle{The cost of {\tt meanMC\_g}}
 
@@ -440,6 +417,19 @@ The cost of {\tt meanMC\_g} defined as $$n_{\tot}= n_{\sigma}+\sum_{t=1}^\tau n_
 }
 \subsection{Numerical Examples of {\tt meanMC\_g}}
 
+\frame{\frametitle{Integrating the product function}
+$$\mu = \int_{[0,1]^d}\prod_{i=1}^d(x_i^2+a_i) \dif x$$
+
+\begin{figure}
+\centering
+\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]
+{fig_productfun/productiidErrTime-2015-11-26-01-00-46.eps} \\ {\tt cubMC\_g}  \end{minipage}
+\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{fig_productfun/productcubSobolErrTime-2015-11-26-01-00-47.eps} \\  {\tt cubSobol\_g}\end{minipage}
+\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{fig_productfun/productcubLatticeErrTime-2015-11-26-01-00-48.eps} \\ {\tt cubLattice\_g} \end{minipage}
+\caption{$d=2,3,\cdots,20$, $\tol = \max\left(10^{-3},10^{-3}\abs{I}\right)$.}
+\end{figure}
+}
+
 \frame{\frametitle{Integrating Keister test function}
 Accuracy and timing results have been recorded for the integration problem $\mu=\int_{\reals^d} f(\vx) \, \dif \vx$ for Keister \cite{Keister96} test function:
 \begin{align*}
@@ -453,23 +443,12 @@ By applying Monte Carlo methods, the integral could be estimated as follows:
 \end{align*}
 where $\vy_i = (y_{i1},\cdots,y_{id}) \in \reals$ , $i=1,\cdots, n.$
 }
-\frame{\frametitle{Integrating the product function}
-$$\mu = \int_{[0,1]^d}\prod_{i=1}^d(x_i^2+a_i) \dif x$$
 
-\begin{figure}
-\centering
-\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]
-{fig_productfun/productiidErrTime-2015-11-26-01-00-46.eps} \\ {\tt cubMCabs\_g}  \end{minipage}
-\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{fig_productfun/productcubSobolErrTime-2015-11-26-01-00-47.eps} \\  {\tt cubSobol\_g}\end{minipage}
-\begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{fig_productfun/productcubLatticeErrTime-2015-11-26-01-00-48.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{$d=2,3,\cdots,20$, $\tol = \max\left(10^{-3},10^{-3}\abs{I}\right)$.}
-\end{figure}
-}
 \frame{\frametitle{Integrating Keister test function}
 \begin{figure}
 \centering
 \begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]
-{PlotKeisterFun/gaussianiidErrTime-2015-11-29-01-06-32.eps} \\ {\tt meanMC\_g}  \end{minipage}
+{PlotKeisterFun/gaussianiidErrTime-2015-11-29-01-06-32.eps} \\ {\tt cubMC\_g}  \end{minipage}
 \begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{PlotKeisterFun/gaussiancubSobolErrTime-2015-11-29-01-06-33.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{3.5cm} \centering \includegraphics[width=3.5cm]{PlotKeisterFun/gaussiancubLatticeErrTime-2015-11-29-01-06-33.eps} \\ {\tt cubLattice\_g} \end{minipage}
 \caption{$d \sim \text{U}[1,20]$, $\tol = \max\left(10^{-3},10^{-3} \abs{I}\right)$,  $\alpha = 0.01$}
@@ -517,7 +496,7 @@ F(-\infty, \vb,\Sigma) = \frac{1}{\sqrt{2\pi}}\int_{-\infty}^{\infty} e^{-\frac{
 }
 
 
-\frame{\frametitle{Integrating Multivariate Normal Probability with a random covariance matrix}
+\frame[allowframebreaks]{\frametitle{Integrating Multivariate Normal Probability with a random covariance matrix}
 Another example with a random covariance matrix could be used to test the adaption of the algorithms. 
 
 First, Generate a random lower triangular matrix $C$ and covariance matrix $\Sigma$: Construct the lower triangular matrix in the following form
@@ -534,8 +513,6 @@ x_{d1}&x_{d2}&\cdots&x_{dd}&0 \end{array}\right)
 \end{equation*}
 where $\log_{10}\sigma_i$ is IID in $U[1,3]$, $\delta_t$ is a shrinkage parameter, $x_{ij}$ is IID in $U[-1,1]$.
 
-}
-\frame{ \frametitle{Integrating Multivariate Normal Probability with a random covariance matrix}
 The lower triangular matrix $C$ multiplies its transpose $C'$ would be the covariance matrix $\Sigma = CC'$.
 
 Second, choose integration dimension and interval as follows:
@@ -552,15 +529,15 @@ b_j \text{ IID uniformly on } [0,\sqrt{d}].\nonumber
 \begin{figure}
 \centering
  \includegraphics[width=6cm]{boxplotofMVNP-2015-09-17-15-58-17.eps} \\ {\tt cubMC\_g} 
-\caption{Box and whisker plot. The horizonal axis denotes the different $delta$ chosen as $ 0.01,0.1, 1, 10$. The absolute error tolerance $\varepsilon_a$  and relative error tolerance are both set to be $10^{-5}$. The vertical axis denotes the computation time. \label{fig:MVNPadaptivitiy} }
+\caption{$\tol = \max(10^-5,10^{-5}\abs{\mu})$  \label{fig:MVNPadaptivitiy} }
 \end{figure}
 }
 
 \section{Introduction to GAIL}
 \frame{\frametitle{Introduction to GAIL}
-Guaranteed Automatic Integration Library (GAIL) is a suite of algorithms for integration problems in one and many dimensions, and whose answers are guaranteed to be correct.
+ \href{http://gailgithub.github.io/GAIL_Dev/}{Guaranteed Automatic Integration Library (GAIL)} is a suite of algorithms for integration problems in one and many dimensions, and whose answers are guaranteed to be correct.
 \\
-This purpose is to create a reliable and robust open source MATLAB package, following the philosophy of reproducible research (RR) championed by Claerbout \cite{Claerbout10} and Donoho\cite{BuckheitDonoho95} and developing supportable scientific software (SSS) that promote reliable reproducible research (RRR). 
+This purpose is to create a reliable and robust open source MATLAB package, following the philosophy of reproducible research championed by Claerbout \cite{Claerbout10} and Donoho\cite{BuckheitDonoho95} and developing supportable scientific software that promote reliable reproducible research. 
 \\
 In the next section, we will describe the structure of GAIL and the way we develop it.
 }
@@ -572,6 +549,101 @@ In the next section, we will describe the structure of GAIL and the way we devel
 \caption{GAIL directory hierarchy \label{GAILTree}}
 \end{figure}
 
+}
+
+
+\section{Future Work}
+\frame{\frametitle{Future work}
+\begin{itemize}
+\item Better algorithm for estimating the mean of a Bernoulli random variable {\tt meanMCber\_g}.
+\item Lower bound  and tighter bound of {\tt meanMC\_g}.
+\item Maintain and develop GAIL.
+\end{itemize}
+}
+
+\frame[allowframebreaks]{\frametitle{Bibliography}
+\bibliographystyle{alpha}
+\bibliography{Ljiang}
+}
+
+\frame{
+
+\begin{figure}[hb]
+\centering
+\includegraphics[width=4.5in]
+{Albert-Einstein.png} 
+\end{figure}
+\begin{center}
+\Huge \alert{Thanks for you attention!}
+\end{center}
+
+}
+
+
+\frame{\frametitle{Proof of $\tau$ finite}
+\begin{proof}
+As we know
+$$\Pr(\tau < \bar{\tau}(\beta)) \geq 1-\beta$$
+Taking the limit that $\beta \to 0$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, which is
+\begin{align*}%\label{betagoesto0}
+\Pr(\tau < \infty) = \Pr\left(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)\right).
+\end{align*}
+By the continuity of probability,
+\begin{align*}%\label{contofprob}
+ \Pr\left(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)\right) =\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)).
+\end{align*}
+Taking the limit on both side of the inequality yields
+\begin{align*}
+\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)) 
+\geq \lim_{\beta \to 0}(1-\beta) = 1
+\end{align*}
+\end{proof}
+}
+\frame[allowframebreaks]{\frametitle{Proof of success of algorithm {\tt meanMC\_g}}
+Proof:
+ the {\tt meanMC\_g}, several quantities are random, the random variable $Y$, the stopping time $\tau$, the sample size $n_i$,  the confidence interval width $\heps_i$ in each iteration, for $i = 1,2,\cdots, \tau$. 
+As $\tau$ is the first time that the stopping criterion $\Delta_{+, \tau} \geq \heps_\tau$ firstly reached. Thus, we know the following events are equivalent
+\begin{align}\label{STrelationshop}
+\{\tau = t\} \Leftrightarrow \{\Delta_{+,t} \geq \heps_t\} \& \{\Delta_{+,i} \leq \heps_t, \text{for }  i = 1,2,\cdots, t-1 \}.
+\end{align}
+Now let's consider the worst case. Expend the definition of $\hmu_t$ and $\heps_t$ for all $t = \tau+1, \tau+2, \cdots$ by defining $\heps_t = \heps_\tau$ for $t >\tau$. And let $\hmu_t$ been defined according to step 3 in {\tt meanMC\_g}. Suppose at stopping time $\tau$, the desired error tolerance is not obtained, the probability of this event happens is
+\begin{align}\label{439}
+&\Pr \left( \abs{\mu-\tmu}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right)\nonumber\\
+&=\sum_{t=1}^\infty\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t \right) .
+\end{align}
+
+By Proposition \ref{meanMCgProp}, we know
+\begin{align*}
+ &\Pr \left( \abs{\mu-(\hmu_t+\Delta_{-}(\hmu_t,\heps_t))}> \tol(\varepsilon_a,\varepsilon_r\abs{\mu}), \tau = t  \right)\\
+&\leq
+\Pr \left( \abs{\mu-\hmu_t}>\heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t \right).
+\end{align*}
+The definition of stopping time in \eqref{STrelationshop} implied that $\tau = t$ is incompatible with $ \Delta_{+}(\hmu_t,\heps_t)<\heps_t$. Then the inequality is equal to
+\begin{align*}
+\Pr \left( \abs{\mu-\hmu_t}> \heps_t  \text{ or } \Delta_{+}(\hmu_t,\heps_t)<\heps_t , \tau = t\right)= \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right).
+\end{align*}
+Adding extra condition of $\hsigma$ we have:
+\begin{align*}
+& \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t \right) \\
+ &=  \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t , \hsigma\geq\sigma\right) + \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \tau = t,\hsigma<\sigma \right) \\
+ & \leq \Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right)
+\end{align*}
+By \eqref{eq:fixedwidthrandomeps}, the inequality has the form
+\begin{align}\label{440}
+&\Pr \left( \abs{\mu-\hmu_t}> \heps_t, \hsigma\geq\sigma\right) + \Pr \left(  \tau = t,\hsigma<\sigma \right) \nonumber\\
+&<\alpha_t \Pr(\hsigma \geq \sigma) +\Pr \left(  \tau = t,\hsigma<\sigma \right).
+\end{align}
+Thus, by \eqref{439} and \eqref{440}
+\begin{align*}
+\Pr \left( \abs{\mu-\tmu} > \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) 
+&\leq \Pr(\hsigma \geq \sigma) \sum_{t=1}^\infty \alpha_t+\Pr(\hsigma<\sigma)\\
+&=1-\Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right)
+\end{align*}
+
+Hence, the probability could be written as
+\begin{align*}
+\Pr \left( \abs{\mu-\tmu} \leq \tol(\varepsilon_a,\varepsilon_r\abs{\mu})\right) &\geq \Pr(\hsigma \geq \sigma)\left(1-\sum_{t=1}^\infty \alpha_t\right) \\&\geq \left(1-\sum_{t=1}^\infty \alpha_t\right) (1-\alpha_\sigma) \\&= 1-\alpha
+\end{align*}
 }
 
 \frame{\frametitle{Introduction to GAIL}
@@ -618,38 +690,4 @@ GAIL Version 2.1 \cite{GAIL_2_1} includes the following ten algorithms:
 \end{itemize}
 }
 
-\section{Future Work}
-\frame{\frametitle{Future work}
-\begin{itemize}
-\item Better algorithm for estimating the mean of a Bernoulli random variable {\tt meanMCber\_g}
-\item Lower bound of {\tt meanMC\_g}
-\item Add more practical examples for GAIL.
-\end{itemize}
-Bib problems//Lemma prop do not shown numbers...
-}
-
-\frame[allowframebreaks]{\frametitle{Bibliography}
-\bibliographystyle{alpha}
-\bibliography{Ljiang}
-}
-
-\frame{\frametitle{Proof of $\tau$ finite}
-\begin{proof}
-As we know
-$$\Pr(\tau < \bar{\tau}(\beta)) \geq 1-\beta$$
-Taking the limit that $\beta \to 0$ yields $\lim_{\beta \to 0} \bar{\tau}(\beta) = \infty$, which is
-\begin{align*}%\label{betagoesto0}
-\Pr(\tau < \infty) = \Pr\left(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)\right).
-\end{align*}
-By the continuity of probability,
-\begin{align*}%\label{contofprob}
- \Pr\left(\tau  <\lim_{\beta \to 0}\bar{\tau}(\beta)\right) =\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)).
-\end{align*}
-Taking the limit on both side of the inequality yields
-\begin{align*}
-\lim_{\beta \to 0} \Pr(\tau  <\bar{\tau}(\beta)) 
-\geq \lim_{\beta \to 0}(1-\beta) = 1
-\end{align*}
-\end{proof}
-}
 \end{document}
