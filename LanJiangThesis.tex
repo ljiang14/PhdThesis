@@ -218,13 +218,15 @@ $$\hmu_n :=\frac1n\sum_{i=1}^nY_i.$$ The Strong Law of Large Numbers ensures tha
 
 An important special case of computing $\mu=\e(Y)$ is when $Y = f(\vX)$ for some function $f:\reals^d \to \reals$ and some random vector $\vX$ with probability density function $\rho: \reals^d \to [0,\infty)$. One may then interpret the mean of $Y$ as the multidimensional integral
 \begin{align*}
-I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\vX)\rho(\vX)\dif \vX.
+I= \mu(f) = \e(Y) = \int_{\reals^d}f(\vX)\rho(\vX)\dif \vX.
 \end{align*}
 The Monte Carlo method becomes a method for numerical integration.
 
+In this thesis, we mainly focus on IID sampling instead of quasi-Monte Carlo (qMC) sampling, since qMC usually requires the integrand $f$ to have mixed partial derivatives which defines the variation of the integrand $f$ in order to satisfy the specified error condition as suggested in Koksma-Hlawka Inequality \cite{Hickernell14}, whereas IID sampling does not. In fact, IID sampling does not require $Y=f(X)$, The random variable $Y$ can be quite general. We only need user provide the error tolerance and a blackbox to generate the random variables. It is much simpler than the traditional numerical integration approach.
+
 If the random variable $Y$ is a Bernoulli one, which takes only two values, 0 and 1, with  $\Pr(Y=1) =p$. The case of computing the mean becomes estimating the probability $p = \e(Y)$. 
 
-This thesis suggests the ways to estimate the random variables mentioned above to a prescribed error tolerance with a high confidence level.
+This thesis suggests the ways to estimate the means of the random variables mentioned above to a prescribed error tolerance with a high confidence level by determining an appropriate sample size required. 
 
 \Section{Guaranteed confidence interval}
 
@@ -268,12 +270,12 @@ Our assumption is a bounded kurtosis of the random variable $Y$,
 \begin{equation} \label{def:boundedkurtosis}
 \kappa = \frac{\e[(Y-\mu)^4]}{\sigma^4} \le \kappa_{\max},
 \end{equation}
-where $\kmax$ is some bound defined in Definition \ref{def:kmax}. 
+where $\sigma^2$ is the variance of the random variable $Y$ defined in \eqref{truevar}, and $\kmax$ is some bound defined in Definition \ref{def:kmax}. 
 
-After reviewing the existing literature, we found the existing theory of fixed width confidence interval may make distributional assumptions that are too strong. Stein \cite{stein45} proposed a similar two stage procedure, however, his result requires normally distributed data and has no relative error criterion involved. In Monte Carlo applications one typically does not have much information about the underlying distribution. The form of the distribution for $Y$ is generally not known, $\var(Y)$ is generally not  known, and $Y$ is not necessarily bounded. We are aiming to derive fixed width confidence intervals that do not require such assumptions.  
+After reviewing the existing literature, we found the existing theory of fixed width confidence interval may make distributional assumptions that are too strong. Stein \cite{stein45} proposed a similar two stage procedure to our Algorithm \ref{alg:meanMCg}, however, his result requires normally distributed data and has no relative error criterion involved. In Monte Carlo applications one typically does not have much information about the underlying distribution. The form of the distribution for $Y$ is generally not known, $\var(Y)$ is generally not known, and $Y$ is not necessarily bounded. We are aiming to derive fixed width confidence intervals that do not require such assumptions.  
 
 The width of a confidence interval tends to become smaller as the number $n$ of sampled
-function values increases. In special circumstances, we can choose $n$ to get a confidence interval of at most the desired length and at least the desired coverage level, $1-\alpha$. For instance, if the variance, $\sigma^2=\var(Y)$, is known, then an approach based on Chebyshev's Inequality in Theorem \ref{ChebyThm} is available, though the actual coverage will usually be much higher than the nominal level, meaning that much narrower intervals would have sufficed. Known variance in addition to a Gaussian distribution for $Y$ supports a fixed width confidence interval construction that is not too conservative \cite{stein45}. The CLT provides a confidence interval that is asymptotically correct, but our aim is for something that is definitely correct for finite sample sizes. Finally, conservative fixed width confidence intervals for means can be constructed for bounded random variables, by appealing to exponential inequalities such as Hoeffding's \cite{H63} or Chernoff's Inequality \cite{Chernoff52}, we will discuss the way to estimate the mean of Bernoulli random variables by such inequalities.
+function values increases. In special circumstances, we can choose $n$ to get a confidence interval of at most the desired length and at least the desired coverage level, $1-\alpha$. For instance, if the variance, $\sigma^2=\var(Y)$, is known, then an approach based on Chebyshev's Inequality in Theorem \ref{ChebyThm} is available, though the actual coverage will usually be much higher than the nominal level, meaning that much narrower intervals would have sufficed. Known variance in addition to a Gaussian distribution for $Y$ supports a fixed width confidence interval construction that is not too conservative \cite{stein45}. The CLT provides a confidence interval that is asymptotically correct, but our aim is for something that is definitely correct for finite sample sizes. Finally, conservative fixed width confidence intervals for means can be constructed for bounded random variables, by appealing to exponential inequalities such as Hoeffding's \cite{H63} or Chernoff's Inequality \cite{Chernoff52}. We will discuss the way to estimate the mean of Bernoulli random variables by such inequalities.
 
 If the relevant variance or bound is unknown, then approaches based on sequential statistics \cite{Siegmund85} may be available.  In sequential methods one keeps increasing $n$ until the interval is narrow enough. Sequential confidence intervals require us to take account of the stopping rule when computing the confidence level. Unfortunately, all existing sequential methods are lacking in some aspects. 
 
@@ -307,9 +309,9 @@ Bayesian methods famously do not require one to account for stopping rules. They
 Automatic algorithms commonly determine the computational cost required to approximate the solutions that differ from the true solutions by no more than a given error tolerance, $\varepsilon$. In this way, one requires a user specified error tolerance $\varepsilon$ and a black box that generate the random variables or function values. Several commonly used software packages have adaptive, automatic algorithms for integrating functions of a single variable. Unfortunately, they do not provide any guarantees. On the other hand, most existing guaranteed automatic algorithms are not adaptive, they do not determine the computational cost needed based on random variables sampled. Some examples of the adaptive automatic algorithms are
 \begin{itemize}
 \item {\tt integral} \cite{Shampone08} in MATLAB, which uses the adaptive Gauss-Kronrod quadrature based on {\tt quadva};
-\item {\tt chebfun} toolbox \cite{Chebfun14} for MATLAB, which approximates integrals by integrating interrogatory Chebyshev polynomial approximations to the integrands.
+\item {\tt chebfun} toolbox \cite{Chebfun14} for MATLAB, which approximates integrals by integrating interpolatory Chebyshev polynomial approximations to the integrands.
 \end{itemize}
-For these two automatic algorithms, one can easily probe where they sample the integrand, feed the algorithms with zero values and then construct fooling functions for which the automatic algorithms will return zero values for the integral. Figure \ref{fig:foolingfun} displays these fooling functions for problem $\int_0^1f(x)\dif x$ for these two algorithms. Each of of these algorithms is given the error tolerance $10^{-14}$. Unfortunately, the true absolute error is 1. We are not criticizing that these algorithms can easily be fooled, instead, we concerns that there is no theory to tell us when the algorithms are fooled or the problem with the integrand.
+For these two automatic algorithms, one can easily probe where they sample the integrand, feed the algorithms with zero values and then construct fooling functions for which the automatic algorithms will return zero values for the integral. Figure \ref{fig:foolingfun} displays these fooling functions for problem $\int_0^1f(x)\dif x$ for these two algorithms. Each of these algorithms is given the error tolerance $10^{-14}$. Unfortunately, the true absolute error is 1. We are not criticizing that these algorithms can easily be fooled, instead, we have concerns that there is no theory to tell us when the algorithms are fooled or the problem with the integrand.
 
 
 \Section{Outline of the thesis}
@@ -353,7 +355,7 @@ and the modified kurtosis has the definition,
 \end{align}
 %Note that, sometime the kurtosis has the form $\tilde{\kappa} = \kappa-3$. In this thesis, we only use the definition of the modified kurtosis \eqref{kurtosis}.
 
-Our main results of this thesis relies on on upper bound on the modified kurtosis, which also implies that the variance and skewness are both finite. See \cite{HJLO12}.
+Our main result of this thesis relies on an upper bound on the modified kurtosis, which also implies that the variance and skewness are both finite. See \cite{HJLO12}.
 
 \Section{The Central Limit Theorem}
 
@@ -389,7 +391,7 @@ Let $Y_1, \ldots, Y_n$ be IID. Choosing $X=\sum_{i=1}^n Y_i/n = \mu_n$, noting t
  \begin{align}\label{NCheb}
 n=N_{\Cheb}(\sigma/\varepsilon,\alpha):= \left \lceil \frac{1}{\alpha} (\sigma/\varepsilon)^2\right \rceil.
  \end{align}
- Chebyshev's Inequality ensures that the random variable $\hmu_n$ is not too far from its true value $\mu$ with a fixed width confidence interval, however, this inequality is too conservative that required a significantly large sample size than CLT. In some settings, we need a one sided inequality like Chebyshev's, we will appeal to Cantelli's Inequality.
+ Chebyshev's Inequality ensures that the random variable $\hmu_n$ is not too far from its true value $\mu$ with a fixed width confidence interval. However, this inequality is too conservative and requires a significantly larger sample size than CLT. In some settings, we need a one sided inequality like Chebyshev's. We will appeal to Cantelli's Inequality.
  
 \Section{Cantelli's Inequality}
 
@@ -398,12 +400,12 @@ n=N_{\Cheb}(\sigma/\varepsilon,\alpha):= \left \lceil \frac{1}{\alpha} (\sigma/\
 \Pr(Y-\mu \ge a) \le  \frac{\sigma^2}{a^2+\sigma^2}.
 \end{align}
 \end{theorem}
-Cantelli's Inequality may be used to get a reliable upper on the variance $\sigma^2$ of a random variable $Y$ in Chapters \ref{chapter:meanMCabsg} and \ref{chapter:meanMCg} for Algorithm \ref{alg:meanMCabsg}, \ref{alg:cubMCabsg}, \ref{alg:meanMCg} and \ref{alg:cubMCg}.
+Cantelli's Inequality may be used to get a reliable upper bound on the variance $\sigma^2$ of a random variable $Y$ in Chapters \ref{chapter:meanMCabsg} and \ref{chapter:meanMCg} for Algorithm \ref{alg:meanMCabsg}, \ref{alg:cubMCabsg}, \ref{alg:meanMCg} and \ref{alg:cubMCg}.
 
 \Section{Jensen's Inequality}
 
 \begin{theorem}[Jensen's Inequality{\cite[8.4a]{LB10}}]\label{Jensen}
-Let $g$ be a convex function on $\reals$. Suppose that the expectations of $X$ and $g(X)$ exist, then
+Let$X$ be a random variable and $g$ be a convex function on $\reals$. Suppose that the expectations of $X$ and $g(X)$ exist, then
 $$g(\e(X)) \leq \e(g(X)).$$
 Equality holds for strictly convex $g$ if and only if $X=\e(X)$ a.s.
 \end{theorem}
@@ -416,7 +418,7 @@ M_3\leq \kappa^{3/4}.
 \end{lemma}
 \begin{proof}
 By Jensen's Inequality in Theorem \ref{Jensen}, let the convex function be $g(y) = y^{4/3}$ and define the random variable $X = \abs{Y-\mu}^3$. Then we have:
-$$g(\e X) = \left (\e\abs{Y-\mu}^3\right)^{4/3} \leq \e\left(\left(\abs{Y-\mu}^3\right)^{4/3}\right) = \e(g(X)).$$
+$$g(\e(X)) = \left (\e\abs{Y-\mu}^3\right)^{4/3} \leq \e\left(\left(\abs{Y-\mu}^3\right)^{4/3}\right) = \e(g(X)).$$
 By dividing both sides of the inequality by $\sigma^3$, the inequality yields:
 $$\frac{\e\left(\abs{Y-\mu}^3\right)}{\sigma^3} \leq \left (\frac{\e\left(\abs{Y-\mu}^4\right)}{\sigma^4}\right)^{3/4}.$$
 By appealing the definition of $M_3$ and $\kappa$, the proof is complete.
@@ -431,9 +433,9 @@ Let $Y_1,\cdots,Y_n$ be IID random variables with mean $\mu$, variance $\sigma^2
 &\abs{\Pr\left(\frac{\hmu-\mu}{\sigma/\sqrt{n}}<x\right)-\Phi(x)} \nonumber\\
 & \leq \delta_n(x,M_3):=\frac{1}{n}\min\left( A_1(M_3+A_2),  A_3(M_3+A_4), A_5M_3, \frac{A_6M_3}{1+\abs{x}^3}\right) \label{deltaBEconstant}
 \end{align}
-where $\Phi$ is the standard Gaussian cumulative distribution function , $A_1 = 0.3322$, $A_2 = 0.429$, $A_3=0.3031$, $A_4=0.646$, $A_5=0.469$ \cite{She13} and $A_6=18.1139$ \cite{NeShe12}.
+where $\Phi$ is the standard Gaussian cumulative distribution function, $A_1 = 0.3322$, $A_2 = 0.429$, $A_3=0.3031$, $A_4=0.646$, $A_5=0.469$ \cite{She13} and $A_6=18.1139$ \cite{NeShe12}.
 \end{theorem}
-By applying Theorem \ref{BEThm} with given $M_3$, let $\hmu_n$ donate a sample mean of $n$ IID random instances of $Y$, then the non-uniform Berry-Esseen Inequality implies that
+By applying Theorem \ref{BEThm} with given $M_3$, let $\hmu_n$ donate a sample mean of $n$ IID random instances of $Y$, then the Berry-Esseen Inequality implies that
 \begin{align} 
 &\Pr\left[\abs{\mu-\hmu_n}  \le \varepsilon \right]\nonumber\\
 &=\Pr\left[\frac{\hmu_n - \mu}{\sigma/\sqrt{n}} \le \frac{\sqrt{n}\varepsilon}{\sigma} \right]-\Pr\left[\frac{\hmu_n - \mu}{\sigma/\sqrt{n}} < -\frac{\sqrt{n}\varepsilon}{\sigma}\right] \nonumber \\ 
@@ -446,7 +448,7 @@ making an error no greater than $\varepsilon$ is bounded below by $1-\alpha$, wh
 N_{\BE}(\sigma/\varepsilon,\alpha,M_3) := \min  \left \{ n \in \naturals : \Phi\left(-\sqrt{n}/(\sigma /\varepsilon) \right)+\delta_n\left(\sqrt{n}/(\sigma /\varepsilon),M_3\right)
 \le \frac{\alpha}{2} \right \}.
 \end{equation}
-It is interesting to note that the first term $\Phi\left(-\sqrt{n}/(\sigma /\varepsilon) \right)$ is the CLT part, while the second term $\delta_n\left(\sqrt{n}/(\sigma /\varepsilon),M_3\right)$ is the Berry-Esseene extra part. To compute $N_{\BE}(\sigma /\varepsilon,\alpha,M_3)$, we need to know $M_3$. In practice, substituting an upper bound on $M_3$ yields an upper bound on the necessary sample size.
+It is interesting to note that the first term $\Phi\left(-\sqrt{n}/(\sigma /\varepsilon) \right)$ is the CLT part, while the second term $\delta_n\left(\sqrt{n}/(\sigma /\varepsilon),M_3\right)$ is the Berry-Esseen extra part. To compute $N_{\BE}(\sigma /\varepsilon,\alpha,M_3)$, we need to know $M_3$. In practice, substituting an upper bound on $M_3$ yields an upper bound on the necessary sample size.
 As $M_3 \leq \kappa^{3/4}$ by Lemma \ref{M3kappalemma}, the sample size calculated by \eqref{NBE} is also $N_{\BE}\left(\sigma /\varepsilon,\alpha,\kappa^{3/4}\right) $.
 %As the condition of the 
 %Define the sample sized calculated by Chebyshev's inequality and Berry-Esseen inequality as:
@@ -456,7 +458,7 @@ As $M_3 \leq \kappa^{3/4}$ by Lemma \ref{M3kappalemma}, the sample size calculat
 
 \Section{Hoeffding's Inequality}
 
-As mentioned in the introduction, we investigate the way to estimate the mean of Bernoulli random variables, namely, the probability, $p$. In view of the particular form of the Bernoulli distribution, the inequalities that assume some bound on the random variable may be more feasible.  Here we use Hoeffding's Inequality \cite{H63}, which seems more suitable than, say, the Chernoff bound \cite{Chernoff52}.  Below is the a special case of Hoeffding's Inequality for random variables lying in $[0,1]$.
+As mentioned in the introduction, we investigate the way to estimate the mean of Bernoulli random variables, namely, the probability, $p$. In view of the particular form of the Bernoulli distribution, the inequalities that assume some bound on the random variable may be more feasible.  Here we use Hoeffding's Inequality \cite{H63}, which seems more suitable than the Chernoff bound \cite{Chernoff52},which is more conservative than Hoeffding's Inequality.  Below is a special case of Hoeffding's Inequality for random variables lying in $[0,1]$.
 \begin{theorem}[Hoeffding's Inequality {\cite{H63}}] \label{hoeff}
 If $Y_1$, $Y_2$, $\cdots$, $Y_n$ are IID observations such that $\e(Y_i)=p$ and $0 \leq Y_i \leq 1$, define $\hp_n=\sum_{i=1}^n Y_i/n$. Then, for any $\varepsilon>0$, 
 \begin{equation}\label{ineq:HoeffonesideB}\
@@ -469,7 +471,7 @@ If $Y_1$, $Y_2$, $\cdots$, $Y_n$ are IID observations such that $\e(Y_i)=p$ and 
 \Pr(\abs{\hp_n-p} \geq \varepsilon) \leq 2e^{-2n\varepsilon^2}.
 \end{equation}
 \end{theorem}
- Note, the reason we use $p$ represent the mean instead of $\mu$ is that, the Hoeffding's Inequalities are used to develop an algorithm that estimate a probability, we feel $p$ may be a better notation.
+The reason we use $p$ represent the mean instead of $\mu$ is that the Hoeffding's Inequality is used to develop an algorithm that estimate a probability, we feel $p$ may be a better notation.
  
 \Section{Fr\'{e}chet Formula}
 
@@ -479,7 +481,7 @@ Suppose $A_1, A_2,\cdots,A_n$ are events, the probability of a logical conjuncti
  \max(0, P(A_1) + \cdots +P(A_n)-(n -1)) \leq P\left(\bigcap_{i=1}^n A_i\right) \leq \min(P(A_1),  \cdots, P(A_n))
 \end{multline}
 \end{theorem}
-This inequality bounds the probability of joint events by the probability of the individual events without any dependence assumptions. It would be used to prove success of our algorithms in Chapter \ref{chapter:meanMCg} and \ref{chapter:meanMCberg}.
+This inequality bounds the probability of joint events by the probability of the individual events without any dependence assumptions. It will be used to prove success of our algorithms in Chapter \ref{chapter:meanMCg} and \ref{chapter:meanMCberg}.
 
 \Section{Additional definition and lemmas}
 
@@ -532,11 +534,10 @@ Starting with inequality \eqref{boundsamplevar2} in Lemma \ref{samplevarbound}, 
 =\Pr\left(\hsigma^2  > \sigma^2 \right) \\&
 \geq  1-\alpha_{\sigma} 
 \end{align*}
-This inequality explains that if the modified kurtosis $\kappa$ is bounded by $\kmax$, then the variance $\sigma^2$ will have a probabilistic upper bound $\hsigma^2$ with confidence level $1-\alpha_{\sigma}$.
 \end{proof}
-
+This inequality explains that if the modified kurtosis $\kappa$ is bounded by $\kmax$, then the variance $\sigma^2$ will have a probabilistic upper bound $\hsigma^2$ with confidence level $1-\alpha_{\sigma}$.
 \begin{lemma}\label{upperboundhsigma}
-Under same assumptions as in Lemma \ref{lowerboundhsigma}, define the upper bound on $\hsigma^2$ as:
+Under same assumptions as in Lemma \ref{lowerboundhsigma}, define a probabilistic upper bound on $\hsigma^2$ as:
 \begin{align}\label{sigup}
 \hsigma_{\up}^2 (\beta) := \left(\fudge^2+(\fudge^2-1)\sqrt{\frac{\alpha_{\sigma}(1-\beta)}{(1-\alpha_{\sigma})\beta}}\right)\sigma^2.
 \end{align}
@@ -569,7 +570,7 @@ Let $A_1, A_2, \cdots$ be a sequence of events increasing to $A$. Then
 \end{align}
 \end{lemma}
 \begin{proof}
-Since $A_i \subseteq A_{i+1}$, then we know $A_i \cap A_{i+1} = A_i$. Therefore, define $C_{i+1} = A_{i+1} \cap A_i^c$ for $i = 2,3,\cdots$, and let $C_1 = A_1$. Thus, we have
+Since $A_i \subseteq A_{i+1}$, then we know $A_i \cap A_{i+1} = A_i$. Therefore, define $C_{i+1} = A_{i+1} \cap (A_{i+1}\backslash A_i)$ for $i = 2,3,\cdots$, and let $C_1 = A_1$. Thus, we have
 $$\cup_{i=1}^n C_i = A_n$$
 $$\cup_{i=1}^\infty C_i=\cup_{i=1}^\infty A=A$$
 As the probability has the property of countably additive, we conclude
@@ -606,12 +607,14 @@ which contradicts the assumption, hence the proof proceeds.
 \end{proof}
 \Chapter{Guaranteed Monte Carlo method with an absolute error tolerance}\label{chapter:meanMCabsg}
 
-In this chapter, we will present two guaranteed automatic adaptive algorithms: {\tt meanMCabs\_g}, which estimate the mean $\mu$ of a random variable $Y$; {\tt cubMCabs\_g}, which estimate the integral $I$ with the integrand $f$ with respect to some density function $\rho$ within the interval $(\va,\vb)$. In order to estimate the mean $\mu$ of a random variable $Y$, we feed {\tt meanMCabs\_g} with a random number generator $\Yrand$ and an absolute error tolerance $\varepsilon_a$. This algorithm automatically and adaptively determines the sample size needed in order to guarantee that the answer $\hmu_n$ satisfy the fixed width confidence interval condition: $\Pr (\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha$. Similar for the {\tt cubMCabs\_g}, which estimate the integral $I=\int_{\va}^{\vb} f(\vx)\rho(\vx)\dif\vx$, we feed this algorithm with the integrand $f$, integration interval $(\va,\vb)$, the probability density function $\rho$, and the absolute error tolerance $\varepsilon_a$. We have the guarantee that the answer $\hIn$ satisfies the fixed width confidence interval condition $\Pr \left(\abs{I-\hIn} \leq \varepsilon_a\right) \geq 1-\alpha$.
+In this chapter, we will present two guaranteed automatic adaptive algorithms: {\tt meanMCabs\_g}, which estimate the mean $\mu$ of a random variable $Y$; {\tt cubMCabs\_g}, which estimate the integral $I$ with the integrand $f$ with respect to some density function $\rho$ within the multivariate interval $(\va,\vb)$. In order to estimate the mean $\mu$ of a random variable $Y$, we feed {\tt meanMCabs\_g} with a random number generator $\Yrand$ and an absolute error tolerance $\varepsilon_a$. This algorithm automatically and adaptively determines the sample size needed in order to guarantee that the answer $\hmu_n$ satisfy the fixed width confidence interval condition: $\Pr (\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha$ if the random variable satisfies the bounded kurtosis condition $\kappa \leq \kmax$. Similar for the {\tt cubMCabs\_g}, which estimate the integral $I=\int_{\va}^{\vb} f(\vx)\rho(\vx)\dif\vx$, we feed this algorithm with the integrand $f$, integration interval $(\va,\vb)$, the probability density function $\rho$, and the absolute error tolerance $\varepsilon_a$. We have the guarantee that the answer $\hIn$ satisfies the fixed width confidence interval condition $\Pr \left(\abs{I-\hIn} \leq \varepsilon_a\right) \geq 1-\alpha$.
 %In details, the algorithm {\tt meanMCabs\_g} works as follows: In the first stage, we sample $n_\sigma$ IID samples from the distribution of $Y$, from this sample we compute the sample variance, $s_{n_\sigma}^2$, according to \eqref{samplevar} and estimate the upper bound on variance $Y_i$ by $\hsigma^2 = \fudge^2s_{n_{\sigma}}^2$, where $\fudge^2>1$ is the fudge factor. For the second stage, we replace the true variance $\sigma^2$ by its upper bound $\hsigma^2$, then use the Berry-Esseen Theorem \ref{BEThm} to get the sample size needed for computing the sample mean $\hmu$. If the modified kurtosis $\kappa$ is less than $\kmax$, then we guarantee that the fixed width confidence interval condition \eqref{absCI} may be satisfied.
 
 \Section{The Algorithm {\tt meanMCabs\_g}} \label{sec:meanMCabsg}
 
-Before illustrating the algorithm, we first define some parameters. Given the uncertainty level $\alpha$, the sample size $n_{\sigma}$ and the fudge factor $\fudge$, define the sample size calculated by CLT in Theorem \ref{clt} as:
+Before illustrating the algorithm, we first define some parameters: the uncertainty level $\alpha$, the sample size $n_{\sigma}$ and the fudge factor $\fudge$, with default values listed in Table \ref{meanMCabsgparam}.
+
+Define the sample size calculated by CLT in Theorem \ref{clt} as:
 \begin{equation}\label{NCLTmeanMCabsg}
 N_{\CLT}(\sigma/\varepsilon_a,\alpha)
 = 
@@ -638,9 +641,11 @@ Thus, we define the sample size obtained by both Chebyshev's and the Berry-Essee
 \begin{align}\label{NCBmeanMCabsg}
 N_{\CB} \left(\sigma/\varepsilon_a,\alpha, \kmax^{3/4}\right)  = \min \left \{ N_{\Cheb}\left(\sigma/\varepsilon_a,\alpha\right),N_{\BE}\left(\sigma/\varepsilon_a,\alpha, \kmax^{3/4}\right)\right \}.
 \end{align}
-In details, the two-stage algorithm works as follows:
+
+ In details, the two-stage algorithm works as follows:
+
 \begin{algorithm}[{\tt meanMCabs\_g}] \cite[Algorithm 1]{HJLO12}\label{alg:meanMCabsg}
-User provide a random number generator $\Yrand$ that takes the sample size $n$ as the input and generates $n$ random numbers from the distribution of $Y$. The absolute error tolerance $\varepsilon_a$. 
+This algorithm requires the user to provide a random number generator $\Yrand$ that takes the sample size $n$ as the input and generates $n$ random numbers from the distribution of $Y$ and the absolute error tolerance $\varepsilon_a$. 
 \begin{table}[ht]
 \caption{Parameters specified in Algorithm \ref{alg:meanMCabsg} and \ref{alg:cubMCabsg}.\label{meanMCabsgparam}}
 \begin{tabular}{c|c|c}
@@ -651,7 +656,7 @@ User provide a random number generator $\Yrand$ that takes the sample size $n$ a
       $\alpha$ &  the uncertainty level, $0<\alpha<1$ & $1\%$\\
       $\alpha_\sigma$ & the uncertainty level for variance estimation, $0<\alpha_\sigma<\alpha$ & $\alpha/2$ \\
        $n_{\sigma}$ &  the sample size for variance estimation, $n_\sigma \in \naturals$ & $10^4$\\
-       $\fudge$ & standard deviation inflation factor, $\fudge>1$ & $1.2$\\
+       $\fudge$ & standard deviation inflation factor (fudge factor), $\fudge>1$ & $1.2$\\
       \hline
     \end{tabular}
 \end{table}
@@ -663,11 +668,11 @@ User provide a random number generator $\Yrand$ that takes the sample size $n$ a
 %%\item the kurtosis max $\kmax(n_\sigma,\alpha_\sigma,\fudge)$ as defined in xxxxx.
 %\end{itemize}
 
-With the parameters given in Table \ref{meanMCabsgparam}, we first calculate 
+With the parameters and their default values given in Table \ref{meanMCabsgparam}, we first calculate 
 \begin{equation}	\label{kmaxinalg}
 \kmax=\kappa_{\max}(n_\sigma,\alpha_\sigma,\fudge) =\frac{n_\sigma-3}{n_\sigma-1} + \left(\frac{ \alpha_\sigma n_\sigma}{1-\alpha_\sigma}\right) \left(1 - \frac{1}{\fudge^2}\right)^2.
 \end{equation}
-as defined in \eqref{def:kmax}, then do the following:
+as defined in \eqref{def:kmax}, and then do the following:
 \begin{enumerate}
 %\renewcommand{\labelenumi}{\alph{enumi})}
 \item Compute the sample variance, $s^2_{n_{\sigma}}$, using $n_\sigma$ IID random samples from the distribution of  $Y$. Let $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$ be the upper bound on variance.
@@ -675,14 +680,24 @@ as defined in \eqref{def:kmax}, then do the following:
 \begin{align}\label{def:meanmcabsgnmu}
 n_\mu = N_{\CB} \left(\hsigma/\varepsilon_a,\alpha_\mu, \kmax^{3/4}\right).
 \end{align}
-Sample $n_\mu$ IID samples from the distribution of $Y$ that are independent of those used to estimate $\sigma^2$. Calculate the mean $\tmu$,
+Sample $n_\mu$ IID samples from the distribution of $Y$ that are independent of those used to estimate $\sigma^2$. Calculate the mean $\hmu$,
 \begin{align}\label{def:meanmcabsghmu}
 \hmu = \frac{1}{n_\mu}\sum_{i = n_\sigma+1}^{n_\sigma+n_\mu}Y_i.
 \end{align}
+Return $\hmu$ as the answer.
 \end{enumerate}
+
 \end{algorithm}
- Note that, $n_\sigma$ and $\fudge$ can be optimized with respect to $\sigma/\varepsilon_a$, however, it is impractical since $\sigma$ is usually not known. Our suggestion is to choose $\fudge$ around 1.2 and choose $n_\sigma$ as large as needed to ensure $\kmax$ is large enough to bound the true kurtosis $k$. For example, choosing $n_\sigma = 10000$, $\alpha_\sigma = 0.5\%$ and $\fudge=1.2$ corresponding to the $\kmax = 5.69$. If the random variable we are dealing with has a heavy tail distribution, we may need more samples to estimate the variance, which is, increase $n_\sigma$. 
- 
+
+
+Note that, we usually fix the uncertainty level $\alpha$ as $1\%$, which means our answer will be true with probability at least $99\%$. Decreasing $\alpha$ will cause more sample required according to the formulas \eqref{NCLTmeanMCabsg}, \eqref{NChebymeanMCabsg} and \eqref{NBEmeanMCabsg}. As our algorithm {\tt meanMCabs\_g} is a two stage one, in each stage, we choose the uncertainty level as $\alpha_\sigma$ and $\alpha_\mu$ which satisfy the condition $(1-\alpha_\sigma)(1-\alpha_\mu)=1-\alpha$.
+
+The sample size $n_\sigma$ is usually fixed as $10^4$, this is the sample size used to estimate the sample variance. As the total cost is defined as $n_\sigma +n_\mu$, increasing this sample size will cause more total sample used while we have a better estimation of the sample variance. 
+
+The fudge factor $\fudge$ is usually set as $1.2$, which could be thought as enlarging the sample standard deviation by $20\%$ ( enlarging the sample variance by $44\%$). This factor ensures that the probability of underestimating the variance is low. 
+
+These three parameters, $\alpha_\sigma$, $n_\sigma$ and $\fudge$, define $\kmax$, which is not a parameter to be prescribed, but a reflection of the robustness of one's Monte Carlo algorithm having chosen $\alpha_\sigma$, $n_\sigma$ and $\fudge$. Our suggestion is that, user should not skimp on $n_\sigma$, but choose $n_\sigma$ as large as needed to ensure that $\kmax$ is is large enough to bound the true kurtosis $\kappa$. The fudge factor $\fudge$ is usually chosen close to unity.
+
 The success of the Algorithm \ref{alg:meanMCabsg} is proved in the following theorem.
 \begin{theorem} \cite[Theorem 5]{HJLO12}\label{thm:meanMCabsg}
 Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2 >0$, and modified kurtosis $\kappa$. Let $\kmax(n_\sigma,\alpha_\sigma,\fudge)$ be as defined in \eqref{def:kmax}. For any random variable $Y$ with a bounded kurtosis $\kappa\leq\kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, Algorithm \ref{alg:meanMCabsg} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the fixed width confidence interval condition
@@ -736,18 +751,18 @@ Hence the proof is complete.
 
 An important special case of computing $I =\e(Y)$ is when $Y = f(\vx)$ for some function $f:\reals^d \to \reals$ and some random vector $\vx$ with probability density function $\rho: \reals^d \to [0,\infty)$. One may then interpret the mean of $Y$ as the multidimensional integral
 \begin{align}\label{integralI}
-I= \mu(f) = \e(\vY) = \int_{\reals^d}f(\boldsymbol{x})\rho(\vx)\dif \vx.
+I= \mu(f) = \e(Y) = \int_{\reals^d}f(\boldsymbol{x})\rho(\vx)\dif \vx.
 \end{align}
 Note that given the problem of evaluating $I = \int_{\reals^d}g(\vx)\dif\vx$, one must choose a probability density function $\rho$ for which one can easily generate random vectors $\vx$, then set $f = g/\rho$. The quantities $\sigma^2$ and $\kappa$ defined above can be written in terms of weighted $\mathcal{L}_p$ norms of $f$:
 \begin{align*}
-\norm[4]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
+\norm[p]{f}:=\left\{ \int_{\reals^d}\abs{f(\vx)}^p\rho(\vx)\dif\vx\right\}^{1/p}, \quad \sigma^2 = \norm[2]{f-\mu}^2,\quad \kappa = \frac{\norm[4]{f-\mu}^4}{\norm[2]{f-\mu}^4}.
 \end{align*}
 For a given $g$, the choice of $\rho$ is not unique, and making an optimal choice belongs to the realm of the importance sampling. The assumption of bounded kurtosis in \eqref{def:boundedkurtosis} required by Algorithm \ref{alg:meanMCabsg} corresponds to an assumption that integrand $f$ lies in the cone of functions \cite{CDHHZ13}
 \begin{align*}
-C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[4]{f-\mu(f)}\right\}.
+C_{\kmax} = \left\{ f \in \mathcal{L}_4: \norm[4]{f-\mu(f)} \leq \kmax^{1/4} \norm[2]{f-\mu(f)}\right\}.
 \end{align*}
 This is in contrast to a ball of functions, which wound be the case if one was satisfying a bounded variance condition.
-Below, we will present our Algorithm {\tt cubMCabs\_g} which estimate the integral \eqref{integralI}
+Below, we will present our Algorithm {\tt cubMCabs\_g} which estimates the integral \eqref{integralI}
 as $\hat{I}$ in order to satisfy the fixed width confidence interval condition
 \begin{align}\label{cubMCabsgCI}
 \Pr \left(\abs{\hat{I}-I} \leq \varepsilon_a \right) \geq 1-\alpha.
@@ -756,7 +771,7 @@ as $\hat{I}$ in order to satisfy the fixed width confidence interval condition
 \Section{The Algorithm {\tt cubMCabs\_g }}\label{sec:cubMCabsg}
 
 \begin{algorithm}\label{alg:cubMCabsg} 
-User provide the integrand $f$, the integration interval, $(\va,\vb)$, the measure $\rho$, and the absolute error tolerance $\varepsilon_a$. With the parameters specified in Table \ref{meanMCabsgparam}, we first calculate $\kmax=\kappa_{\max}(n_\sigma,\alpha_\sigma,\fudge)$ as defined in \eqref{def:kmax}, then do the following:
+This algorithm requires the user to provide an integrand $f$, an integration interval $(\va,\vb)$, a measure $\rho$, and an absolute error tolerance $\varepsilon_a$. With the parameters with the default values specified in Table \ref{meanMCabsgparam}, we first calculate $\kmax=\kappa_{\max}(n_\sigma,\alpha_\sigma,\fudge)$ as defined in \eqref{def:kmax}, and then do the following:
 \begin{enumerate}
 %\renewcommand{\labelenumi}{\alph{enumi})}
 \item In the first stage, sample $n_\sigma$ values of random vector $\vX_i$ from the distribution of $\vX$ with probability density function $\rho$ and obtain $n_\sigma$ function values of $f(\vX_i)$. Use this to calculate the sample mean $$\hat{I}_{n_\sigma} = \frac{1}{n_\sigma}\sum_{i=1}^{n_\sigma} f\left(\vX_i\right),$$ and sample variance $$s_{n_\sigma}^2 = \frac{1}{n_\sigma-1}\sum_{i=1}^{n_\sigma} \left(f(\vX_i)-\hat{I}_{n_\sigma}\right)^2.$$ Also approximate the upper bound on variance by $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. 
@@ -765,7 +780,7 @@ User provide the integrand $f$, the integration interval, $(\va,\vb)$, the measu
 \begin{align}
 n_\mu = N_{\CB} \left(\hsigma/\varepsilon_a,\alpha_\mu, \kmax^{3/4}\right).
 \end{align}
-Sample $n_\mu$ values of random vector $\vX_i$ that are interdependent of those used to calculate $\hsigma^2$ from the distribution of $\vX$ with probability density function $\rho$, then calculate the $n_\mu$ function values of $f(\vX_i)$. Use this to calculate the sample mean 
+Sample $n_\mu$ values of random vector $\vX_i$ that are independent of those used to calculate $\hsigma^2$ from the distribution of $\vX$ with probability density function $\rho$, then calculate the $n_\mu$ function values of $f(\vX_i)$. Use this to calculate the sample mean 
 \begin{align}\label{hmun}
 \hat{I}= \frac{1}{n_\mu}\sum_{i = n_\sigma+1}^{n_\sigma+n_\mu}f(\vX_i).
 \end{align}
@@ -787,19 +802,19 @@ In this section, we will show some numerical examples to integrate some test fun
 {fig_productfun/productcubSobolErrTime-2015-11-24-16-11-57.eps} \\ {\tt cubSobol\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]
 {fig_productfun/productcubLatticeErrTime-2015-11-24-16-11-57.eps} \\ {\tt cubLattice\_g}  \end{minipage}
-\caption{Execution times and errors for the product function \eqref{productfun} with $d$ random chosen between 2 and 20, and the absolute error tolerance $\varepsilon_a=10^{-3}$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid green line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times. \label{fig:cubMCabsgproductfun} }
+\caption{Execution times and errors for the product function \eqref{productfun} with $d$ random chosen between 2 and 20, and the absolute error tolerance $\varepsilon_a=10^{-3}$. Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid green curve shows that cumulative distribution of actual errors, and the dot-dashed curve shows the cumulative distribution of execution times. \label{fig:cubMCabsgproductfun} }
 \end{figure}
 
-A product function are used here to perform an integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$, where the integrand is chosen as
+A product function is used here to perform an integration problem $\mu=\int_{[0,1]^d} f(\vx) \, \dif \vx$, where the integrand is chosen as
 \begin{equation}\label{productfun}
 f(\vx) = \prod_{i=1}^d(x_i^2+a_i),
 \end{equation}
-where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is IID uniform on $[2,20]$, $a_i$ is  IID uniform in $[0,4/3]$, for $i=1,2,\cdots,d$. Accuracy and time are recorded with 500 replications performed using algorithms {\tt cubMCabs\_g}, {\tt cubSobol\_g} \cite{HicJim16a} and {\tt cubLattice\_g} \cite{JimHic16a}. For all of these three algorithms, the absolute error tolerance is $10^{-3}$, the initial sample size is $2^{13}$, and the sample budget is $10^{10}$. With the uncertainty level $\alpha = 0.01$ and $\fudge = 1.2$, the kurtosis maximum is $\kmax = 4.84$ for {\tt cubMCabs\_g}.
+where $\vx = (x_1,x_2,\cdots,x_d)$, $d$ is IID uniform on $[2,20]$, $a_i$ is  IID uniform in $[0,4/3]$, for $i=1,2,\cdots,d$. Accuracy and time are recorded in Figure \ref{fig:cubMCabsgproductfun} with 500 replications performed using algorithms {\tt cubMCabs\_g}, {\tt cubSobol\_g} \cite{HicJim16a} and {\tt cubLattice\_g} \cite{JimHic16a}. For all of these three algorithms, the absolute error tolerance is $10^{-3}$, the initial sample size is $2^{13}$, and the sample budget is $10^{10}$. With the uncertainty level $\alpha = 0.01$ and $\fudge = 1.2$, the kurtosis maximum is $\kmax = 4.84$ for {\tt cubMCabs\_g}.
 
 In the plots for {\tt cubMCabs\_g}, an asterisk is used to label those points satisfying $\kappa \le \kmax$, where $\kappa$ is defined in \eqref{kurtosis}. All such points fall within the prescribed error tolerance,
 which is even better than the guaranteed confidence of $99\%$.  Those points labeled with a dot, are those for which $\kappa > \kmax$, and so no guarantee holds. The points labeled with a diamond are those for which  {\tt cubMCabs\_g}  attempts to exceed the cost budget that we set, i.e., it wants to choose $n_\mu$ such that $n_{\sigma}+n_\mu > n_{\max}:=10^{10}$. In these cases $n_\mu$ is chosen as $\lfloor 10^{10} - n_\sigma \rfloor$, which often is still large enough to get an answer that satisfies the error tolerance. 
  
-For {\tt cubSobol\_g} there are 444 out of 500 samples that reach the desired accuracy, which is, the successful rate is $88.8\%$. Similarly, for {\tt cubLattice\_g}, there are 347 out of 500 samples that have the error less than the tolerance, i.e. the accuracy rate is $69.4\%$.
+For {\tt cubSobol\_g} there are 444 out of 500 samples that reach the desired error tolerance, which is, the probability of success is $88.8\%$. Similarly, for {\tt cubLattice\_g}, there are 347 out of 500 samples that have the error less than the tolerance, i.e. the probability of success is $69.4\%$. Both of these quasi Monte Carlo methods have not reach the desired confidence level, $99\%$.
 
 % These two quasi-Monte Carlo thods perform not as good as {\tt cubMCabs\_g} since this particular test function has a high effective dimension, which make the Fourier coefficient decays slow.
 \Subsection{Integrating a single hump}\label{subsec:meanmcabssinglehump}
@@ -833,7 +848,7 @@ Here $\vx$ is a $d$ dimensional vector, and $a_0, b_0, \ldots, b_d, c_1, \ldots,
 These ranges of parameters are chosen so that the algorithms being tested fail to meet the error tolerance a significant number of times.
 
 %Those points to the left/right of the dashed vertical line represent successes/failures of the automatic algorithms.  The solid line shows that cumulative distribution of actual errors, and the dot-dashed line shows the cumulative distribution of execution times.  For the {\tt cubMCabs\_g} the points labeled * are those for which the Theorem \ref{thm:meanMCabsg} guarantees the error tolerance.
-These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt integral} \cite{Shampone08}, {\tt chebfun} \cite{Chebfun14}, {\tt cubSobol\_g}, {\tt cubLattice\_g}, and {\tt cubMCabs\_g}. For all but {\tt chebfun}, the specified absolute error tolerance is $\varepsilon_a=10^{-3}$. The algorithm {\tt chebfun} attempts to do all calculations to near machine precision. The initial sample size is set as $2^{13}$ for all of the three Monte Carlo algorithms. {\tt cubMCabs\_g} takes $\alpha=0.01$ and $\fudge = 1.2$, which corresponds to $\kmax =4.84$.The observed error and execution times are plotted in Figure \ref{fig:GaussianTestFun}.  
+These $500$ random constructions of $f$ with $d=1$ are integrated using {\tt integral} \cite{Shampone08}, {\tt chebfun} \cite{Chebfun14}, {\tt cubSobol\_g}, {\tt cubLattice\_g}, and {\tt cubMCabs\_g}. For all but {\tt chebfun}, the specified absolute error tolerance is $\varepsilon_a=10^{-3}$. The algorithm {\tt chebfun} attempts to do all calculations to near machine precision but we still measure the success relative to absolute error tolerance $\varepsilon_a=10^{-3}$. The initial sample size is set as $2^{13}$ for all of the three Monte Carlo algorithms. {\tt cubMCabs\_g} takes $\alpha=0.01$ and $\fudge = 1.2$, which corresponds to $\kmax =4.84$.The observed error and execution times are plotted in Figure \ref{fig:GaussianTestFun}.  
 
 Figure \ref{fig:GaussianTestFun} shows that {\tt integral} is quite fast, nearly always providing an answer in less than $0.01$ seconds.  Unfortunately, it successfully meets the error tolerance only about $55\%$ of the time, which is, only 275 out of 500 samples meet the error criterion. The performance of {\tt chebfun} is even worse than {\tt integral}, only 199 out of 500 samples meet the error tolerance, thus, the accuracy is $39.8\%$. For {\tt chebfun} plots, there are a significant proportion of the data that do not appear because their errors are smaller than $10^{-5}$.  The difficult cases are those where $c_1$ is quite small, and these algorithms miss the sharp peak.
 %
@@ -935,11 +950,11 @@ Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{f
 
 \Chapter{Guaranteed Monte Carlo method with a generalized error tolerance} \label{chapter:meanMCg}
 
-In this chapter, we will illustrate another two algorithms, {\tt meanMC\_g} and {\tt cubMC\_g}. They are used to estimate the mean of a random variable and perform numerical integration under some generalized error tolerance criterion. The algorithms proceed iteratively until the stopping criterion is met. The details of the algorithms are described in Section \ref{sec:algmeanMCg} and Section \ref{sec:cubmcgalg}. The computational cost bound is derived in Section \ref{sec:meanmcgcost} and several numerical examples are given in Section \ref{sec:cubmcgnumericalexample}.
+In this chapter, we will illustrate another two algorithms, {\tt meanMC\_g} and {\tt cubMC\_g}. They are used to estimate the mean $\mu$ of a random variable $Y$ and perform numerical integration under some generalized error tolerance criterion. This is a hybrid error criterion that combines the absolute error tolerance $\varepsilon_a$ and relative error tolerance $\varepsilon_r$. For example, we can take the tolerance $\max(\varepsilon_a, \varepsilon_r \abs{\mu})$. These two algorithms do not default to the previous two algorithms described in Chapter \ref{chapter:meanMCabsg} if the absolute error tolerance is quite small but nonzero. The algorithms introduced in this chapter will proceed iteratively until the stopping criterion is met. The details of the algorithms are described in Section \ref{sec:algmeanMCg} and Section \ref{sec:cubmcgalg}. The computational cost bound is derived in Section \ref{sec:meanmcgcost} and several numerical examples are given in Section \ref{sec:cubmcgnumericalexample}.
 
 \Section{A generalized error criterion}\label{sec:generalerrorcriterion}
 
- Suppose $Y$ is a random variable, one want to estimate its mean, i.e. $\mu=\e(Y)$. One way to do it is to sample $n$ values of $Y_i$, and let $\hmu=\sum_{i=1}^n Y_i/n$, when $n$ is large enough, $\hmu$ may be a good estimator of $\mu$. In some practical situations, one may seek to approximate the answer with 
+ Suppose $Y$ is a random variable, one wants to estimate its mean, i.e. $\mu=\e(Y)$. One way to do it is to sample $n$ values of $Y_i$, and let $\hmu=\sum_{i=1}^n Y_i/n$, when $n$ is large enough, $\hmu$ may be a good estimator of $\mu$. In some practical situations, one may seek to approximate the answer with 
 %How large should $n$ be? one way to determine sample size $n$ is by Central Limit Theorem \ref{clt}. As CLT is an asymptotic results and is true only when $n \to \infty$, we need a probabilistic bound on error when $n$ is finite. In  Chapter \ref{chapter:meanMCabsg}, we proposed a two stage algorithm used to estimate the mean of a random variable to a specified absolute error tolerance with a high confidence level, i.e., we want our estimator $\hmu_n$ satisfies this fixed width confidence interval condition:
 %\begin{align*}
 %\Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha.
@@ -1007,9 +1022,14 @@ If error bound \eqref{pointwiseerrorbound} holds, and $\heps$ satisfies the foll
 \end{align*}
 \end{proof}
 
+If $\hmu >0$, $\Delta_{-}(\hmu,\heps)$ will be negative according to the definition of $\tol$ and $\Delta_{-}$. Similarly, if $\hmu <0$, $\Delta_{-}(\hmu,\heps)$ will be positive. Thus, $\tmu$ is a shrinkage estimator that is smaller than $\hat{\mu}$ in magnitude only if $\varepsilon_r > 0$. We give the unbiased estimator $\hmu$ a little shift towards 0 to make the new biased estimator $\tmu$ more easy to satisfy the generalized error criterion. This little shift, $\Delta_-$, will offset the scenario that we over estimate $\hmu$. Suppose our estimator $\hmu>\mu>0$, without the shift, we can only guarantee that $\abs{\mu-\hmu}\leq \tol(\varepsilon_a,\varepsilon_r\abs{\hmu})$. In order to make the error less than $\tol(\varepsilon_a,\varepsilon_r\abs{\mu})$, we give the estimator $\hmu$ a little shift towards 0, which will make the new estimator $\tmu$ satisfy the error condition.
+
+Let's consider the pure relative error case, which is, $\varepsilon_a=0$. Then the $\tol$ and $\Delta$ functions become $\tol(\varepsilon_a,\varepsilon_r\abs{\mu}) = \varepsilon_r\abs{\mu}$, $\Delta_{\pm}(\hmu,\heps) = \varepsilon_r [ |\hmu-\heps| \pm |\hmu+\heps|]/2$. 
+Suppose $\hmu>\heps>0$, the stopping condition will be $\hmu\varepsilon_r\geq \heps$. The estimator $\tmu$ is $\tmu = \hmu-\heps\varepsilon_r$.  As been proved in Proposition \ref{meanMCgProp}, if $\abs{\hmu-\mu}\leq \heps$ and $\hmu\varepsilon_r\geq \heps$, then the shrinkage estimator $\tmu$ will satisfy the condition $\abs{\tmu -\mu} \leq \varepsilon_r\abs{\mu}$. 
+
 \Section{The Algorithm {\tt meanMC\_g}}\label{sec:algmeanMCg}
 
-In this section, we introduce an algorithm that estimate the mean of a random variable to a specified generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r\abs{\mu})$ defined in Definition \ref{def:tolfun}. Before presenting our algorithm, we first introduce some notations. 
+In this section, we introduce an algorithm that estimates the mean of a random variable to a specified generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r\abs{\mu})$ defined in Definition \ref{def:tolfun}. Before presenting our algorithm, we first introduce some notations. 
 For any fixed $n \in \reals$, $\alpha \in (0,1)$, and $M>0$, define the inverse of the functions $N_{\Cheb}(\cdot,\alpha)$, $N_{\BE}(\cdot,\alpha,M)$, and $N_{\CB}(\cdot,\alpha,M)$ defined in \eqref{NCheb}, \eqref{NBE} and \eqref{NCBmeanMCabsg}:
 %\begin{subequations} \label{probadapterrcritBE}
 \begin{gather}\label{NCinv*}
@@ -1046,15 +1066,15 @@ For example, one might choose $\alpha_{\sigma}$ and
              $\alpha_t$ &  the uncertainty level satisfying  condition \eqref{alphaseq} & $\frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-t}$ \\
        $n_{\sigma}$ &  the sample size for variance estimation, $n_\sigma\in \naturals$ & $10^4$\\
        $n_1$ & initial sample size for mean estimation, $n_1\in \naturals$ & $10^4$\\
-       $\fudge$ & standard deviation inflation factor, $\fudge>1$ & $1.2$\\
-       $\theta$ & parameter used to choose next tolerance, $0<theta<1$ & $0.95$\\
+       $\fudge$ & standard deviation inflation factor (fudge factor), $\fudge>1$ & $1.2$\\
+       $\theta$ & parameter used to choose next tolerance, $0<\theta<1$ & $0.95$\\
        $\tol$ & a generalized error criterion in Definition \ref{def:tolfun} & $\max$ \\
       \hline
     \end{tabular}
 \end{table}
 
 \begin{algorithm}\label{alg:meanMCg} 
-User provides several inputs:
+This algorithm requires an user to provide several inputs:
 \begin{itemize}
 \item a random number generator $\Yrand$ that takes the sample size $n$ as an input. It generates $n$ IID random numbers from the distribution of $Y$,
 \item the absolute error tolerance $\varepsilon_a \geq 0$,
@@ -1080,7 +1100,7 @@ For $t = 1,2,\cdots$, do the following:
 \end{enumerate}
 \end{enumerate}
 \end{algorithm}
-The success of Algorithm \ref{alg:meanMCg} are proved in several steps stated below
+The success of Algorithm \ref{alg:meanMCg} has been proved in several steps stated below
 \begin{itemize}
 \item Algorithm \ref{alg:meanMCg} terminates in a finite step almost surely is proved in Lemma \ref{taufinite}.
 \item The generalized error criterion, \eqref{hybridCI}, is satisfied when the algorithm terminates is proved in Theorem \ref{thm:meanMCg}.
@@ -1114,31 +1134,31 @@ Then we choose $a = \varepsilon_a$, $b =\varepsilon_r\abs{\mu}$ and $b'=\varepsi
 \end{proof}
 
 \begin{lemma}\label{cost2}
-Given absolute error tolerance $\varepsilon_a \geq 0$, relative error tolerance $\varepsilon_r \geq 0$ and a error tolerance $\heps$. If $\heps$ satisfies this condition: $$ \heps \leq \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r}, $$ and condition \eqref{pointwiseerrorbound}
+Given an absolute error tolerance $\varepsilon_a \geq 0$, a relative error tolerance $\varepsilon_r \geq 0$ and an error tolerance $\heps$. If $\heps$ satisfies this condition: $$ \heps \leq \frac{\tol(\varepsilon_a, \varepsilon_r\abs{\mu})}{1+\varepsilon_r}, $$ and condition \eqref{pointwiseerrorbound}
 %\begin{equation}\label{hmuboundheps}
 %\abs{\mu -\hmu}\leq \heps.
 %\end{equation}
 Then the inequality $$\heps \leq \Delta_{+}(\hmu,\heps)$$ must be satisfied.
 \end{lemma}
 \begin{proof}
-Since we assume $\abs{\mu -\hmu}\leq \heps,$ It follows by the triangle inequality that,
+Since we assume $\abs{\mu -\hmu}\leq \heps$, it follows by the triangle inequality that,
  $$\abs{\mu} \leq\abs{\hmu}+\heps.$$
 Since $\tol$ is non-decreasing on its second argument, we have the following inequality
 \begin{align}\label{tolineq1}
 \tol(\varepsilon_a, \varepsilon_r (\abs{\hmu}+\heps))  \geq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}).
 \end{align}
-Next, applying \eqref{lipstol} and and \eqref{pointwiseerrorbound} yields:
+Next, applying \eqref{lipstol} and \eqref{pointwiseerrorbound} yields:
 \begin{align}
 \tol\left(\varepsilon_a, \varepsilon_r \abs{\abs{\hmu}-\heps}\right)  
  &\geq \tol\left(\varepsilon_a, \varepsilon_r \abs{\mu}\right) - \varepsilon_r\left(\abs{\mu-\hmu}+\heps\right) \nonumber\\&
- \geq  \tol\left(\varepsilon_a, \varepsilon_r \abs{\mu}\right) - 2\varepsilon_r\heps \label{tolineq2}
+ \geq  \tol\left(\varepsilon_a, \varepsilon_r \abs{\mu}\right) - 2\varepsilon_r\heps. \label{tolineq2}
 \end{align}
 By the definition of $\Delta_{+}$ in \eqref{deltadef} and the inequality \eqref{tolineq1} and \eqref{tolineq2},
  \begin{align}
 \Delta_{+}(\hmu, \heps) &= \frac{1}{2} \left ( \tol\left(\varepsilon_a, \varepsilon_r \left(\abs{\hmu}+\heps\right)\right) +\tol\left(\varepsilon_a, \varepsilon_r \abs{\abs{\hmu}-\heps}\right) \right) \nonumber\\&
 \geq \frac{1}{2} \left( \tol\left(\varepsilon_a,\varepsilon_r \abs{\mu}\right) + \tol\left(\varepsilon_a, \varepsilon_r \abs{\mu}\right) - 2\varepsilon_r\heps \right)\nonumber\\& =  \tol\left(\varepsilon_a, \varepsilon_r \abs{\mu}\right) - \varepsilon_r\heps.\label{deltatolrelationship}
 \end{align}
-If we subtract both side of the inequality \eqref{deltatolrelationship} by $\heps$, it becomes:
+If we subtract $\heps$ from both side of the inequality \eqref{deltatolrelationship}, it becomes:
 $$\Delta_{+}(\hmu, \heps) -\heps \geq \tol(\varepsilon_a,\varepsilon_r \abs{\mu})-(1+\varepsilon_r)\heps \geq 0.$$
 By the hypothesis of the theorem, this completes the proof.
 \end{proof}
@@ -1232,7 +1252,7 @@ Here, the samples of $Y$ used to calculate $\hmu$ are independent of $\heps$, al
 \begin{proof}
 This result could be derived from the proof of the Theorem \ref{thm:meanMCabsg}, by applying the conditional expectation on $\heps$.
 Let $\alpha_\sigma$, $n_\sigma$, $\fudge$ be the parameters and $\hsigma^2$ be a random variable depending on the random samples $Y_i$, $i = 1,2,\cdots, n_{\sigma}$ as given in Algorithm \ref{alg:meanMCabsg}. Also, let the tolerance $\heps$ be a random variable depending on $\hsigma^2$. 
-The probability \eqref{eq:fixedwidthrandomeps} could be written as:
+The probability \eqref{eq:fixedwidthrandomeps} can be written as:
 \begin{align}
 &\Pr(\abs{\mu-\hmu} > \heps|\hsigma \geq \sigma) = \e_{\heps}\left[\Pr({\abs{\mu-\hmu}  > \heps}| \hsigma\geq\sigma , \heps)\right].
 \end{align}
@@ -1255,7 +1275,7 @@ The following inequality holds:
 %In Algorithm \ref{meanMCg}, suppose $\hsigma$, $\tau$, $\heps_i$, $\hmu_i$, $n_i$, $i = 1,2,\cdots,\tau$ and are random, all other parameters are given as constants in the Algorithm \ref{meanMCg}, then the generalized error criterion \eqref{hybridCI} would be satisfied.
 %\end{lemma}
 \begin{theorem}\label{thm:meanMCg}
-Let $Y$ be a random variable with mean $\mu$, and either zero variance or positive variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that Algorithm \ref{alg:meanMCg} terminated in a finite time step almost surely. If the algorithm terminates, then the general error criterion, \eqref{hybridCI}, is satisfied.
+Let $Y$ be a random variable with mean $\mu$, and nonnegative variance with modified kurtosis $\kappa \leq \kmax(\alpha_\sigma, n_\sigma, \fudge)$. It follows that Algorithm \ref{alg:meanMCg} terminates in a finite time step almost surely. If the algorithm terminates, then the general error criterion, \eqref{hybridCI}, is satisfied.
 \end{theorem}
 \begin{proof}
 The stopping time is finite is proved in Lemma \ref{taufinite}. Next, we will prove the success of the algorithm.
@@ -1264,9 +1284,9 @@ In Algorithm \ref{alg:meanMCg}, several quantities are random: the random variab
 %\begin{align}
 %\Pr \left( \abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) \right) \geq \Pr\left(\Delta_{+,\tau} \geq \heps_\tau, \abs{\mu-\hmu_\tau} \leq \heps_\tau\right).
 %\end{align}
-As $\tau$ is the first $t$ for which the stopping criterion $\Delta_{+, t} \geq \heps_t$ is satisfied. Thus, we know the following events are equivalent
+$\tau$ is the first $t$ for which the stopping criterion $\Delta_{+, t} \geq \heps_t$ is satisfied. Hence, we know the following events are equivalent
 \begin{align}\label{STrelationshop}
-\{\tau = s\} \Leftrightarrow \{\Delta_{+}(\hmu_s,\heps_s)\geq \heps_s\} \& \{\Delta_{+,t} \leq \heps_t, \text{for }  t = 1,2,\cdots, s-1 \}.
+\{\tau = s\} \Leftrightarrow \{\Delta_{+}(\hmu_s,\heps_s)\geq \heps_s\} \& \{\Delta_{+}(\hmu_t,\heps_t) \leq \heps_t, \text{for }  t = 1,2,\cdots, s-1 \}.
 \end{align}
 Now let's consider the worst case. Expand the definition of $\hmu_t$ and $\heps_t$ given in Algorithm \ref{alg:meanMCg} for all $t = \tau+1, \tau+2, \cdots$ by defining $\heps_t = \heps_\tau$ for $t >\tau$. And let $\hmu_t$ be defined according to step \ref{deltamu} in Algorithm \ref{alg:meanMCg}. Suppose that at stopping time $\tau$, the desired error tolerance is not obtained, the probability of this event happens is
 \begin{align}\label{439}
@@ -1320,14 +1340,14 @@ This completes the proof.
 \begin{theorem}\label{cost:meanMCg}
 The cost of Algorithm \ref{alg:meanMCg} is defined as $$n_{\tot}= n_{\sigma}+\sum_{t=1}^\tau n_t,$$ 
 where $\tau$ is the stopping time, $n_\sigma$ is the sample size used to calculate the sample variance $s_{n_\sigma}^2$, and $n_t$ is the sample size used to estimate $\hmu_t$ in each iteration. It has a probabilistic upper bound  $$n_{\up}(\beta)=n_\sigma+ n_1+\sum_{t=2}^{\bar{\tau}(\beta)} N_{\CB}\left(10^{t-1}N_{\CB}^{-1}\left(n_1,\alpha_1,\kappa_{\max}^{3/4}\right),\alpha_t,\kmax^{3/4}\right),$$
-where $N_{\CB}$, $N_{\CB}^{-1}$  and $\bar{\tau}(\beta)$ are defined in \eqref{NCBmeanMCabsg}, \eqref{NCBinv} and \eqref{taubardef},
-that satisfied the probability inequality:
+where $N_{\CB}$, $N_{\CB}^{-1}$ and $\bar{\tau}(\beta)$ are defined in \eqref{NCBmeanMCabsg}, \eqref{NCBinv} and \eqref{taubardef}.
+It satisfies the probability inequality:
 \begin{equation}
-\Pr \left(n_{\tot}\leq n_{\up} (\beta)\right) \geq 1-\beta
+\Pr \left(n_{\tot}\leq n_{\up} (\beta)\right) \geq 1-\beta.
 \end{equation}
 \end{theorem}
 \begin{proof}
-The number of sample required by the Algorithm \ref{alg:meanMCg} is $n_{\sigma}+\sum_{t=1}^\tau n_t$. Although $n_{\sigma}$ and $n_1$ are deterministic, the $n_2, n_3,\cdots, n_\tau$ and $\tau$ are random variables. The cost of this algorithm may be defined probablistically. The dependency of the random variables is as follows:
+The number of samples required by the Algorithm \ref{alg:meanMCg} is $n_{\sigma}+\sum_{t=1}^\tau n_t$. Although $n_{\sigma}$ and $n_1$ are deterministic, the $n_2, n_3,\cdots, n_\tau$ and $\tau$ are random variables. The cost of this algorithm may be defined probabilistically. The dependency of the random variables is as follows:
  \begin{itemize}
  \item $\hsigma$ depends on the random samples $Y_1,\cdots, Y_{n_\sigma}$;
  \item $n_1$ is given; $\heps_1$ depends on $\hsigma$ and $n_1$; 
@@ -1358,19 +1378,20 @@ Thus, the total cost can be bounded as follows:
 &\Pr\left(n_{\tot} \leq n_{\up}(\beta)\right) \geq \Pr \left(\tau <\bar{\tau}(\beta)\right) \geq 1-\beta.
 \end{align*}
 \end{proof}
-Note that, this bound may be loose, a tighter bound derivation remains as a future work.
+Note that, this bound may be loose, finding a tighter bound could be a possible future work.
 
+\bigskip
 
 \Section{The Algorithm {\tt cubMC\_g }}\label{sec:cubmcgalg}
 
-An algorithm that performs numerical integration via Monte Carlo sampling with a generalized error tolerance will be present here. The integrand and parameters are same as in Section \ref{sec:numericalintegrationviaMC}, but with a generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r\abs{\mu})$ as given in Definition \ref{def:tolfun}. The algorithm take inputs: the integrand $f$, the integration hyperbox $(\va, \vb)$, and the probability density function $\rho$, the absolute error tolerance $\varepsilon_a$ and relative error tolerance $\varepsilon_r$, the generalized error tolerance function $\tol(\varepsilon_a,\varepsilon_r\abs{\mu})$, the uncertainty level $\alpha$ and do the iteration until the estimator $\tilde{I}$ satisfies the fixed width confidence interval condition
+An algorithm that performs numerical integration via Monte Carlo sampling with a generalized error tolerance will be presented here. The integrand and parameters are same as in Section \ref{sec:numericalintegrationviaMC}, but with a generalized error tolerance $\tol(\varepsilon_a, \varepsilon_r\abs{\mu})$ as given in Definition \ref{def:tolfun}. The algorithm takes inputs: the integrand $f$, the integration hyperbox $(\va, \vb)$, and the probability density function $\rho$, the absolute error tolerance $\varepsilon_a$ and relative error tolerance $\varepsilon_r$, and does the iteration until the estimator $\tilde{I}$ satisfies the fixed width confidence interval condition
 \begin{align}\label{cubMCgCI}
 \Pr \left(\abs{I-\tilde{I}} \leq \tol\left(\varepsilon_a, \varepsilon_r\abs{I}\right)\right) \geq 1-\alpha.
 \end{align}
 
 The detailed algorithm is explained in Algorithm \ref{alg:cubMCg}.
 \begin{algorithm}\label{alg:cubMCg} 
-User provide several inputs:
+The algorithm requires the user to provide the following inputs:
 \begin{itemize}
 \item the integrand $f$,
 \item the integration interval $(\va, \vb)$,
@@ -1388,7 +1409,7 @@ With the given parameters given in Table \ref{table:meanMCgparam}, we first calc
 %\renewcommand{\labelenumi}{\alph{enumi})}
 \item Sample $n_\sigma$ values of random vector $\vX_i$ from the distribution of $\vX$ with probability density function $\rho(\vX)$ within the integration interval $(\va, \vb)$ and calculate the function values of $f(\vX_i)$. Use this to calculate the sample mean $$\hat{I}_{n_\sigma} = \frac{1}{n_\sigma}\sum_{i=1}^{n_\sigma} f(\vX_i),$$ and sample variance $$s_{n\sigma}^2 = \frac{1}{n_\sigma-1}\sum_{i=1}^{n_\sigma} \left(f(\vX_i)-\hat{I}_{n_\sigma}\right)^2.$$ Also approximate the upper bound on variance by $\hsigma^2 = \fudge^2 s^2_{n_\sigma}$. 
 
-\item If the relative error tolerance $\varepsilon_r=0$, then the algorithm becomes a two stage one instead of multiple stage one. Then calculate the uncertainty level for the second stage estimation, $\alpha_1 = 1-(1-\alpha)/(1-\alpha_\sigma)$, and the sample size for mean estimation, $$n_1 = N_{\CB}\left(\hsigma/\varepsilon_a,\alpha_1,\kappa_{\max}^{3/4}\right),$$where $N_{\CB}$ is defined in \eqref{NCBmeanMCabsg}. Sample $n_1$ values of random vector $\vX_i$ that are interdependent of those used to calculate $\hsigma^2$ from the distribution of $\vX$ with probability density function $\rho(\vX)$, then calculate the $n_1$ function values of $f(\vX_i)$. Use this to calculate the sample mean 
+\item If the relative error tolerance $\varepsilon_r=0$, then the algorithm becomes a two stage one instead of multiple stage one. Then calculate the uncertainty level for the second stage estimation, $\alpha_1 = 1-(1-\alpha)/(1-\alpha_\sigma)$, and the sample size for mean estimation, $$n_1 = N_{\CB}\left(\hsigma/\varepsilon_a,\alpha_1,\kappa_{\max}^{3/4}\right),$$where $N_{\CB}$ is defined in \eqref{NCBmeanMCabsg}. Sample $n_1$ values of random vector $\vX_i$ that are independent of those used to calculate $\hsigma^2$ from the distribution of $\vX$ with probability density function $\rho(\vX)$, then calculate the $n_1$ function values of $f(\vX_i)$. Use this to calculate the sample mean 
 \begin{align}\label{hatIcubMCg}
 \tilde{I}= \frac{1}{n_1}\sum_{i = n_\sigma+1}^{n_\sigma+n_1}f(\vX_i).
 \end{align}
@@ -1422,10 +1443,10 @@ In this section, several integrands are used to test the timing and accuracy res
 {fig_productfun/productiidErrTime-2015-11-26-01-00-46.eps} \\ {\tt cubMC\_g}  \end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{fig_productfun/productcubSobolErrTime-2015-11-26-01-00-47.eps} \\  {\tt cubSobol\_g}\end{minipage}
 \begin{minipage}{7cm} \centering \includegraphics[width=7cm]{fig_productfun/productcubLatticeErrTime-2015-11-26-01-00-48.eps} \\ {\tt cubLattice\_g} \end{minipage}
-\caption{Execution times and errors for the prodcut test function \eqref{productfun} for $d=2,3,\cdots,20$ and error tolerance $\max\left(10^{-3},10^{-3}\abs{I}\right)$. The horizontal axis denotes the error/tolerance. The points lies on the left of the red vertical line means the tolerance was met. The points labeled with a diamond are those for which {\tt cubMC\_g} attempts to exceed the cost budget. The solid green line denotes the empirical distribution function of the error, and the dot-dashed pink line denotes the empirical distribution function of the time.\label{fig:productfunreltol} }
+\caption{Execution times and errors for the prodcut test function \eqref{productfun} for $d=2,3,\cdots,20$ and error tolerance $\max\left(10^{-3},10^{-3}\abs{I}\right)$. The horizontal axis denotes the error/tolerance. The points lies on the left of the red vertical line means the tolerance was met. The points labeled with a diamond are those for which {\tt cubMC\_g} attempts to exceed the cost budget. The solid green curve denotes the empirical distribution function of the error, and the dot-dashed pink curve denotes the empirical distribution function of the time.\label{fig:productfunreltol} }
 \end{figure}
 
-A numerical integration problem with integrand \eqref{productfun} and the generalized error tolerance $\max\left(10^{-3},10^{-3}\abs{I}\right)$ is been tested. Time and accuracy are recorded in Figure \ref{fig:productfunreltol}. The initial sample size is $2^{13}$ and the sample budget is $10^{10}$ for all of the algorithms. As we can see, {\tt cubMC\_g} has an accuracy of $100\%$, which is higher than the nominal value of $99\%$. As been discussed before, {\tt cubMC\_g} uses a conservative way to construct the fixed width confidence interval for the numerical integration, which may take more time and cost more samples. It, however, gives a more reliable solution. On the other hand, {\tt cubSobol\_g} has 455 out of 500 samples that reach the desired accuracy, whereas, {\tt cubLattice\_g} performs poorly with this test function, only 328 out of 500 samples have met the tolerance criterion, which means the accuracy is only $65.6\%$.
+A numerical integration problem with integrand \eqref{productfun} and the generalized error tolerance $\max\left(10^{-3},10^{-3}\abs{I}\right)$ has been tested. Time and accuracy are recorded in Figure \ref{fig:productfunreltol}. The initial sample size is $2^{13}$ and the sample budget is $10^{10}$ for all of the algorithms. As we can see, {\tt cubMC\_g} has an accuracy of $100\%$, which is higher than the nominal value of $99\%$. As discussed before, {\tt cubMC\_g} uses a conservative way to construct the fixed width confidence interval for the numerical integration, which may take more time and cost more samples. It, however, gives a more reliable solution. On the other hand, {\tt cubSobol\_g} has 455 out of 500 samples that reach the desired accuracy, whereas, {\tt cubLattice\_g} performs poorly with this test function, only 328 out of 500 samples have met the tolerance criterion, which means the accuracy is only $65.6\%$.
 
 %\Subsection{Integrating a single hump}
 %
@@ -1501,7 +1522,7 @@ By applying the Monte Carlo method, the integral can be estimated as follows:
 \hIn = \frac{\pi^{d/2}}{n}\sum_{i=1}^n \cos \left (\sqrt{\frac12 \sum_{j=1}^d (\Phi^{-1}(x_{i,j}))^2}\right),
 \end{align}
 where $\vx_i = (x_{i1},\cdots,x_{id}) \in \reals$ , $i=1,\cdots, n.$
-Keister \cite{Keister96} showed an exact formula for calculating the exact integral. With the analytical solution been computed, we compared the numerical results over three different algorithms with a generalized error criterion. Timing and accuracy were recorded in Figure \ref{fig:KeisterTestFun}.
+Keister \cite{Keister96} showed a formula for calculating the exact integral. With the analytical solution being  computed, we compared the numerical results over three different algorithms with a generalized error criterion. Timing and accuracy were recorded in Figure \ref{fig:KeisterTestFun}.
 
 %Keister  considered the following multidimensional integral that has applications in physics:
 %\begin{equation}\label{KeisterTestFun}
@@ -1532,9 +1553,9 @@ Keister \cite{Keister96} showed an exact formula for calculating the exact integ
 %\end{align}
 %where $\vx_i = (x_{i1},\cdots,x_{id}) \in \reals$ , $i=1,\cdots, n.$
 %As Keister [cite] showed an exact formula for calculating the exact integral, by coding them into MATLAB, we compared the numerical results over different algorithms with the generalized error tolerance criterion.
-500 replications are performed for dimension d IID uniform in $[1,20]$, with the integration interval $[0,1]^d$. The analytic solution, $I$, is calculated using iterative method, hence, the true error is recorded. The generalized error tolerance is $\max\left(10^{-3},10^{-3}\abs{I}\right)$. The initial sample size used to estimate the variance in {\tt cubMC\_g} is $2^{13}$ whereas the initial Sobol's and Lattice points taken in {\tt cubSobol\_g} and {\tt cubLattice\_g} are $2^{13}$ also. The sample budget is $10^{10}$. 
+500 replications are performed for dimension $d$ IID uniform in $[1,20]$, with the integration interval $[0,1]^d$. The analytic solution, $I$, is calculated and the true error is recorded. The generalized error tolerance is $\max\left(10^{-3},10^{-3}\abs{I}\right)$. The initial sample size used to estimate the variance in {\tt cubMC\_g} is $2^{13}$ whereas the initial Sobol's and Lattice points taken in {\tt cubSobol\_g} and {\tt cubLattice\_g} are $2^{13}$. The sample budget is $10^{10}$. 
 
-As we could see,  {\tt cubMC\_g} takes a significantly more time than {\tt cubSobol\_g} and {\tt cubLattice\_g}. The errors that meet tolerance are $98.6\%$ of the time, which is a bit less than our confidence level, $99\%$. The reason is that the points labeled as a diamond are those attempt to exceed the sample budget $10^{10}$,  the guarantees do not hold for those points. If we exclude those 50 points labeled as a diamond and calculate the success rate again, it is $100\%$ of the time. Although we have not calculated the exact kurtosis, which has a very complicated form, nor we check if it is less than the kurtosis maximum, our numerical result using {\tt cubMC\_g} is still better than other two quasi-Monte Carlo methods in the sense of the error criterion. For {\tt cubSobol\_g}, the error meets tolerance $98\%$ of the time, whereas, for  {\tt cubLattice\_g}, the success rate is only $71\%$.  For this test function, we do not see the significant advantage of {\tt cubMC\_g}, the reason is that the test function is smooth and quasi-Monte Carlo methods perform well for smooth integrand. {\tt cubMC\_g} is more robust and does not assume any smoothness of the integrand. In this case {\tt cubMC\_g} does not take the advantage of the robustness and the mild assumption for the integrand, hence, it costs more time  than {\tt cubSobol\_g} and {\tt cubLattice\_g}.
+As we can see,  {\tt cubMC\_g} takes significantly more time than {\tt cubSobol\_g} and {\tt cubLattice\_g}. The accuracy is $98.6\%$, which is a bit less than our confidence level, $99\%$. The reason is that the points labeled as a diamond are those attempt to exceed the sample budget $10^{10}$,  the guarantees do not hold for those points. If we exclude those 50 points labeled as a diamond and calculate the success rate again, it is $100\%$ of the time. Although we have not calculated the exact kurtosis, which has a very complicated form, nor we check if it is less than the kurtosis maximum, our numerical result using {\tt cubMC\_g} is still better than other two quasi-Monte Carlo methods in the sense of the error criterion. For {\tt cubSobol\_g}, the error meets tolerance $98\%$ of the time, whereas, for  {\tt cubLattice\_g}, the success rate is only $71\%$.  For this test function, we do not see the significant advantage of {\tt cubMC\_g}, the reason is that the test function is smooth and quasi-Monte Carlo methods perform well for smooth integrand. {\tt cubMC\_g} is more robust and does not assume any smoothness of the integrand. In this case {\tt cubMC\_g} does not take the advantage of the robustness and the mild assumption for the integrand, hence, it costs more time  than {\tt cubSobol\_g} and {\tt cubLattice\_g}.
 
 \Subsection{Integrating Multivariate Normal Probability with a deterministic covariance matrix}
 \begin{figure}
@@ -1637,7 +1658,7 @@ x_{21}&0&0& \cdots &0 \\
 x_{d1}&x_{d2}&\cdots&x_{dd}&0 \end{array}\right), 
 \end{equation}
 where $\log_{10}\sigma_i$ is IID uniform on $[1,3]$, $\delta_t$ is a shrinkage parameter, $x_{ij}$ is IID uniform on $[-1,1]$.
-\item The lower triangular matrix $C$ multiplies its transpose $C'$ will be the covariance matrix $\Sigma = CC'$.
+\item The lower triangular matrix $C$ multiplied by its transpose $C'$ will be the covariance matrix $\Sigma = CC'$.
 \end{itemize}
 
 Second, choose integration dimension and interval as follows:
@@ -1649,25 +1670,25 @@ b_j \text{ IID uniform on } \left[0,\sqrt{d} \right].
 \end{gather}
 \end{subequations}
 
-The computational time is recorded and plotted in Figure \ref{fig:MVNPadaptivitiy}. 500 replications are performed with each of four different shrinkage factor $\delta_t =  0.01,0.1, 1, 10$. The tolerance is $ \max \left(10^{-5}, 10^{-5}\abs{\mu}\right)$. As we could see, when $\delta_t$ gets large, the algorithm uses relatively more time. This plots show the adaption of the algorithm {\tt cubMC\_g}, which, may adjust the sample or time required according the difficulty of the problem.
+The computational time is recorded and plotted in Figure \ref{fig:MVNPadaptivitiy}. 500 replications are performed with each of four different shrinkage factor $\delta_t =  0.01,0.1, 1, 10$. The tolerance is $ \max \left(10^{-5}, 10^{-5}\abs{\mu}\right)$. As we can see, when $\delta_t$ gets large, the algorithm uses relatively more time. This plot shows the adaption of the algorithm {\tt cubMC\_g}, which, may adjust the sample or time required according the difficulty of the problem.
 
 
 \Chapter{Guaranteed method for Bernoulli Random variables}\label{chapter:meanMCberg}
 
-The Bernoulli trial is one of the simplest, yet most important, random processes. It takes two outcomes, namely, success or failure with a constant probability. Many real world problems can be modeled in term of Bernoulli trials, i.e. estimating the probability of bankruptcy or a power failure.
+The Bernoulli trial is one of the simplest, yet most important, random processes. It takes two outcomes, namely, success or failure with a constant probability. Many real world problems can be modeled in terms of Bernoulli trials, i.e. estimating the probability of bankruptcy or a power failure.
 
  A Bernoulli random variable, $Y$, takes two values, 0 and 1, with the probability $\Pr(Y=1) = p$. Denote the distribution as $ \Ber(p)$. Sometimes the process governing $Y$ may have a complex form. This means that we may be able to generate IID $Y_i$, but not have a simple formula for computing $p$ analytically. 
  %This distribution is denoted by $\Ber(p)$. 
 
-As been discussed in Chapter \ref{chapter:meanMCabsg} and \ref{chapter:meanMCg}, we present two algorithms for evaluating the mean of an arbitrary random variable based on the assumption that the kurtosis has a known upper bound. With knowledge of the distribution, we are looking into a better way to construct the fixed width confidence intervals for the Bernoulli random variables. Before presenting our algorithms, we first review some existing literature that based the confidence interval construction of Bernoulli random variables.
+As being discussed in Chapter \ref{chapter:meanMCabsg} and \ref{chapter:meanMCg}, we present two algorithms for evaluating the mean of an arbitrary random variable based on the assumption that the kurtosis has a known upper bound. With knowledge of the distribution, we are looking into a better way to construct the fixed width confidence intervals for the Bernoulli random variables. Before presenting our algorithms, we first review some existing literature that based on the confidence interval construction of Bernoulli random variables.
 
-Wald confidence interval \cite[Section 1.3.3]{Agresti02} is a commonly used one for Bernoulli random variables based on maximum likelihood estimate, unfortunately, it performs poorly when the sample size $n$ is small or the true $p$ is close to 0 or 1. Agresti \cite[Section 1.4.2]{Agresti02} suggested constructing confidence intervals for binomial proportion by adding a pseudo-count of $z_{\alpha/2}/2$ successes and failures. Thus, the estimated mean will be $\tilde{p}_n =(n\hp_n+z_{\alpha/2}/2) / (n+z_{\alpha/2})$. This method is also called adjusted Wald interval or Wilson score interval, since it was first discussed by E. B. Wilson \cite{wilson27}. This method performs better than the Wald interval, however, it is an approximate result and carries no guarantee.
+Wald confidence interval \cite[Section 1.3.3]{Agresti02} is a commonly used one for Bernoulli random variables based on maximum likelihood estimate. Unfortunately, it performs poorly when the sample size $n$ is small or the true $p$ is close to 0 or 1. Agresti \cite[Section 1.4.2]{Agresti02} suggested constructing confidence intervals for binomial proportion by adding a pseudo-count of $z_{\alpha/2}/2$ successes and failures. Thus, the estimated mean will be $\tilde{p}_n =(n\hp_n+z_{\alpha/2}/2) / (n+z_{\alpha/2})$. This method is also called adjusted Wald interval or Wilson score interval, since it was first discussed by E. B. Wilson \cite{wilson27}. This method performs better than the Wald interval, however, it is an approximate result and carries no guarantee.
 
 Clopper and Pearson \cite{CP34} suggested a tail method to calculate the exact confidence interval for a given sample size $n$ and confidence level $1-\alpha$. Sterne \cite{sterne54}, Crow \cite{crow56}, Blyth and Still \cite{BS83} and Blaker \cite{Blaker00} proposed different ways to improve the exact confidence interval, however, all of them were only tested on small sample sizes, $n$.  Moreover, there is no clue how to determine $n$ with fixed half-width $\varepsilon_a$ is given. 
 
 Hoeffding's Inequality in Theorem \ref{hoeff} provides a way to confidently estimate the probability $p$ given the random variable is a Bernoulli one. We will use this inequality to construct the fixed width confidence interval for estimating Bernoulli random variables in the following sections.
 
-In this chapter, will will present the ways to reliably construct a fixed width confidence interval for $p$ with a guaranteed confidence level. That is, given an absolute error tolerance, $\varepsilon_a$, or a relative error tolerance, $\varepsilon_r$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, needed to compute the sample mean, $\hp_n$, that satisfies the fixed width confidence interval condition $\Pr(\abs{p-\hp_n}\leq \varepsilon_a) \geq 1-\alpha$ or $\Pr(\abs{p-\hp_n}/p\leq \varepsilon_r) \geq 1-\alpha$.  
+In this chapter, we will present the ways to reliably construct a fixed width confidence interval for $p$ with a guaranteed confidence level. That is, given an absolute error tolerance, $\varepsilon_a$, or a relative error tolerance, $\varepsilon_r$, and confidence level, $1-\alpha$, the algorithm determines the sample size, $n$, needed to compute the sample mean, $\hp_n$, that satisfies the fixed width confidence interval condition $\Pr(\abs{p-\hp_n}\leq \varepsilon_a) \geq 1-\alpha$ or $\Pr(\abs{p-\hp_n}/p\leq \varepsilon_r) \geq 1-\alpha$.  
 
 \Section{Absolute error criterion} \label{sec:meanMCberg}
 
@@ -1677,7 +1698,7 @@ Given an absolute error tolerance $\varepsilon_a > 0$ and an uncertainty level $
 \begin{equation}\label{hoeffn}
 n = N_{\Hoeff}(\varepsilon_a,\alpha):= \left \lceil  \frac{\log(2/\alpha)}{2\varepsilon_a^2} \right \rceil
 \end{equation}
-IID Bernoulli random samples of $Y \sim \Ber(p)$, and use them to compute sample mean:
+IID Bernoulli random samples of $Y \sim \Ber(p)$, and uses them to compute sample mean:
 \begin{equation} \label{abserrp}
 \hat{p}_n = \frac1n\sum_{i =1}^n Y_i.
 \end{equation}
@@ -1712,7 +1733,7 @@ the sample size $n$ should satisfy the following condition:
 \begin{align*}
 n \geq -\frac{\log (\alpha/2)}{2 p^2 \varepsilon_r^2}.
 \end{align*}
-Since $p$ is unknown, the lower bound is needed to ensure $n$ is large enough to bound the relative error. By applying one side Hoeffding's Inequality \eqref{ineq:HoeffonesideA} in Theorem \ref{hoeff}, the following inequality holds:
+Since $p$ is unknown, the lower bound is needed to ensure $n$ is large enough to bound the relative error. By applying one-side Hoeffding's Inequality \eqref{ineq:HoeffonesideA} in Theorem \ref{hoeff}, the following inequality holds:
 \begin{align}\label{onesidehoeffn}
 \Pr\left(p \geq \hp_n-\varepsilon \right) \geq 1- \exp(-2n\varepsilon^2).
 \end{align}
@@ -1722,7 +1743,7 @@ $p$ has a conservative lower bound $$\Pr(p \geq \hp_n-\varepsilon)\geq1-\alpha.$
 
 Based on the argument above, an algorithm that estimates the means of Bernoulli random variables to a prescribed relative error tolerance is developed. The basic idea is to find a reliable lower bound of $p$ at first, then estimate the $p$ to the prescribed relative error tolerance.
 \begin{algorithm}[{\tt meanMCber\_g} with relative error criterion]\label{algrel}
-User specifies the two quantities:
+The algorithm requires two inputs:
 \begin{itemize}
 \item the relative error tolerance, $\varepsilon_r > 0$, 
 \item uncertainty level, $\alpha \in (0,1)$.
@@ -1803,7 +1824,7 @@ Suppose the Algorithm \ref{algrel} terminates at time $\tau$, in which step, the
 \geq (1-\alpha/2)+\prod_{i=1}^\infty (1-\alpha_i)-1  \\&
  = 1-\alpha \label{constructalphai}.
 \end{align}
-The inequality \eqref{addpl} is true by adding an extra condition of a middle term  $\hp_L$, which makes the probability smaller. \eqref{makeforall} is true by enlarge the set, letting all the previous steps satisfying the lower bound condition. \eqref{usecombineq} is true by using the inequality $\Pr(A+B)\geq\Pr(A)+\Pr(B)-1$ and the property of independence. \eqref{useabove} is true by applying the inequality \eqref{lbpni} and \eqref{lbpn}. The final results is obtained by the way we construct $\alpha_i$ in\eqref{alphaiBerRel}.
+The inequality \eqref{addpl} is true by adding an extra condition of a middle term  $\hp_L$, which makes the probability smaller. \eqref{makeforall} is true by enlarging the set, letting all the previous steps satisfying the lower bound condition. \eqref{usecombineq} is true by using the inequality $\Pr(A+B)\geq\Pr(A)+\Pr(B)-1$ and the property of independence. \eqref{useabove} is true by applying the inequality \eqref{lbpni} and \eqref{lbpn}. The final result is obtained by the way we construct $\alpha_i$ in\eqref{alphaiBerRel}.
 \end{proof}
 
 Next, we want to prove the computational cost of Algorithm \ref{algrel} has an upper bound. As shown in  Algorithm \ref{algrel}, the total cost is combined by two parts:
@@ -1836,7 +1857,7 @@ As the stopping criterion is:
 \begin{align*}
 \tau &= \min\left\{i: \hp_{n_i}\geq 3\varepsilon_r 2^{-i}, i \in \naturals \right \},
 \end{align*}
-by the definition of $\bar{\tau}$ in \eqref{taubarBerRel}, and applying one side Hoeffding's Inequality, we have
+by the definition of $\bar{\tau}$ in \eqref{taubarBerRel}, and applying one-side Hoeffding's Inequality, we have
 \begin{align} \label{tauboundBerRel}
 \Pr (\tau \leq \bar{\tau}) \geq \Pr (\hp_{n_i} \geq  p-\varepsilon_r2^{-i}, i \leq \tau )
 \geq \prod_{i=1}^\infty(1-\alpha_i) = 1-\alpha/2.
@@ -1860,7 +1881,7 @@ Combining \eqref{taubarBerRel} and \eqref{hpUpperbound}, the bound is obtained,
 
 \Section{Numerical example for {\tt meanMCber\_g}}\label{sec:meanMCbergexample}
 
-Algorithm \ref{algabs} has been implemented in MATLAB, under the name {\tt meanMCber\_g} which is one the guatanteed algorithms in Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1}.
+Algorithm \ref{algabs} has been implemented in MATLAB, under the name {\tt meanMCber\_g} which is one the guaranteed algorithms in Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1}.
 
 \Subsection{Numerical example for {\tt meanMCBer\_g} with absolute error tolerance}
 To demonstrate its performance the algorithm {\tt meanMCber\_g} was run for $500$ replications, each with a different $p$ and $\varepsilon_a$, and with a fixed confidence level $1-\alpha=95\%$. The logarithms of $p$ and $\varepsilon_a$ were chosen independently and uniformly, namely 
@@ -1888,7 +1909,7 @@ Using the sample parameters as in the previous example, we test the {\tt meanMCB
     \caption{Ratio of the actual relative error to the relative error tolerance from {\tt meanMCber\_g} versus $p$, for different random samples of $\Ber(p)$ random variables.}
     \label{fig:relerrex}
  \end{figure}
-Similar to the Figure \ref{fig:abserrex}, $100\%$ of the points satisfy the relative error criterion although the confidence level is only $95\%$. Our algorithm is conservative and tends to use more samples. When $p$ gets smaller, more points exceed the sample budget. The reason is that our algorithm determines the sample size based on the lower bound estimation of $p$, when $p$ is small, this information makes algorithm require more samples, hence, it is more likely to get over budget.
+Similar to the Figure \ref{fig:abserrex}, $100\%$ of the points satisfy the relative error criterion although the confidence level is only $95\%$. Our algorithm is conservative and tends to use more samples. When $p$ gets smaller, more points exceed the sample budget. The reason is that our algorithm determines the sample size based on the lower bound estimation of $p$, when $p$ is small, this information makes the algorithm require more samples, hence, it is more likely to get over budget.
 
 %it is more likely to have the sample budget exceeded, as it will be more difficult to estimate the mean with a smaller $p$ than with a larger $p$ with a given relative error tolerance. In more details, we want the condition \eqref{probrel} to be satisfied, there is a denominator which is between $0$ and $1$,  when it gets smaller, we will need a larger sample size to meet this condition.
 
@@ -1909,7 +1930,7 @@ This ratio essentially depends on the uncertainty level $\alpha$ and is plotted 
  
  \Chapter{Guaranteed Automatic Integration Library}\label{chapter:gail}
  
-Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1} is a MATLAB toolbox created and developed by a group of researchers including Sou-Cheng T. Choi, Yuhan Ding, Fred J. Hickernell, Lan Jiang, Ll\'{u}ıs Antoni Ji\'{m}enez Rugama, Xin Tong, Yizhi Zhang and Xuan Zhou. It is a suite of algorithms including automatic and adaptive univariate function approximation ({\tt funappx\_g}), function minimization using linear splines ({\tt funmin\_g}), one-dimensional numerical integration using trapezoidal rule ({\tt integral\_g}) and mean estimation and numerical integration using Monte Carlo methods ({\tt meanMC\_g},{\tt cubMC\_g} and {\tt meanMCBer\_g}). This purpose is to create a reliable and robust open source MATLAB package, following the philosophy of reproducible research championed by Claerbout \cite{Claerbout10} and Donoho\cite{BuckheitDonoho95} and developing supportable scientific software that promote reliable reproducible research. In the next section, we will describe the structure of GAIL and the procedures by which we have been developing it.
+Guaranteed Automatic Integration Library (GAIL) \cite{GAIL_2_1} is a MATLAB toolbox created and developed by a group of researchers including Sou-Cheng T. Choi, Yuhan Ding, Fred J. Hickernell, Lan Jiang, Llu\'{i}s Antoni Jim\'{e}nez Rugama, Xin Tong, Yizhi Zhang and Xuan Zhou. It is a suite of algorithms including automatic and adaptive univariate function approximation ({\tt funappx\_g}), function minimization using linear splines ({\tt funmin\_g}), one-dimensional numerical integration using trapezoidal rule ({\tt integral\_g}) and mean estimation and numerical integration using Monte Carlo methods ({\tt meanMC\_g},{\tt cubMC\_g} and {\tt meanMCBer\_g}). This purpose is to create a reliable and robust open source MATLAB package, following the philosophy of reproducible research championed by Claerbout \cite{Claerbout10} and Donoho\cite{BuckheitDonoho95} and developing supportable scientific software that promote reliable reproducible research. In the next section, we will describe the structure of GAIL and the procedures by which we have been developing it.
 
 \begin{sidewaysfigure}[hb]
 \centering
@@ -1953,7 +1974,7 @@ GAIL Version 2.1 \cite{GAIL_2_1} includes the following eight algorithms:
 \item {\tt funmin\_g}: Global univariate function minimization on a bounded interval.
 \item {\tt integral\_g}: 1-D numerical integration on a bounded interval based on Trapezoidal rule.
 \item {\tt cubLattice\_g}: Numerical integration via quasi-Monte Carlo method using rank-1 Lattices.
-\item {\tt cubSobol\_ g}: Numerical integration via quasi-Monte Carlo method using Sobol’ points.
+\item {\tt cubSobol\_g}: Numerical integration via quasi-Monte Carlo method using Sobol’ points.
 %\item {\tt meanMCabs\_g}: Monte Carlo method for estimating mean of a random variable with an absolute error tolerance.
 \item {\tt meanMC\_g}: Monte Carlo method for estimating the mean of a random variable with a generalized error tolerance.
 %\item {\tt cubMCabs\_g}: Monte Carlo method for numerical integration with an absolute error tolerance.
@@ -1984,16 +2005,36 @@ Two tests are provided here, doctest and unittest, for each of the algorithms.
 \end{itemize}
 
 
-\Chapter{Discussion and Future work}\label{chapter:comclusion}
+\Chapter{Conclusion and Future work}\label{chapter:comclusion}
 
-Practitioners often construct CLT-based confidence intervals with the true variance estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success.  The algorithms presented in this thesis is similar to the approach just described, but it carries guarantees. 
+Practitioners often use CLT based confidence intervals to construct Monte Carlo algorithms that estimating the mean of a random variable with the true variance been estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success. This thesis suggests a more trustworthy way to estimate the mean of a random variable, which is, our algorithms carries a guarantee that our answer will be true with probability at least $99\%$.
+
+Figure \ref{fig:ratioBEnCLTn} shows the ratio of the sample size calculated by Berry-Esseen inequality and CLT with $\alpha = 1\%$, $n_\sigma = 10000$, $\alpha_\sigma = 0.5\%$ and the fudge factor 1.1, 1.2, 1.3.  Thus, the corresponding kurtosis maximum will be 2.5172, 5.7033 and 9.3976.  Here, $N_{\CLT}$ denotes the computational cost if we know the ratio $\sigma/\varepsilon$. The cost ratio is the penalty for having a guaranteed algorithm with the sample size derived from the Berry-Esseen Inequality. For smaller values of $N_{\CLT}$ , equivalently smaller $\sigma/\varepsilon$, this cost ratio can be rather large. However the absolute effect of this large penalty is mitigated by the fact that the total number of samples needed is not much. For larger $N_{\CLT}$ , equivalently larger $\sigma/\varepsilon$,  the cost ratio approaches 1.18. When the fudge factor becomes large, the kurtosis maximum increases. Hence, the sample size required will increase.
+
+ \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=8cm]{BE_CLT_n_ratio_fudge-2016-02-02-00-40-15.eps} % requires the graphicx package
+    \caption{The ratio of the Berry-Esseen sample size versus the CLT sample size with different choice of the fudge factor}
+    \label{fig:ratioBEnCLTn}
+ \end{figure}
+%
+%with the true variance estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success.  The algorithms presented in this thesis is similar to the approach just described, but it carries guarantees. 
+%
+%Central Limit Theorem 
+%
+% The conclusion and future work should be more reflective about the importance of what you have accomplished.  You are trying to make MC computations more trustworthy even at the cost of additional samples.  You should discuss how large that price is, emphasize the inflation factor of your n versus a CLT choice of n.
+%
+%
+%
+%
+%
+%Practitioners often CLT-based confidence intervals with the true variance estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success.  The algorithms presented in this thesis is similar to the approach just described, but it carries guarantees. 
 
 %In certain cases our procedure multiplies the computational cost by a large factor such as $2$ or $10$ or even $100$ compared to what one might spend based on the CLT with a known value of $\sigma$ (see Figure \ref{Costfig}).  While this seems inefficient, one should remember that the total elapsed time may still be well below several seconds.  Furthermore, one typically does not know $\sigma$ in advance, and our adaptive algorithm estimates $\sigma$ and then an appropriate sample size $n_\mu$ from the data.  Our algorithmic cost will be low when the unknown $\sigma$ is small and large when $\sigma$ is large.
 
-Like any algorithm with guarantees, our algorithm does need to make assumptions about the random variable $Y$.  We assume a known bound on the kurtosis of $Y$, either specified directly or implied by the user's choice of the sample size for estimating the variance, $n_\sigma$, and the variance inflation factor, $\fudge^2$.  This is a philosophical choice.  We prefer not to construct an algorithm that assumes a bound on the variance of 
-$Y$, because such an algorithm would not be guaranteed for $cY$ with $\abs{c}$ large enough.  If our algorithm works for $Y$, it will also work for $cY$, no matter how large $\abs{c}$ is. 
+Like any algorithm with guarantees, our algorithm does need to make assumptions about the random variable $Y$.  We assume a known bound on the kurtosis of $Y$, either specified directly or implied by the user's choice of the sample size for estimating the variance, $n_\sigma$, and the fudge factor, $\fudge$.  This is a philosophical choice.  We prefer not to construct an algorithm that assumes a bound on the variance of $Y$, because such an algorithm would not be guaranteed for $cY$ with $\abs{c}$ large enough.  If our algorithm works for $Y$, it will also work for $cY$, no matter how large $\abs{c}$ is. 
 
-In practice the user may not know a priori if $\kappa \le \kmax$ since it is even more difficult to estimate $\kappa$ from a sample than it is to estimate $\sigma^2$.  Thus, the choice of $\kmax$ relies on the user's best judgment.  Here are a few thoughts that might help.  One might try a sample of typical problems for which one knows the answers and use these problems to suggest an appropriate $\kmax$.  Alternatively, one may think of $\kmax$ not as a parameter to be prescribed, but as a reflection of the robustness of one's Monte Carlo algorithm having chosen $\alpha_\sigma$, $n_\sigma$ and $\fudge$. Briefly, one should not skimp on $n_\sigma$, but choose $n_\sigma$ to be several thousand times $\kmax$ and employ a $\fudge$ that is relatively close to unity. 
+In practice the user may not know a priori if $\kappa \le \kmax$ since it is even more difficult to estimate $\kappa$ from a sample than it is to estimate $\sigma^2$. Thus, the choice of $\kmax$ relies on the user's best judgment.  Here are a few thoughts that might help.  One might try a sample of typical problems for which one knows the answers and use these problems to suggest an appropriate $\kmax$.  Alternatively, one may think of $\kmax$ not as a parameter to be prescribed, but as a reflection of the robustness of one's Monte Carlo algorithm having chosen $\alpha_\sigma$, $n_\sigma$ and $\fudge$. 
 
 % Another way to look at the Theorem \ref{mainadaptthm} is that, like a pathologist, it tells you what went wrong if the algorithms fails: the kurtosis of the random variable must have been too large.
 %In any case, as one can see in Figure \ref{Costfig}, in the limit of vanishing $\varepsilon/\sigma$, i.e., $N_{\text{CLT}} \to \infty$, the choice of $\tkappa_{\max}$ makes a negligible contribution to the total cost of the algorithm.  The main determinant of computational cost is $\varepsilon/\sigma$.
@@ -2002,9 +2043,9 @@ In practice the user may not know a priori if $\kappa \le \kmax$ since it is eve
 %
 %Our algorithm is adaptive because $n_\mu$ is determined from the sample variance.  Information-based complexity theory tells us that adaptive information does not help for the integration problem for symmetric, convex sets of integrands, $f$, in the worst case and probabilistic settings \cite[Chapter 4, Theorem 5.2.1; Chapter 8, Corollary 5.3.1]{TraWasWoz88}.  Here, in Corollary \ref{integcor} the cone, $\cc_{\kmax}$, although symmetric, is not a convex set, so it is possible for adaption to help.
 
-There are a couple of areas that suggest themselves for further investigation. For the algorithms {\tt meanMC\_g}, the cost upper bound has been derived, however, it is loose. An tighter upper bound may be derived. Also, the lower bound derivation is another possible research area. 
+There are a couple of areas that suggest themselves for further investigation. For the algorithms {\tt meanMC\_g}, the cost upper bound has been derived, however, it is loose. An tighter upper bound could be derived. Also, the lower bound derivation is another possible research area. 
 
-While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error tolerance. One would expect the number of samples required then to be proportional to $\var(Y)/(p \varepsilon_r)^2 \sim 1/(p \varepsilon_r^2)$ as $p\varepsilon_r \to 0$.  Our attempts so far at using Hoeffding's inequality results in an algorithm with computational cost proportional to $1/(p \varepsilon_r)^2$ as $p\varepsilon_r \to 0$.  Although, the algorithm for estimating the parameter $p$ to some specified relative error tolerance is successful, the computational cost is extravagant for small $p$. The literature mentioned in the the beginning of Chapter \ref{chapter:meanMCberg} may provide a clue to an algorithm with optimal cost.  If this problem can be solved, then a natural extension would be to construct confidence intervals that satisfy either an absolute or relative error criterion, i.e., confidence intervals of the form $\Pr(\abs{p-\hp}/p\leq \max(\varepsilon_a, \varepsilon_r p)) \geq 1-\alpha$.
+While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error tolerance. One would expect the number of samples required then to be proportional to $\var(Y)/(p \varepsilon_r)^2 \sim 1/(p \varepsilon_r^2)$ as $p\varepsilon_r \to 0$.  Our attempts so far at using Hoeffding's inequality results in an algorithm with computational cost proportional to $1/(p \varepsilon_r)^2$ as $p\varepsilon_r \to 0$.  Although, the algorithm for estimating the parameter $p$ to some specified relative error tolerance is successful, the computational cost is extravagant for small $p$. The literature mentioned in the beginning of Chapter \ref{chapter:meanMCberg} may provide a clue to an algorithm with optimal cost.  If this problem can be solved, then a natural extension would be to construct confidence intervals that satisfy either an absolute or relative error criterion, i.e., confidence intervals of the form $\Pr(\abs{p-\hp}/p\leq \max(\varepsilon_a, \varepsilon_r p)) \geq 1-\alpha$.
 %
 %One is relative error, i.e., a fixed width confidence interval of the form 
 %\[
@@ -2035,19 +2076,19 @@ While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error to
 %While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error tolerance. One would expect the number of samples required then to be proportional to $\var(Y)/(p \varepsilon_r)^2 \sim 1/(p \varepsilon_r^2)$ as $p\varepsilon_r \to 0$.  Our attempts so far at using Hoeffding's inequality results in an algorithm with computational cost proportional to $1/(p \varepsilon_r)^2$ as $p\varepsilon_r \to 0$.  Although, the algorithm for estimating the parameter $p$ to some specified relative error tolerance is successful, the computational cost is extravagant for small $p$. The literature mentioned in the the beginning of Chapter \ref{chapter:meanMCberg} may provide a clue to an algorithm with optimal cost.  If this problem can be solved, then a natural extension would be to construct confidence intervals that satisfy either an absolute or relative error criterion, i.e., confidence intervals of the form $\Pr(\abs{p-\hp}/p\leq \max(\varepsilon_a, \varepsilon_r p)) \geq 1-\alpha$.
 
 
-\appendix
-
-\Appendix{MATLAB Code of meanMCabs\_g}
-\lstinputlisting{meanMCabs_g.m}
-\Appendix{MATLAB Code of cubMCabs\_g}
-\lstinputlisting{cubMCabs_g.m}
-\Appendix{MATLAB Code of meanMC\_g}
-\lstinputlisting{meanMC_g.m}
-%\input{meanMC_g.m}
-\Appendix{MATLAB Code of cubMC\_g}
-\lstinputlisting{cubMC_g.m}
-\Appendix{MATLAB Code of meanMCber\_g}
-\lstinputlisting{meanMCber_g.m}
+%\appendix
+%
+%\Appendix{MATLAB Code of meanMCabs\_g}
+%\lstinputlisting{meanMCabs_g.m}
+%\Appendix{MATLAB Code of cubMCabs\_g}
+%\lstinputlisting{cubMCabs_g.m}
+%\Appendix{MATLAB Code of meanMC\_g}
+%\lstinputlisting{meanMC_g.m}
+%%\input{meanMC_g.m}
+%\Appendix{MATLAB Code of cubMC\_g}
+%\lstinputlisting{cubMC_g.m}
+%\Appendix{MATLAB Code of meanMCber\_g}
+%\lstinputlisting{meanMCber_g.m}
 
 \bibliographystyle{alpha}
 \bibliography{Ljiang}
