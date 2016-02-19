@@ -486,7 +486,7 @@ This inequality bounds the probability of joint events by the probability of the
 \Section{Additional definition and lemmas}
 
 \begin{defn}[kurtosis maximum]
-Given the sample size $n$, uncertainty level $\alpha$ and fudge factor $\fudge$, define the maximum allowable kurtosis as
+Given the sample size $n$, uncertainty level $\alpha$ and standard deviation inflation factor (SDIF) $\fudge$ (also known as the square root of variance inflation factor (VIF)), define the maximum allowable kurtosis as
 \begin{equation}
 \label{def:kmax}
 \kmax(\alpha, n,\fudge):= \frac{n-3}{n-1} + \left(\frac{ \alpha n}{1-\alpha}\right) \left(1 - \frac{1}{\fudge^2}\right)^2.
@@ -495,9 +495,9 @@ Given the sample size $n$, uncertainty level $\alpha$ and fudge factor $\fudge$,
 
 \begin{defn}[generalized tolerance function]\label{def:tolfun}
  Define a generalized error tolerance function $\tol: [0, \infty) \times [0, \infty) \to [0,\infty)$. Let it be non-decreasing in each of its arguments and satisfy a Lipschitz condition in terms of its second argument, i.e.:
-\begin{align*}
+\begin{align}\label{lipschitztolfun}
 |\tol(a,b)-\tol(a,b')| \leq |b-b'| \quad \forall a,b,b' \geq 0.
-\end{align*}
+\end{align}
 \end{defn}
 Two examples that one may choose are
 \begin{align*}
@@ -519,7 +519,7 @@ Let $Y_1,\cdots,Y_n$ be IID random variables with variance $\sigma^2>0$ and modi
 \end{lemma}
 %this is the lemma to bound the \hsigma from above
 \begin{lemma}\label{lowerboundhsigma}
-Under same assumptions as in Lemma \ref{samplevarbound}. Given sample size $n_\sigma$, uncertainty $\alpha_\sigma$ and fudge factor $\fudge$, define an upper bound on the variance as $\hsigma^2 = \fudge^2 s_{n_{\sigma}}^2$. If the kurtosis of the random variable $Y$ satisfies the condition $$\kappa \leq \kmax =\kmax (n_\sigma,\alpha_\sigma, \fudge),$$ then, $$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
+Under same assumptions as in Lemma \ref{samplevarbound}. Given sample size $n_\sigma$, uncertainty $\alpha_\sigma$ and SDIF $\fudge$, define an upper bound on the variance as $\hsigma^2 = \fudge^2 s_{n_{\sigma}}^2$. If the kurtosis of the random variable $Y$ satisfies the condition $$\kappa \leq \kmax =\kmax (n_\sigma,\alpha_\sigma, \fudge),$$ then, $$\Pr (\hsigma^2 > \sigma^2)\geq 1-\alpha_{\sigma}.$$
 \end{lemma}
 \begin{proof}
 Starting with inequality \eqref{boundsamplevar2} in Lemma \ref{samplevarbound}, since the assumption is $\kappa \leq \kmax$, then we have the following inequality: 
@@ -548,7 +548,7 @@ Then the following inequality must be true:
 \end{lemma}
 
 \begin{proof}
-Starting with inequality \eqref{boundsamplevar1} in Lemma \ref{samplevarbound}, multiply both sides of the inequality inside the probability by the fudge factor $\fudge$. Since we assume $\kappa \leq \kmax$,  replacing the modified kurtosis $\kappa$ by $\kmax$ yields:
+Starting with inequality \eqref{boundsamplevar1} in Lemma \ref{samplevarbound}, multiply both sides of the inequality inside the probability by the SDIF $\fudge$. Since we assume $\kappa \leq \kmax$,  replacing the modified kurtosis $\kappa$ by $\kmax$ yields:
 \begin{align*}
 1-\beta &\leq \Pr\left( s_n^2 < \sigma^2 \left (1+\sqrt{\left (\kappa-\frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\beta}{\beta n_{\sigma}}\right )}\right)\right)\\&
  = \Pr\left( \fudge^2 s_n^2 < \fudge^2 \sigma^2 \left (1+\sqrt{\left (\kappa-\frac{n_{\sigma}-3}{n_{\sigma}-1}\right)\left (\frac{1-\beta}{\beta n_{\sigma}}\right )}\right)\right)\\&
@@ -612,7 +612,7 @@ In this chapter, we will present two guaranteed automatic adaptive algorithms: {
 
 \Section{The Algorithm {\tt meanMCabs\_g}} \label{sec:meanMCabsg}
 
-Before illustrating the algorithm, we first define some parameters: the uncertainty level $\alpha$, the sample size $n_{\sigma}$ and the fudge factor $\fudge$, with default values listed in Table \ref{meanMCabsgparam}.
+Before illustrating the algorithm, we first define some parameters: the uncertainty level $\alpha$, the sample size $n_{\sigma}$ and the SDIF $\fudge$, with default values listed in Table \ref{meanMCabsgparam}.
 
 Define the sample size calculated by CLT in Theorem \ref{clt} as:
 \begin{equation}\label{NCLTmeanMCabsg}
@@ -656,7 +656,7 @@ This algorithm requires the user to provide a random number generator $\Yrand$ t
       $\alpha$ &  the uncertainty level, $0<\alpha<1$ & $1\%$\\
       $\alpha_\sigma$ & the uncertainty level for variance estimation, $0<\alpha_\sigma<\alpha$ & $\alpha/2$ \\
        $n_{\sigma}$ &  the sample size for variance estimation, $n_\sigma \in \naturals$ & $10^4$\\
-       $\fudge$ & standard deviation inflation factor (fudge factor), $\fudge>1$ & $1.2$\\
+       $\fudge$ & standard deviation inflation factor (SDIF), $\fudge>1$ & $1.2$\\
       \hline
     \end{tabular}
 \end{table}
@@ -689,16 +689,55 @@ Return $\hmu$ as the answer.
 
 \end{algorithm}
 
+\Subsection{The sensitivity of parameters}\label{subsec:sensitivityofparameters}
+ We usually fix the uncertainty level $\alpha$ as $1\%$, which means our answer will be true with probability at least $99\%$. Decreasing $\alpha$ will cause more sample required according to the formulas \eqref{NCLTmeanMCabsg}, \eqref{NChebymeanMCabsg} and \eqref{NBEmeanMCabsg}. Note that, our algorithm {\tt meanMCabs\_g} is a two stage one, in each stage, we choose the uncertainty level as $\alpha_\sigma$ and $\alpha_\mu$ which satisfy the condition $(1-\alpha_\sigma)(1-\alpha_\mu)=1-\alpha$.
 
-Note that, we usually fix the uncertainty level $\alpha$ as $1\%$, which means our answer will be true with probability at least $99\%$. Decreasing $\alpha$ will cause more sample required according to the formulas \eqref{NCLTmeanMCabsg}, \eqref{NChebymeanMCabsg} and \eqref{NBEmeanMCabsg}. As our algorithm {\tt meanMCabs\_g} is a two stage one, in each stage, we choose the uncertainty level as $\alpha_\sigma$ and $\alpha_\mu$ which satisfy the condition $(1-\alpha_\sigma)(1-\alpha_\mu)=1-\alpha$.
+The sample size $n_\sigma$ is usually fixed as $10^4$, this is the sample size used to estimate the sample variance. As the total cost is defined as $n_\sigma +n_\mu$, increasing this sample size will increase total sample used while we have a better estimation of the sample variance. 
 
-The sample size $n_\sigma$ is usually fixed as $10^4$, this is the sample size used to estimate the sample variance. As the total cost is defined as $n_\sigma +n_\mu$, increasing this sample size will cause more total sample used while we have a better estimation of the sample variance. 
+The SDIF $\fudge$ is usually set as $1.2$, which could be thought as inflating the sample standard deviation by $20\%$ ( inflating the sample variance by $44\%$). This factor ensures that the probability of underestimating the variance is low. 
 
-The fudge factor $\fudge$ is usually set as $1.2$, which could be thought as enlarging the sample standard deviation by $20\%$ ( enlarging the sample variance by $44\%$). This factor ensures that the probability of underestimating the variance is low. 
+These three parameters, $\alpha_\sigma$, $n_\sigma$ and $\fudge$, define $\kmax$, which is not a parameter to be prescribed, but a reflection of the robustness of one's Monte Carlo algorithm having chosen $\alpha_\sigma$, $n_\sigma$ and $\fudge$. 
 
-These three parameters, $\alpha_\sigma$, $n_\sigma$ and $\fudge$, define $\kmax$, which is not a parameter to be prescribed, but a reflection of the robustness of one's Monte Carlo algorithm having chosen $\alpha_\sigma$, $n_\sigma$ and $\fudge$. Our suggestion is that, user should not skimp on $n_\sigma$, but choose $n_\sigma$ as large as needed to ensure that $\kmax$ is is large enough to bound the true kurtosis $\kappa$. The fudge factor $\fudge$ is usually chosen close to unity.
 
-The success of the Algorithm \ref{alg:meanMCabsg} is proved in the following theorem.
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]{ParameterPlot/Ratio_BEn_sigtol_fixed_nsig1000-2016-02-06-00-28-38.eps}  \\ {$n_\sigma = 10^3$}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{ParameterPlot/Ratio_BEn_sigtol_fixed_nsig10000-2016-02-06-00-28-28.eps} \\ {$n_\sigma = 10^4$}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{ParameterPlot/Ratio_BEn_sigtol_fixed_nsig100000-2016-02-06-00-28-33.eps} \\ {$n_\sigma = 10^5$}  \end{minipage}
+\caption{The ratio of the total sample size to $(\sigma/\varepsilon_a)^2$ with a fixed $n_\sigma$ and a range of SDIF $\fudge$.\label{fig:ratioBEnCLTn}}
+ \end{figure}
+ 
+In Figure \ref{fig:ratioBEnCLTn}, we fix the $n_\sigma$ as $10^3$, $10^4$ and $10^5$ with $\alpha = 1\%$ and $\alpha_\sigma = 0.5\%$. In each subplot, we choose the different SDIF $\fudge$, 1.01, 1.1, 1.2, 1.3, and 2, which corresponds to kurtosis maximum $\kmax$ 1.02, 2.52, 5.7, 9.40 and 29.27. Then we plot the ratio of total sample size calculated by the Berry-Esseen inequality in \eqref{NBEmeanMCabsg} to $(\sigma/\varepsilon_a)^2$, with which ranging from $10^3$ to $10^{10}$. We expect the ratio approaching a constant. From the figure we can see, given a fixed $(\sigma/\varepsilon_a)^2$, not matter how we choose the initial sample size $n_\sigma$, when $\fudge$ gets large, the ratio gets large, hence the total sample size gets large. The difference between different $\fudge$ is significant when $(\sigma/\varepsilon_a)^2$ is small. With a large $(\sigma/\varepsilon_a)^2$, say, larger than $10^7$, the ratios are approaching to the same constant. This plot tells us, with a fixed initial sample size and uncertainty level, increasing $\fudge$ will increase $\kmax$, which could be thought as enlarging the "cone" \cite{CDHHZ13}, while the total sample size will increase also.
+
+
+In Figure \ref{fig:fudgensigrelation}, we fix $\kmax$ and choose a range of $\fudge$ and calculate the corresponding $n_{\sigma}$. Same as the previous figure, we choose a range of $(\sigma/\varepsilon_a)^2$ and plot the ratio of total sample size to $(\sigma/\varepsilon_a)^2$. The kurtosis maximum is given as 2, 5, and 10  with $\alpha = 1\%$ and $\alpha_\sigma = 0.5\%$. We choose SDIF $\fudge$ as 1.01, 1.1, 1.2, 1.3, and 2. The figure shows that if $\fudge$ is 1.01, when $(\sigma/\varepsilon_a)^2$ is small, the ratio gets quite large. The reason is that, for $\kmax = 2$, $\fudge = 1.01$, $\alpha=1\%$, the corresponding $n_\sigma$ is $5*10^5$. This term will dominant the total sample size when $(\sigma/\varepsilon_a)^2$ is less than $10^5$. If the $\fudge$ is 2, the ratio is larger than others with SDIF equals to 1.1, 1.2, and 1.3. It is not optimized comparing to other choice of $\fudge$. 
+
+\begin{figure}
+\centering
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{ParameterPlot/Ratio_BEn_sigtol_fixed_kmax_2-2016-02-06-00-28-06.eps} \\ {$\kmax = 2$}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{ParameterPlot/Ratio_BEn_sigtol_fixed_kmax_5-2016-02-06-00-28-01.eps} \\ {$\kmax = 5$}  \end{minipage}
+\begin{minipage}{7cm} \centering \includegraphics[width=7cm]
+{ParameterPlot/Ratio_BEn_sigtol_fixed_kmax_10-2016-02-06-00-27-55.eps} \\ {$\kmax = 10$}  \end{minipage}
+\caption{ The ratio of the total sample size to $(\sigma/\varepsilon)^2$ with a fixed $\kmax$ and a range of SDIF $\fudge$.\label{fig:fudgensigrelation} }
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=8cm]{ParameterPlot/BE_CLT_n_ratio_diff_fudge-2016-02-06-00-27-09.eps} % requires the graphicx package
+    \caption{The ratio of the Berry-Esseen sample size versus the CLT sample size with different choice of the $\fudge$.}
+    \label{fig:ratioBECLTsamplesize}
+ \end{figure}
+ 
+Figure \ref{fig:ratioBECLTsamplesize} Shows the ratio of Berry-Esseen sample size to CLT sample size with 
+$n_\sigma = 10^4$, $\alpha = 1\%$ and different SDIF $\fudge$. Here, $N_{\CLT}$ denotes the computational cost if we know the ratio $\sigma/\varepsilon_a$. The cost ratio is the penalty for having a guaranteed algorithm with the sample size derived from the Berry-Esseen Inequality. For smaller values of $N_{\CLT}$ , equivalently smaller $\sigma/\varepsilon_a$, this cost ratio can be rather large. However the absolute effect of this large penalty is mitigated by the fact that the total number of samples needed is not much. For larger $N_{\CLT}$ , equivalently larger $\sigma/\varepsilon_a$,  the cost ratio approaches 1. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Our suggestion is that, user should not skimp on $n_\sigma$, but choose $n_\sigma$ as large as needed to ensure that $\kmax$ is is large enough to bound the true kurtosis $\kappa$. The SDIF $\fudge$ is usually chosen between 1.1 and 1.3. The success of the Algorithm \ref{alg:meanMCabsg} is proved in the following theorem.
 \begin{theorem} \cite[Theorem 5]{HJLO12}\label{thm:meanMCabsg}
 Let $Y$ be a random variable with mean $\mu$, variance $\sigma^2 >0$, and modified kurtosis $\kappa$. Let $\kmax(n_\sigma,\alpha_\sigma,\fudge)$ be as defined in \eqref{def:kmax}. For any random variable $Y$ with a bounded kurtosis $\kappa\leq\kmax(\alpha_{\sigma},n_{\sigma},\fudge)$, Algorithm \ref{alg:meanMCabsg} above yields an estimate $\hmu$ given by \eqref{def:meanmcabsghmu} that satisfies the fixed width confidence interval condition
 \begin{align}
@@ -868,7 +907,7 @@ In the plots for {\tt cubMCabs\_g}, an asterisk is used to label those points sa
 \caption{Execution times and errors for the single hump test function \eqref{GaussianTestFun} for $d=2, \ldots, 8$ and $\varepsilon_a=10^{-3}$, with the rest of the parameters as in Figure \ref{fig:GaussianTestFun}.\label{fig:GaussianTestFunHD}}
 \end{figure}
 
-Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{fig:GaussianTestFun} for the same test function \eqref{GaussianTestFun}, but now with $d=2, \ldots, 8$ chosen randomly and uniformly.  For this case the univariate integration algorithms are inapplicable, but the multidimensional routines can be used. There are more cases where the {\tt cubMCabs\_g} tries to exceed the maximum sample size allowed, i.e., $(n_{\sigma}+n_\mu)d > N_{\max}:=10^{10}$, but the behavior seen for $d=1$ still generally applies.  
+Figure \ref{fig:GaussianTestFunHD} repeats the simulation shown in Figure \ref{fig:GaussianTestFun} for the same test function \eqref{GaussianTestFun} with $d=2, \ldots, 8$ chosen randomly and uniformly.  For this case the univariate integration algorithms are inapplicable, but the multidimensional routines can be used. There are more cases where the {\tt cubMCabs\_g} tries to exceed the maximum sample size allowed, i.e., $(n_{\sigma}+n_\mu)d > N_{\max}:=10^{10}$, but the behavior seen for $d=1$ still generally applies.  
 
 
 %\Subsection{Integrating the Keister Test function}\label{subsec:keitertestfunmeanMCg}
@@ -954,78 +993,139 @@ In this chapter, we will illustrate another two algorithms, {\tt meanMC\_g} and 
 
 \Section{A generalized error criterion}\label{sec:generalerrorcriterion}
 
- Suppose $Y$ is a random variable, one wants to estimate its mean, i.e. $\mu=\e(Y)$. One way to do it is to sample $n$ values of $Y_i$, and let $\hmu=\sum_{i=1}^n Y_i/n$, when $n$ is large enough, $\hmu$ may be a good estimator of $\mu$. In some practical situations, one may seek to approximate the answer with 
-%How large should $n$ be? one way to determine sample size $n$ is by Central Limit Theorem \ref{clt}. As CLT is an asymptotic results and is true only when $n \to \infty$, we need a probabilistic bound on error when $n$ is finite. In  Chapter \ref{chapter:meanMCabsg}, we proposed a two stage algorithm used to estimate the mean of a random variable to a specified absolute error tolerance with a high confidence level, i.e., we want our estimator $\hmu_n$ satisfies this fixed width confidence interval condition:
-%\begin{align*}
-%\Pr(\abs{\mu-\hmu_n} \leq \varepsilon_a) \geq 1-\alpha.
-%\end{align*} 
-%The procedure is done by bound the variance in the first step by applying Cantelli's inequality \eqref{CanThm} and bound the error of mean estimation in the second step by applying the Berry-Esseen inequality \eqref{BEThm}, as long as the modified kurtosis $\kappa$ is less than $\kmax$.
-%
-%In some practical situations, one may seek to approximate the answer with a certain relative accuracy, e.g. correct to three significant digits. Let $\hmu_n$ be the estimator of the true mean $\mu$, $\varepsilon_r$ stand for the relative error tolerance and $\varepsilon_a$ denote the absolute error tolerance. In this case, one may seek 
-%$$\Pr(\abs{\mu-\hmu_n}\leq \varepsilon_r) \geq 1-\alpha.$$
-%This is a global relative error criterion, rather than a point-wise relative error criterion.
-%One may generalize the pure absolute and pure relative error criteria as follows:
-%\begin{align}\label{hybridCI}
-%\Pr(\abs{\mu-\hmu_n}\leq \tol(\varepsilon_a, \varepsilon_r\abs{\mu})) \geq 1-\alpha.
-%\end{align}
-%Here $\tol: [0, \infty) \times [0, \infty) \to [0,\infty)$ is non-decreasing in each of its arguments and satisfies a Lipschitz condition in terms of its second argument,
-%\begin{align}
-%|\text{tol}(a,b)-\text{tol}(a,b')| \leq |b-b'| \quad \forall a,b,b' \geq 0.
-%\end{align}
-%Two examples that one may choose are
-%\begin{align}
-%\text{tol}(a,b) = \text{max} (a,b),
-%\end{align}
-%\begin{align}
-%\text{tol}(a,b) = (1- \theta) a + \theta b, \quad 0 \leq \theta \leq 1
-%\end{align}
-%Both of these examples include absolute error and relative error as special cases.
-%Letting $\hat{\varepsilon}_n$ be the reliable upper bounds on $|\mu-\hat{\mu}_n|$, the aim is to take enough samples so that the generalized error criterion can be satisfied. but not too many.
-a generalized error criterion of the form:
+ Suppose $Y$ is a random variable, one wants to estimate its mean, i.e. $\mu=\e(Y)$. One way to do it is to sample $n$ values of $Y_i$, and let $\hmu=\sum_{i=1}^n Y_i/n$, when $n$ is large enough, $\hmu$ may be a good estimator of $\mu$. In some practical situations, one may seek to approximate the answer with a generalized error criterion of the form:
 \begin{align}\abs{\mu -\tmu} \leq \tol \left(\varepsilon_a,\varepsilon_r \abs{\mu}\right),\label{pointwisegeneralizederror} 
 \end{align}
-where $\tol$ is defined in Definition \ref{def:tolfun}. Here $\tmu$ might not be the same as $\hmu$, but is defined in terms of $\hmu$. Suppose that one has a reliable upper bound on the error of a non-adaptive Monte Carlo estimate $\hmu$, which satisfies the following inequality:
+where $\tol$ is defined in Definition \ref{def:tolfun}. Here $\tmu$ might not be the same as $\hmu$, but is defined in terms of $\hmu$. Suppose that one has a reliable upper bound on the error of a non-adaptive Monte Carlo estimate $\hmu$, which satisfies the following condition:
 \begin{align}
 |\mu-\hmu| \leq \heps.  \label{pointwiseerrorbound} 
-\end{align} We will have the proposition below.
-
+\end{align}
+It is equivalent to 
+\begin{align}
+\hmu -\heps \leq \mu \leq \hmu+\heps.  \label{pointwiseerrorbound2} 
+\end{align}
+That mean the true mean $\mu$ lies in the interval 
+\begin{equation}\label{intervalmuhmu}
+[\hmu -\heps, \hmu +\heps ].
+\end{equation}
+If the relative error is involved, we require that this interval \eqref{intervalmuhmu} do not capture zero, otherwise, the relative error criterion may never be satisfied. That is same to require
+$\hmu +\heps<0$ or $\hmu -\heps>0$, which is equivalent to  
+\begin{equation} \label{hmuhepscondition}
+\abs{\hmu} > \heps.
+\end{equation}
+Suppose there is another estimator $\tmu$ that satisfies the error condition
+\begin{equation}\label{reltmu}
+\abs{\mu-\tmu} \leq \tilde{\varepsilon}\abs{\mu},
+\end{equation}
+where $\tilde{\varepsilon}$ is some error tolerance less than 1.
+It is equivalent to 
+\begin{equation}
+ \mu-\tilde{\varepsilon}\abs{\mu} \leq \tmu \leq \mu+\tilde{\varepsilon}\abs{\mu}.
+\end{equation}
+Since the functions
+$f(x) = x-\tilde{\varepsilon}\abs{x}$, $g(x) = x+\tilde{\varepsilon}\abs{x}$, $0<\tilde{\varepsilon} <1$ are non-decreasing, by inequality \eqref{pointwiseerrorbound2}, we know
+$$\mu-\tilde{\varepsilon}\abs{\mu} \leq \hmu+\heps-\tilde{\varepsilon}\abs{\hmu+\heps}$$
+and 
+$$\hmu-\heps+\tilde{\varepsilon}\abs{\hmu-\heps} \leq \mu+\tilde{\varepsilon}\abs{\mu}.$$
+If the following condition 
+\begin{align}\label{hmuhepscondition2}
+\hmu+\heps-\tilde{\varepsilon}\abs{\hmu+\heps} \leq \hmu-\heps+\tilde{\varepsilon}\abs{\hmu-\heps} \Leftrightarrow \heps \leq \tilde{\varepsilon}(\abs{\hmu+\heps} +\abs{\hmu-\heps})/2 \Leftrightarrow \heps \leq \tilde{\varepsilon} \abs{\hmu}
+\end{align}
+is satisfied, 
+we will be able to find a $\tmu$ in the interval
+$[\hmu+\heps-\tilde{\varepsilon}\abs{\hmu+\heps}, \hmu-\heps+\tilde{\varepsilon}\abs{\hmu-\heps}].$
+One option is to pick $\tmu$ as the middle point, which is
+ $$\tmu = \hmu +\tilde{\varepsilon} (\abs{\hmu-\heps}-\abs{\hmu+\heps})/2.$$
+Note that, the estimator $\tmu$ is a biased one. It is smaller than $\hmu$ in magnitude if $\tilde{\varepsilon}>0$. We call the part $\tilde{\varepsilon} (\abs{\hmu-\heps}-\abs{\hmu+\heps})/2$  as $\Delta_-$ in the following proposition, which could be thought as a shift toward zero for the unbiased estimator $\hmu$.  Then if the estimator $\hmu$ satisfies the condition \eqref{pointwiseerrorbound}, the shirnkage estimator $\tmu$ will satisfy condition \eqref{reltmu}. Based on the derivation above, we have a proposition below.
 \begin{proposition}\label{meanMCgProp}
 Given an absolute error tolerance, $\varepsilon_a\geq 0$, a relative error tolerance, $0 \leq \varepsilon_r\le 1$, and some $\hmu$ and $\heps\geq 0$, define $\Delta_\pm$ by
-\begin{align}\Delta_{\pm}(\hmu,\heps) = \frac{1}{2} [\tol(\varepsilon_a, \varepsilon_r |\hmu-\heps|) \pm \tol(\varepsilon_a, \varepsilon_r |\hmu+\heps|)] \label{deltadef}
+\begin{align}\Delta_{\pm}(\hmu,\heps) = \frac{1}{2} [\tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps}) \pm \tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps})] \label{deltadef}
 \end{align}
 and the approximation $\tmu$ by
 \begin{align}
 \tmu = \hmu + \Delta_{-}. \label{appxsol}
 \end{align}
-If error bound \eqref{pointwiseerrorbound} holds, and $\heps$ satisfies the following condition,
+If error bound \eqref{pointwiseerrorbound} holds, and $\heps$ satisfies the following condition (stopping criterion),
 \begin{align}
 \heps\leq \Delta_{+}(\hmu,\heps),\label{deltacondition}
 \end{align}
  then the generalized error criterion for $\tmu$, \eqref{pointwisegeneralizederror}, is satisfied. 
  \end{proposition}
  \begin{proof}
- This proof follows by applying condition \eqref{pointwiseerrorbound} that bounds the absolute error in terms of $\heps$, upper bound condition \eqref{deltacondition} on $\heps$, the definition of the approximate solution \eqref{appxsol}, and definition \eqref{deltadef}:
-\begin{align*}
-\MoveEqLeft
-|\tmu -\hmu - \Delta_{-}| = 0 \leq \Delta_{+}- \hat{\varepsilon}  \text{ by } \eqref{appxsol} \text{ and } \eqref{deltacondition} \\ 
-\Leftrightarrow 
-&\hmu+\Delta_- - \Delta_{+} + \hat{\varepsilon} \leq \tilde{\mu}  \leq \hat{\mu} +\Delta_{-}+\Delta_{+}-\hat{\varepsilon} \\ \Leftrightarrow 
-&\hat{\mu} -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon}|)+ \hat{\varepsilon} \leq \tilde{\mu}  \leq \hat{\mu}  +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |)-\hat{\varepsilon}  \text{ by } \eqref{deltadef}\\
-\Leftrightarrow 
-&\hat{\mu} + \hat{\varepsilon}  -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon} |) \leq \tilde{\mu}  \leq \hat{\mu} -\hat{\varepsilon} +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |) \\
-\Rightarrow &
-\mu -\text{tol} (\varepsilon_a, \varepsilon_r |\mu|) \leq\hat{\mu} + \hat{\varepsilon}  -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon} |) \leq \tilde{\mu}  \leq \\
-& \hat{\mu} -\hat{\varepsilon} +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |)  \leq \mu+\text{tol} (\varepsilon_a, \varepsilon_r |\mu|) \\
-& \text{since } b \to b \pm \tol (\varepsilon_a,\varepsilon_r |b|) \text{ is nondecreasing defined in Definition \ref{def:tolfun}}\\ 
-\Leftrightarrow &
-\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) 
-\end{align*}
+% Since the error bound \eqref{pointwiseerrorbound} hold,  adding $\Delta_-$ to $\hmu$ yields, 
+% $$\mu - \heps+\Delta_-\leq \hmu+\Delta_- \leq \mu+ \heps+\Delta_-$$
+% which is 
+% \begin{multline}\label{relerrineq}
+% \mu - \heps +\frac{1}{2} [\tol(\varepsilon_a, \varepsilon_r\abs{\hmu-\heps}) - \tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps})] \leq \tmu  \\ \leq \mu+ \heps +\frac{1}{2} [\tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps}) - \tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps})].
+% \end{multline}
+%By the definition of $\tmu$,
+% $$\tmu = \hmu+\Delta_-=\hmu+\frac{1}{2} [\tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps}) - \tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps})]$$
+Suppose $\Delta_+\geq \heps$, which is
+ $$\frac{1}{2} [\tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps}) + \tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps})] >\heps.$$
+It is equivalent to
+ \begin{gather}
+ 2\heps-\tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps}) \leq \tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps}) \label{relerrprooflhs}\\
+ -\tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps}) \leq \tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps})-2\heps. \label{relerrproofrhs}
+ \end{gather}
+ Combining inequalities \eqref{appxsol} \eqref{relerrprooflhs}, and \eqref{relerrproofrhs} yields
+ \begin{multline} \label{relerrineq}
+ \hmu+\heps -\tol(\varepsilon_a, \varepsilon_r \abs{\hmu+ \heps})\leq \tmu = \hmu+\frac{1}{2} [\tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps}) - \tol(\varepsilon_a, \varepsilon_r \abs{\hmu+\heps})] \\ \leq  \hmu-\heps +\tol(\varepsilon_a, \varepsilon_r \abs{\hmu-\heps})
+ \end{multline}
+ According to the Definition \ref{def:tolfun} of the function $\tol(\cdot, \cdot)$, which is non-decreasing in each of its argument and is Lipschitz continuous in its second argument defined in \eqref{lipschitztolfun}, we know that $f(x) = x \pm \tol(\varepsilon_a,\varepsilon_r\abs{x})$ is non-decreasing. By \eqref{pointwiseerrorbound2} we have 
+ \begin{gather}
+ \mu-\tol(\varepsilon_a, \varepsilon_r \abs{\mu}) \leq \hmu+\heps -\tol(\varepsilon_a, \varepsilon_r \abs{\hmu+ \heps}) \label{relerrprooflhs2}\\
+\hmu-\heps +\tol(\varepsilon_a, \varepsilon_r \abs{\hmu- \heps}) \leq \mu+\tol(\varepsilon_a, \varepsilon_r \abs{\mu}).\label{relerrproofrhs2}
+ \end{gather}
+Combining inequalities \eqref{relerrineq}, \eqref{relerrprooflhs2} and \eqref{relerrproofrhs2} yields:
+\begin{equation} 
+ \mu -\tol(\varepsilon_a, \varepsilon_r \abs{\mu})\leq \tmu \leq  \mu +\tol(\varepsilon_a, \varepsilon_r\abs{\mu}).
+ \end{equation}
+The result \eqref{pointwisegeneralizederror} is obtained and the proof proceeds.
 \end{proof}
+%
+% This proof follows by applying condition \eqref{pointwiseerrorbound} that bounds the absolute error in terms of $\heps$, upper bound condition \eqref{deltacondition} on $\heps$, the definition of the approximate solution \eqref{appxsol}, and definition \eqref{deltadef}:
+%\begin{align*}
+%\MoveEqLeft
+%|\tmu -\hmu - \Delta_{-}| = 0 \leq \Delta_{+}- \hat{\varepsilon}  \text{ by } \eqref{appxsol} \text{ and } \eqref{deltacondition} \\ 
+%\Leftrightarrow 
+%&\hmu+\Delta_- - \Delta_{+} + \hat{\varepsilon} \leq \tilde{\mu}  \leq \hat{\mu} +\Delta_{-}+\Delta_{+}-\hat{\varepsilon} \\ \Leftrightarrow 
+%&\hat{\mu} -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon}|)+ \hat{\varepsilon} \leq \tilde{\mu}  \leq \hat{\mu}  +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |)-\hat{\varepsilon}  \text{ by } \eqref{deltadef}\\
+%\Leftrightarrow 
+%&\hat{\mu} + \hat{\varepsilon}  -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon} |) \leq \tilde{\mu}  \leq \hat{\mu} -\hat{\varepsilon} +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |) \\
+%\Rightarrow &
+%\mu -\text{tol} (\varepsilon_a, \varepsilon_r |\mu|) \leq\hat{\mu} + \hat{\varepsilon}  -\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} +\hat{\varepsilon} |) \leq \tilde{\mu}  \leq \\
+%& \hat{\mu} -\hat{\varepsilon} +\text{tol} (\varepsilon_a, \varepsilon_r |\hat{\mu} -\hat{\varepsilon} |)  \leq \mu+\text{tol} (\varepsilon_a, \varepsilon_r |\mu|) \\
+%& \text{since } b \to b \pm \tol (\varepsilon_a,\varepsilon_r |b|) \text{ is nondecreasing defined in Definition \ref{def:tolfun}}\\ 
+%\Leftrightarrow &
+%\abs{\mu-\tmu} \leq \tol(\varepsilon_a, \varepsilon_r \abs{\mu}) 
+%\end{align*}
+%\end{proof}
+\begin{table}[ht]
+\caption{The scenarios with different $\heps$ and $\hmu$ \label{scenariosprop} }
+\begin{tabular}{c|c|c|c}
+      \hline
+      \hline
+       & Condition & Parameters & Stop criterion\\
+      \hline 
+     $1$ & $\hmu > \heps >0$ &  $\Delta_+ = \varepsilon_r\hmu$, $\Delta_- = -\varepsilon_r\heps$, 
+     $\tmu = \hmu-\varepsilon_r\heps$ & $\varepsilon_r\hmu \geq \heps$\\
+         $2$ &  $\heps > 0 >\hmu$, $\abs{\hmu} >\abs{\heps}$ &  $\Delta_+ = -\varepsilon_r\hmu$, $\Delta_- = \varepsilon_r\heps$, 
+     $\tmu = \hmu+\varepsilon_r\heps$ & $\varepsilon_r\hmu \geq \heps$\\
+         $3$ & $\heps > \hmu >0$ &  $\Delta_+ = \varepsilon_r\heps$, $\Delta_- = -\varepsilon_r\hmu$, 
+     $\tmu = \hmu-\varepsilon_r\hmu$ & $\varepsilon_r\heps \geq \heps$\\
+          $4$  & $\heps > 0 >\hmu$, $\abs{\hmu} \leq \abs{\heps}$ &  $\Delta_+ = \varepsilon_r\heps$, $\Delta_- = -\varepsilon_r\hmu$, 
+     $\tmu = \hmu-\varepsilon_r\hmu$ & $\varepsilon_r\heps \geq \heps$\\
+      \hline
+    \end{tabular}
+\end{table}
 
-If $\hmu >0$, $\Delta_{-}(\hmu,\heps)$ will be negative according to the definition of $\tol$ and $\Delta_{-}$. Similarly, if $\hmu <0$, $\Delta_{-}(\hmu,\heps)$ will be positive. Thus, $\tmu$ is a shrinkage estimator that is smaller than $\hat{\mu}$ in magnitude only if $\varepsilon_r > 0$. We give the unbiased estimator $\hmu$ a little shift towards 0 to make the new biased estimator $\tmu$ more easy to satisfy the generalized error criterion. This little shift, $\Delta_-$, will offset the scenario that we over estimate $\hmu$. Suppose our estimator $\hmu>\mu>0$, without the shift, we can only guarantee that $\abs{\mu-\hmu}\leq \tol(\varepsilon_a,\varepsilon_r\abs{\hmu})$. In order to make the error less than $\tol(\varepsilon_a,\varepsilon_r\abs{\mu})$, we give the estimator $\hmu$ a little shift towards 0, which will make the new estimator $\tmu$ satisfy the error condition.
 
-Let's consider the pure relative error case, which is, $\varepsilon_a=0$. Then the $\tol$ and $\Delta$ functions become $\tol(\varepsilon_a,\varepsilon_r\abs{\mu}) = \varepsilon_r\abs{\mu}$, $\Delta_{\pm}(\hmu,\heps) = \varepsilon_r [ |\hmu-\heps| \pm |\hmu+\heps|]/2$. 
-Suppose $\hmu>\heps>0$, the stopping condition will be $\hmu\varepsilon_r\geq \heps$. The estimator $\tmu$ is $\tmu = \hmu-\heps\varepsilon_r$.  As been proved in Proposition \ref{meanMCgProp}, if $\abs{\hmu-\mu}\leq \heps$ and $\hmu\varepsilon_r\geq \heps$, then the shrinkage estimator $\tmu$ will satisfy the condition $\abs{\tmu -\mu} \leq \varepsilon_r\abs{\mu}$. 
+Table \ref{scenariosprop} shows the different scenarios when $\hmu$ and $\heps$ varies with the pure relative error criterion, $\tol = \varepsilon_r\abs{\mu}$. At scenario 3 and 4, where $\abs{\heps}> \abs{\hmu}$, the stopping criterion is $\heps \geq 1$, which will never be satisfied if we pursue a relative error tolerance criterion where $\varepsilon<1$. This also verifies the assumptions we made in \eqref{hmuhepscondition} and \eqref{hmuhepscondition2}.
+
+Note that, if $\hmu >0$, $\Delta_{-}(\hmu,\heps)$ will be negative according to the definition of $\tol$ and $\Delta_{-}$. Similarly, if $\hmu <0$, $\Delta_{-}(\hmu,\heps)$ will be positive. Thus, $\tmu$ is smaller than $\hmu$ in magnitude. The shift $\Delta_-$ may offset the scenario that we over estimate $\hmu$, which makes $\tmu$ more easy to satisfy the generalized error criterion. Suppose $\hmu>\mu>0$, without the shift $\Delta_-$, we can only guarantee that $$\abs{\mu-\hmu}\leq \tol(\varepsilon_a,\varepsilon_r\abs{\hmu}).$$ We want the right hand side of the inequality be $\tol(\varepsilon_a,\varepsilon_r\abs{\mu})$. According to the derivation above, if we shift the estimator $\hmu$ towards zero and the new estimator $\tmu$ will satisfy the condition $$\abs{\mu-\tmu} \leq \tol(\varepsilon_a,\varepsilon_r\abs{\mu}).$$
+%
+%Let's consider the pure relative error case, which is, $\varepsilon_a=0$. Then the $\tol$ and $\Delta$ functions become $\tol(\varepsilon_a,\varepsilon_r\abs{\mu}) = \varepsilon_r\abs{\mu}$, $\Delta_{\pm}(\hmu,\heps) = \varepsilon_r [ |\hmu-\heps| \pm |\hmu+\heps|]/2$. 
+%Suppose $\hmu>\heps>0$, the stopping condition will be $\hmu\varepsilon_r\geq \heps$. The estimator $\tmu$ is $\tmu = \hmu-\heps\varepsilon_r$.  As been proved in Proposition \ref{meanMCgProp}, if $\abs{\hmu-\mu}\leq \heps$ and $\hmu\varepsilon_r\geq \heps$, then the shrinkage estimator $\tmu$ will satisfy the condition $\abs{\tmu -\mu} \leq \varepsilon_r\abs{\mu}$. 
 
 \Section{The Algorithm {\tt meanMC\_g}}\label{sec:algmeanMCg}
 
@@ -1066,7 +1166,7 @@ For example, one might choose $\alpha_{\sigma}$ and
              $\alpha_t$ &  the uncertainty level satisfying  condition \eqref{alphaseq} & $\frac{1-\alpha_\sigma}{\alpha-\alpha_\sigma} 2^{-t}$ \\
        $n_{\sigma}$ &  the sample size for variance estimation, $n_\sigma\in \naturals$ & $10^4$\\
        $n_1$ & initial sample size for mean estimation, $n_1\in \naturals$ & $10^4$\\
-       $\fudge$ & standard deviation inflation factor (fudge factor), $\fudge>1$ & $1.2$\\
+       $\fudge$ & standard deviation inflation factor (SDIF), $\fudge>1$ & $1.2$\\
        $\theta$ & parameter used to choose next tolerance, $0<\theta<1$ & $0.95$\\
        $\tol$ & a generalized error criterion in Definition \ref{def:tolfun} & $\max$ \\
       \hline
@@ -2007,17 +2107,7 @@ Two tests are provided here, doctest and unittest, for each of the algorithms.
 
 \Chapter{Conclusion and Future work}\label{chapter:comclusion}
 
-Practitioners often use CLT based confidence intervals to construct Monte Carlo algorithms that estimating the mean of a random variable with the true variance been estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success. This thesis suggests a more trustworthy way to estimate the mean of a random variable, which is, our algorithms carries a guarantee that our answer will be true with probability at least $99\%$.
-
-Figure \ref{fig:ratioBEnCLTn} shows the ratio of the sample size calculated by Berry-Esseen inequality and CLT with $\alpha = 1\%$, $n_\sigma = 10000$, $\alpha_\sigma = 0.5\%$ and the fudge factor 1.1, 1.2, 1.3.  Thus, the corresponding kurtosis maximum will be 2.5172, 5.7033 and 9.3976.  Here, $N_{\CLT}$ denotes the computational cost if we know the ratio $\sigma/\varepsilon$. The cost ratio is the penalty for having a guaranteed algorithm with the sample size derived from the Berry-Esseen Inequality. For smaller values of $N_{\CLT}$ , equivalently smaller $\sigma/\varepsilon$, this cost ratio can be rather large. However the absolute effect of this large penalty is mitigated by the fact that the total number of samples needed is not much. For larger $N_{\CLT}$ , equivalently larger $\sigma/\varepsilon$,  the cost ratio approaches 1.18. When the fudge factor becomes large, the kurtosis maximum increases. Hence, the sample size required will increase.
-
- \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=8cm]{BE_CLT_n_ratio_fudge-2016-02-02-00-40-15.eps} % requires the graphicx package
-    \caption{The ratio of the Berry-Esseen sample size versus the CLT sample size with different choice of the fudge factor}
-    \label{fig:ratioBEnCLTn}
- \end{figure}
-%
+Practitioners often use CLT based confidence intervals to construct Monte Carlo algorithms that estimating the mean of a random variable with the true variance been estimated by the sample variance, perhaps multiplied by some inflation factor. Often, this approach works, but it has no guarantee of success. This thesis suggests a trustworthy way to estimate the mean of a random variable, which is, our algorithms carry guarantees that the answer will be true with probability at least $99\%$. Figure \ref{fig:ratioBECLTsamplesize} compares the cost using the guaranteed algorithms and CLT based algorithm for the pure absolute error tolerance criterion. The cost ratio is the penalty for having a guaranteed algorithm.
 %with the true variance estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success.  The algorithms presented in this thesis is similar to the approach just described, but it carries guarantees. 
 %
 %Central Limit Theorem 
@@ -2029,10 +2119,10 @@ Figure \ref{fig:ratioBEnCLTn} shows the ratio of the sample size calculated by B
 %
 %
 %Practitioners often CLT-based confidence intervals with the true variance estimated by the sample variance, perhaps multiplied by some inflation factor.  Often, this approach works, but it has no guarantee of success.  The algorithms presented in this thesis is similar to the approach just described, but it carries guarantees. 
+%
+%In certain cases our procedure multiplies the computational cost by a large factor such as $2$ or $10$ shown in Figure \ref{fig:ratioBECLTsamplesize} compared to what one might spend based on the CLT with a known value of $\sigma$. While this seems inefficient, one should remember that the total elapsed time may still be well below several seconds.  Furthermore, one typically does not know $\sigma$ in advance, and our adaptive algorithm estimates $\sigma$ and then an appropriate sample size $n_\mu$ from the data.  Our algorithmic cost will be low when the unknown $\sigma$ is small and large when $\sigma$ is large.
 
-%In certain cases our procedure multiplies the computational cost by a large factor such as $2$ or $10$ or even $100$ compared to what one might spend based on the CLT with a known value of $\sigma$ (see Figure \ref{Costfig}).  While this seems inefficient, one should remember that the total elapsed time may still be well below several seconds.  Furthermore, one typically does not know $\sigma$ in advance, and our adaptive algorithm estimates $\sigma$ and then an appropriate sample size $n_\mu$ from the data.  Our algorithmic cost will be low when the unknown $\sigma$ is small and large when $\sigma$ is large.
-
-Like any algorithm with guarantees, our algorithm does need to make assumptions about the random variable $Y$.  We assume a known bound on the kurtosis of $Y$, either specified directly or implied by the user's choice of the sample size for estimating the variance, $n_\sigma$, and the fudge factor, $\fudge$.  This is a philosophical choice.  We prefer not to construct an algorithm that assumes a bound on the variance of $Y$, because such an algorithm would not be guaranteed for $cY$ with $\abs{c}$ large enough.  If our algorithm works for $Y$, it will also work for $cY$, no matter how large $\abs{c}$ is. 
+Like any algorithm with guarantees, our algorithm does need to make assumptions about the random variable $Y$.  We assume a known bound on the kurtosis of $Y$, either specified directly or implied by the user's choice of the sample size for estimating the variance, $n_\sigma$, and the SDIF, $\fudge$.  This is a philosophical choice.  We prefer not to construct an algorithm that assumes a bound on the variance of $Y$, because such an algorithm would not be guaranteed for $cY$ with $\abs{c}$ large enough.  If our algorithm works for $Y$, it will also work for $cY$, no matter how large $\abs{c}$ is. 
 
 In practice the user may not know a priori if $\kappa \le \kmax$ since it is even more difficult to estimate $\kappa$ from a sample than it is to estimate $\sigma^2$. Thus, the choice of $\kmax$ relies on the user's best judgment.  Here are a few thoughts that might help.  One might try a sample of typical problems for which one knows the answers and use these problems to suggest an appropriate $\kmax$.  Alternatively, one may think of $\kmax$ not as a parameter to be prescribed, but as a reflection of the robustness of one's Monte Carlo algorithm having chosen $\alpha_\sigma$, $n_\sigma$ and $\fudge$. 
 
@@ -2043,9 +2133,10 @@ In practice the user may not know a priori if $\kappa \le \kmax$ since it is eve
 %
 %Our algorithm is adaptive because $n_\mu$ is determined from the sample variance.  Information-based complexity theory tells us that adaptive information does not help for the integration problem for symmetric, convex sets of integrands, $f$, in the worst case and probabilistic settings \cite[Chapter 4, Theorem 5.2.1; Chapter 8, Corollary 5.3.1]{TraWasWoz88}.  Here, in Corollary \ref{integcor} the cone, $\cc_{\kmax}$, although symmetric, is not a convex set, so it is possible for adaption to help.
 
+
 There are a couple of areas that suggest themselves for further investigation. For the algorithms {\tt meanMC\_g}, the cost upper bound has been derived, however, it is loose. An tighter upper bound could be derived. Also, the lower bound derivation is another possible research area. 
 
-While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error tolerance. One would expect the number of samples required then to be proportional to $\var(Y)/(p \varepsilon_r)^2 \sim 1/(p \varepsilon_r^2)$ as $p\varepsilon_r \to 0$.  Our attempts so far at using Hoeffding's inequality results in an algorithm with computational cost proportional to $1/(p \varepsilon_r)^2$ as $p\varepsilon_r \to 0$.  Although, the algorithm for estimating the parameter $p$ to some specified relative error tolerance is successful, the computational cost is extravagant for small $p$. The literature mentioned in the beginning of Chapter \ref{chapter:meanMCberg} may provide a clue to an algorithm with optimal cost.  If this problem can be solved, then a natural extension would be to construct confidence intervals that satisfy either an absolute or relative error criterion, i.e., confidence intervals of the form $\Pr(\abs{p-\hp}/p\leq \max(\varepsilon_a, \varepsilon_r p)) \geq 1-\alpha$.
+While {\tt meanMCBer\_g} in Algorithm \ref{algrel} satisfies a relative error tolerance. One would expect the number of samples required to be proportional to $\var(Y)/(p \varepsilon_r)^2 \sim 1/(p \varepsilon_r^2)$ as $p\varepsilon_r \to 0$.  Our attempts so far at using Hoeffding's inequality results in an algorithm with computational cost proportional to $1/(p \varepsilon_r)^2$ as $p\varepsilon_r \to 0$.  Although, the algorithm for estimating the parameter $p$ to some specified relative error tolerance is successful, the computational cost is extravagant for small $p$. The literature mentioned in the beginning of Chapter \ref{chapter:meanMCberg} may provide a clue to an algorithm with optimal cost.  If this problem can be solved, then a natural extension would be to construct confidence intervals that satisfy either an absolute or relative error criterion, i.e., confidence intervals of the form $\Pr(\abs{p-\hp}/p\leq \max(\varepsilon_a, \varepsilon_r p)) \geq 1-\alpha$.
 %
 %One is relative error, i.e., a fixed width confidence interval of the form 
 %\[
