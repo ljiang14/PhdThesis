@@ -18,7 +18,7 @@
 \newlength{\overwdth}
 \def\overstrike#1{ 
 \settowidth{\overwdth}{#1}\makebox[0pt][l]{\rule[0.5ex]{\overwdth}{0.1ex}}#1}
-
+\DeclareMathOperator{\Yrand}{Yrand}
 \def\abs#1{\ensuremath{\left \lvert #1 \right \rvert}}
 \newcommand{\norm}[2][{}]{\ensuremath{\left \lVert #2 \right \rVert}_{#1}}
 \newcommand{\ip}[3][{}]{\ensuremath{\left \langle #2, #3 \right \rangle_{#1}}}
@@ -63,12 +63,13 @@
 \DeclareMathOperator{\tol}{tol}
 \DeclareMathOperator{\up}{up}
 \DeclareMathOperator{\tot}{tot}
+
 \newcommand{\fudge}{\mathfrak{C}}
-\newcommand{\Cheb}{\text{Cheb}}
-\newcommand{\CLT}{\text{CLT}}
-\newcommand{\BE}{\text{BE}}
-\newcommand{\CB}{\text{CB}}
-\newcommand{\Hoeff}{\text{Hoeff}}
+\DeclareMathOperator{\Cheb}{Cheb}
+\DeclareMathOperator{\CLT}{CLT}
+\DeclareMathOperator{\BE}{BE}
+\DeclareMathOperator{\CB}{CB}
+\DeclareMathOperator{\Hoeff}{Hoeff}
 \newcommand{\hIn}{\hat{I}_n}
 \newcommand{\heps}{\hat{\varepsilon}}
 \newcommand{\kmax}{\kappa_{\max}}
